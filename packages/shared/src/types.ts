@@ -6,6 +6,9 @@ import type {
   DeploymentStatus,
   HealthCheckStatus,
   ApprovalStatus,
+  PostStatus,
+  CommentStatus,
+  SettingType,
 } from './enums.js';
 
 export interface User {
@@ -153,6 +156,81 @@ export interface PaginatedResponse<T> {
     limit: number;
     totalPages: number;
   };
+}
+
+// CMS Types
+export interface MediaFile {
+  id: string;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  alt: string | null;
+  uploadedBy: string | null;
+  createdAt: string;
+}
+
+export interface PostCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+}
+
+export interface PostTag {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface Post {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  status: PostStatus;
+  authorId: string | null;
+  publishedAt: string | null;
+  featuredImageId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  featuredImage?: MediaFile;
+  categories?: PostCategory[];
+  tags?: PostTag[];
+}
+
+export interface SitePage {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  status: PostStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SiteComment {
+  id: string;
+  postId: string | null;
+  pageId: string | null;
+  authorName: string;
+  email: string;
+  content: string;
+  status: CommentStatus;
+  createdAt: string;
+  post?: { title: string; slug: string } | null;
+  page?: { title: string; slug: string } | null;
+}
+
+export interface Setting {
+  id: string;
+  key: string;
+  value: string;
+  type: SettingType;
+  section: string;
+  label: string;
 }
 
 // Dashboard stats

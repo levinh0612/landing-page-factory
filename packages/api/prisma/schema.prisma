@@ -76,6 +76,26 @@ enum PaymentStatus {
   CANCELLED
 }
 
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  SPAM
+  TRASH
+}
+
+enum SettingType {
+  STRING
+  BOOLEAN
+  NUMBER
+  JSON
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -314,4 +334,127 @@ model Payment {
   booking Booking? @relation(fields: [bookingId], references: [id])
 
   @@map("payments")
+}
+
+// ─── Content Management Models ────────────────────────────────────────────────
+
+model MediaFile {
+  id           String   @id @default(uuid())
+  filename     String
+  originalName String   @map("original_name")
+  mimeType     String   @map("mime_type")
+  size         Int
+  url          String
+  alt          String?
+  uploadedBy   String?  @map("uploaded_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  posts Post[] @relation("FeaturedImage")
+
+  @@map("media_files")
+}
+
+model Post {
+  id              String     @id @default(uuid())
+  title           String
+  slug            String     @unique
+  content         String     @default("")
+  excerpt         String?
+  status          PostStatus @default(DRAFT)
+  authorId        String?    @map("author_id")
+  publishedAt     DateTime?  @map("published_at")
+  featuredImageId String?    @map("featured_image_id")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  featuredImage MediaFile?        @relation("FeaturedImage", fields: [featuredImageId], references: [id])
+  categories    PostsOnCategories[]
+  tags          PostsOnTags[]
+  siteComments  SiteComment[]
+
+  @@map("posts")
+}
+
+model PostCategory {
+  id          String @id @default(uuid())
+  name        String
+  slug        String @unique
+  description String?
+
+  posts PostsOnCategories[]
+
+  @@map("post_categories")
+}
+
+model PostTag {
+  id   String @id @default(uuid())
+  name String
+  slug String @unique
+
+  posts PostsOnTags[]
+
+  @@map("post_tags")
+}
+
+model PostsOnCategories {
+  postId     String @map("post_id")
+  categoryId String @map("category_id")
+
+  post     Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category PostCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+  @@map("posts_on_categories")
+}
+
+model PostsOnTags {
+  postId String @map("post_id")
+  tagId  String @map("tag_id")
+
+  post Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag  PostTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@map("posts_on_tags")
+}
+
+model SitePage {
+  id        String     @id @default(uuid())
+  title     String
+  slug      String     @unique
+  content   String     @default("")
+  status    PostStatus @default(DRAFT)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  siteComments SiteComment[]
+
+  @@map("site_pages")
+}
+
+model SiteComment {
+  id         String        @id @default(uuid())
+  postId     String?       @map("post_id")
+  pageId     String?       @map("page_id")
+  authorName String        @map("author_name")
+  email      String
+  content    String
+  status     CommentStatus @default(PENDING)
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  post Post?     @relation(fields: [postId], references: [id], onDelete: SetNull)
+  page SitePage? @relation(fields: [pageId], references: [id], onDelete: SetNull)
+
+  @@map("site_comments")
+}
+
+model Setting {
+  id      String      @id @default(uuid())
+  key     String      @unique
+  value   String      @default("")
+  type    SettingType @default(STRING)
+  section String      @default("general")
+  label   String      @default("")
+
+  @@map("settings")
 }

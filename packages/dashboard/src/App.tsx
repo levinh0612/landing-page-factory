@@ -14,6 +14,19 @@ import { ProjectDetailPage } from '@/pages/project-detail-page';
 import { UsersPage } from '@/pages/users-page';
 import { ActivityLogsPage } from '@/pages/activity-logs-page';
 import { PublicPreviewPage } from '@/pages/public-preview-page';
+import { MediaPage } from '@/pages/media-page';
+import { PostsPage } from '@/pages/posts-page';
+import { PostEditorPage } from '@/pages/post-editor-page';
+import { PagesPage } from '@/pages/pages-page';
+import { CommentsPage } from '@/pages/comments-page';
+import { ComponentsPage } from '@/pages/components-page';
+import { AppearancePage } from '@/pages/appearance-page';
+import { MonitorPage } from '@/pages/monitor-page';
+import { ToolsPage } from '@/pages/tools-page';
+import { SettingsPage } from '@/pages/settings-page';
+import { PluginsPage } from '@/pages/plugins-page';
+import { EditorPage } from '@/pages/editor-page';
+import { GeneratorPage } from '@/pages/generator-page';
 
 export default function App() {
   return (
@@ -32,6 +45,28 @@ export default function App() {
                 <Route path="/projects/:id" element={<ProjectDetailPage />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/activity-logs" element={<ActivityLogsPage />} />
+
+                {/* CMS Routes */}
+                <Route path="/media" element={<MediaPage />} />
+                <Route path="/posts" element={<PostsPage />} />
+                <Route path="/posts/new" element={<PostEditorPage />} />
+                <Route path="/posts/:id" element={<PostEditorPage />} />
+                <Route path="/pages" element={<PagesPage />} />
+                <Route path="/pages/new" element={<PagesPage />} />
+                <Route path="/pages/:id" element={<PagesPage />} />
+                <Route path="/comments" element={<CommentsPage />} />
+
+                {/* Design Routes */}
+                <Route path="/components" element={<ComponentsPage />} />
+                <Route path="/appearance" element={<AppearancePage />} />
+
+                {/* System Routes */}
+                <Route path="/monitor" element={<MonitorPage />} />
+                <Route path="/tools" element={<ToolsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/plugins" element={<PluginsPage />} />
+                <Route path="/editor" element={<EditorPage />} />
+                <Route path="/generator" element={<GeneratorPage />} />
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

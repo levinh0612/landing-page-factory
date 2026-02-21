@@ -45,3 +45,23 @@ export enum ApprovalStatus {
   APPROVED = 'APPROVED',
   CHANGES_REQUESTED = 'CHANGES_REQUESTED',
 }
+
+export enum PostStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum CommentStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  SPAM = 'SPAM',
+  TRASH = 'TRASH',
+}
+
+export enum SettingType {
+  STRING = 'STRING',
+  BOOLEAN = 'BOOLEAN',
+  NUMBER = 'NUMBER',
+  JSON = 'JSON',
+}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pet Care Shop - Thiên Đường Cho Thú Cưng Của Bạn</title>
+    <title>{{config.shopName}} - {{config.heroTitle}}</title>
     <!-- LPF Runtime Config -->
     <script>
       window.LPF_CONFIG = {
@@ -29,8 +29,8 @@
 
         /* CSS Variables */
         :root {
-            --pink: #FF6B9D;
-            --purple: #7C3AED;
+            --pink: {{config.primaryColor}};
+            --purple: {{config.accentColor}};
             --mint: #10B981;
             --peach: #FFB347;
             --bg: #FFF5F7;
@@ -1380,7 +1380,7 @@
                     <path d="M7 6 L5 3 L7 4 M17 6 L19 3 L17 4" stroke="#FF6B9D" stroke-width="1.5" stroke-linecap="round"/>
                     <path d="M12 15 Q10 17 12 18 Q14 17 12 15" fill="#FF6B9D"/>
                 </svg>
-                Pet Care
+                {{config.shopName}}
             </a>
 
             <ul class="nav-links" id="navLinks">
@@ -1394,7 +1394,7 @@
 
             <div class="nav-controls">
                 <button class="dark-mode-toggle" id="darkModeToggle">🌙</button>
-                <a href="#dat-lich" class="btn btn-primary">Đặt Lịch Ngay</a>
+                <a href="#dat-lich" class="btn btn-primary">{{config.ctaText}}</a>
                 <div class="hamburger" id="hamburger">
                     <span></span>
                     <span></span>
@@ -1420,25 +1420,25 @@
         </div>
 
         <div class="hero-content">
-            <h1>Thiên Đường Cho <span class="gradient-text">Thú Cưng</span> Của Bạn</h1>
-            <p>Dịch vụ chăm sóc thú cưng toàn diện: Pet Shop, Grooming, Spa, Hotel với đội ngũ chuyên nghiệp</p>
+            <h1>{{config.heroTitle}}</h1>
+            <p>{{config.heroSubtitle}}</p>
 
             <div class="hero-cta">
-                <a href="#dat-lich" class="btn btn-primary">🗓️ Đặt Lịch Ngay</a>
+                <a href="#dat-lich" class="btn btn-primary">🗓️ {{config.ctaText}}</a>
                 <a href="#dich-vu" class="btn btn-secondary">Xem Dịch Vụ</a>
             </div>
 
             <div class="trust-badges">
                 <div class="badge">
-                    <div class="badge-number">500+</div>
+                    <div class="badge-number">{{config.trustBadge1Number}}</div>
                     <div class="badge-text">Khách Hàng Hài Lòng</div>
                 </div>
                 <div class="badge">
-                    <div class="badge-number">4.9★</div>
+                    <div class="badge-number">{{config.trustBadge2Number}}</div>
                     <div class="badge-text">Đánh Giá Trung Bình</div>
                 </div>
                 <div class="badge">
-                    <div class="badge-number">5+</div>
+                    <div class="badge-number">{{config.trustBadge3Number}}</div>
                     <div class="badge-text">Năm Kinh Nghiệm</div>
                 </div>
             </div>
@@ -1453,30 +1453,30 @@
             <div class="services-grid">
                 <div class="glass-card service-card reveal">
                     <div class="service-icon">🛒</div>
-                    <h3>Pet Shop</h3>
-                    <p>Đồ dùng & thức ăn cao cấp cho thú cưng</p>
-                    <div class="service-price">Từ 50.000đ</div>
+                    <h3>{{config.service1Name}}</h3>
+                    <p>{{config.service1Desc}}</p>
+                    <div class="service-price">{{config.service1Price}}</div>
                 </div>
 
                 <div class="glass-card service-card reveal">
                     <div class="service-icon">✂️</div>
-                    <h3>Grooming</h3>
-                    <p>Tắm & cắt lông chuyên nghiệp cho thú cưng</p>
-                    <div class="service-price">Từ 150.000đ</div>
+                    <h3>{{config.service2Name}}</h3>
+                    <p>{{config.service2Desc}}</p>
+                    <div class="service-price">{{config.service2Price}}</div>
                 </div>
 
                 <div class="glass-card service-card reveal">
                     <div class="service-icon">🧖</div>
-                    <h3>Spa</h3>
-                    <p>Liệu pháp thư giãn & phục hồi sức khỏe</p>
-                    <div class="service-price">Từ 250.000đ</div>
+                    <h3>{{config.service3Name}}</h3>
+                    <p>{{config.service3Desc}}</p>
+                    <div class="service-price">{{config.service3Price}}</div>
                 </div>
 
                 <div class="glass-card service-card reveal">
                     <div class="service-icon">🏨</div>
-                    <h3>Hotel</h3>
-                    <p>Khách sạn thú cưng 24/7 với chăm sóc tuyệt vời</p>
-                    <div class="service-price">Từ 200.000đ/đêm</div>
+                    <h3>{{config.service4Name}}</h3>
+                    <p>{{config.service4Desc}}</p>
+                    <div class="service-price">{{config.service4Price}}</div>
                 </div>
             </div>
         </div>
@@ -1566,7 +1566,7 @@
             <div class="pricing-cards">
                 <div class="glass-card pricing-card reveal">
                     <h3>Cơ Bản</h3>
-                    <div class="pricing-price">150.000đ</div>
+                    <div class="pricing-price">{{config.pricing1Price}}</div>
                     <ul class="pricing-features">
                         <li>Tắm & sấy khô</li>
                         <li>Chải lông</li>
@@ -1577,7 +1577,7 @@
 
                 <div class="glass-card pricing-card featured reveal">
                     <h3>Tiêu Chuẩn</h3>
-                    <div class="pricing-price">280.000đ</div>
+                    <div class="pricing-price">{{config.pricing2Price}}</div>
                     <ul class="pricing-features">
                         <li>Tắm & sấy khô</li>
                         <li>Cắt lông tỉa</li>
@@ -1590,7 +1590,7 @@
 
                 <div class="glass-card pricing-card reveal">
                     <h3>Cao Cấp</h3>
-                    <div class="pricing-price">450.000đ</div>
+                    <div class="pricing-price">{{config.pricing3Price}}</div>
                     <ul class="pricing-features">
                         <li>Cắt lông nghệ thuật</li>
                         <li>Spa dưỡng ẩm</li>
@@ -1822,13 +1822,13 @@
             </div>
 
             <div class="faq-cta">
-                <a href="tel:+84123456789" class="cta-button cta-phone">
+                <a href="tel:{{config.phone}}" class="cta-button cta-phone">
                     <i class="fas fa-phone"></i> Gọi Ngay
                 </a>
-                <a href="https://zalo.me" target="_blank" class="cta-button cta-zalo">
+                <a href="{{config.zaloUrl}}" target="_blank" class="cta-button cta-zalo">
                     <i class="fas fa-comment-dots"></i> Zalo
                 </a>
-                <a href="mailto:contact@petcare.vn" class="cta-button cta-email">
+                <a href="mailto:{{config.email}}" class="cta-button cta-email">
                     <i class="fas fa-envelope"></i> Email
                 </a>
             </div>
@@ -1848,7 +1848,7 @@
                         <div class="contact-icon">📍</div>
                         <div>
                             <strong>Địa Chỉ:</strong><br>
-                            123 Đường Nguyễn Huệ, Quận 1, TP.HCM
+                            {{config.address}}
                         </div>
                     </div>
 
@@ -1856,7 +1856,7 @@
                         <div class="contact-icon">📞</div>
                         <div>
                             <strong>Điện Thoại:</strong><br>
-                            <a href="tel:+84912345678" style="color: var(--text-light);">0912.345.678</a>
+                            <a href="tel:{{config.phone}}" style="color: var(--text-light);">{{config.phone}}</a>
                         </div>
                     </div>
 
@@ -1864,7 +1864,7 @@
                         <div class="contact-icon">💬</div>
                         <div>
                             <strong>Zalo:</strong><br>
-                            <a href="https://zalo.me/84912345678" target="_blank" style="color: var(--text-light);">0912.345.678</a>
+                            <a href="{{config.zaloUrl}}" target="_blank" style="color: var(--text-light);">{{config.phone}}</a>
                         </div>
                     </div>
 
@@ -1872,7 +1872,7 @@
                         <div class="contact-icon">📧</div>
                         <div>
                             <strong>Email:</strong><br>
-                            <a href="mailto:contact@petcare.vn" style="color: var(--text-light);">contact@petcare.vn</a>
+                            <a href="mailto:{{config.email}}" style="color: var(--text-light);">{{config.email}}</a>
                         </div>
                     </div>
 
@@ -1912,8 +1912,8 @@
     <footer>
         <div class="footer-content">
             <div class="footer-section">
-                <h4>Pet Care Shop</h4>
-                <p>Thiên đường cho thú cưng của bạn. Dịch vụ chuyên nghiệp, tình yêu thương vô hạn.</p>
+                <h4>{{config.shopName}}</h4>
+                <p>{{config.footerTagline}}</p>
             </div>
 
             <div class="footer-section">
@@ -1930,16 +1930,16 @@
             <div class="footer-section">
                 <h4>Liên Hệ</h4>
                 <ul>
-                    <li>📞 0912.345.678</li>
-                    <li>💬 0912.345.678 (Zalo)</li>
-                    <li>📧 contact@petcare.vn</li>
-                    <li>📍 TP.HCM, Việt Nam</li>
+                    <li>📞 {{config.phone}}</li>
+                    <li>💬 {{config.phone}} (Zalo)</li>
+                    <li>📧 {{config.email}}</li>
+                    <li>📍 {{config.address}}</li>
                 </ul>
             </div>
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; 2026 Pet Care Shop. Tất cả quyền được bảo lưu.</p>
+            <p>&copy; 2026 {{config.shopName}}. Tất cả quyền được bảo lưu.</p>
         </div>
     </footer>
 

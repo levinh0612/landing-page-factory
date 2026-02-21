@@ -1,0 +1,182 @@
+{
+  "fields": [
+    {
+      "key": "shopName",
+      "label": "Tên Cửa Hàng",
+      "type": "text",
+      "default": "Pet Care",
+      "required": true
+    },
+    {
+      "key": "heroTitle",
+      "label": "Tiêu Đề Hero",
+      "type": "text",
+      "default": "Thiên Đường Cho Thú Cưng Của Bạn",
+      "required": true
+    },
+    {
+      "key": "heroSubtitle",
+      "label": "Mô Tả Hero",
+      "type": "textarea",
+      "default": "Dịch vụ chăm sóc thú cưng toàn diện: Pet Shop, Grooming, Spa, Hotel với đội ngũ chuyên nghiệp"
+    },
+    {
+      "key": "ctaText",
+      "label": "Nút CTA",
+      "type": "text",
+      "default": "Đặt Lịch Ngay"
+    },
+    {
+      "key": "primaryColor",
+      "label": "Màu Chính (Pink)",
+      "type": "color",
+      "default": "#FF6B9D"
+    },
+    {
+      "key": "accentColor",
+      "label": "Màu Phụ (Purple)",
+      "type": "color",
+      "default": "#7C3AED"
+    },
+    {
+      "key": "phone",
+      "label": "Số Điện Thoại",
+      "type": "text",
+      "default": "0912.345.678",
+      "required": true
+    },
+    {
+      "key": "email",
+      "label": "Email",
+      "type": "text",
+      "default": "contact@petcare.vn",
+      "required": true
+    },
+    {
+      "key": "address",
+      "label": "Địa Chỉ",
+      "type": "textarea",
+      "default": "123 Đường Nguyễn Huệ, Quận 1, TP.HCM"
+    },
+    {
+      "key": "zaloUrl",
+      "label": "Link Zalo",
+      "type": "url",
+      "default": "https://zalo.me/84912345678"
+    },
+    {
+      "key": "footerTagline",
+      "label": "Mô Tả Footer",
+      "type": "textarea",
+      "default": "Thiên đường cho thú cưng của bạn. Dịch vụ chuyên nghiệp, tình yêu thương vô hạn."
+    },
+    {
+      "key": "trustBadge1Number",
+      "label": "Huy Hiệu 1 - Số",
+      "type": "text",
+      "default": "500+"
+    },
+    {
+      "key": "trustBadge2Number",
+      "label": "Huy Hiệu 2 - Đánh Giá",
+      "type": "text",
+      "default": "4.9★"
+    },
+    {
+      "key": "trustBadge3Number",
+      "label": "Huy Hiệu 3 - Kinh Nghiệm",
+      "type": "text",
+      "default": "5+"
+    },
+    {
+      "key": "service1Name",
+      "label": "Dịch Vụ 1 - Tên",
+      "type": "text",
+      "default": "Pet Shop"
+    },
+    {
+      "key": "service1Desc",
+      "label": "Dịch Vụ 1 - Mô Tả",
+      "type": "text",
+      "default": "Đồ dùng & thức ăn cao cấp cho thú cưng"
+    },
+    {
+      "key": "service1Price",
+      "label": "Dịch Vụ 1 - Giá",
+      "type": "text",
+      "default": "Từ 50.000đ"
+    },
+    {
+      "key": "service2Name",
+      "label": "Dịch Vụ 2 - Tên",
+      "type": "text",
+      "default": "Grooming"
+    },
+    {
+      "key": "service2Desc",
+      "label": "Dịch Vụ 2 - Mô Tả",
+      "type": "text",
+      "default": "Tắm & cắt lông chuyên nghiệp cho thú cưng"
+    },
+    {
+      "key": "service2Price",
+      "label": "Dịch Vụ 2 - Giá",
+      "type": "text",
+      "default": "Từ 150.000đ"
+    },
+    {
+      "key": "service3Name",
+      "label": "Dịch Vụ 3 - Tên",
+      "type": "text",
+      "default": "Spa"
+    },
+    {
+      "key": "service3Desc",
+      "label": "Dịch Vụ 3 - Mô Tả",
+      "type": "text",
+      "default": "Liệu pháp thư giãn & phục hồi sức khỏe"
+    },
+    {
+      "key": "service3Price",
+      "label": "Dịch Vụ 3 - Giá",
+      "type": "text",
+      "default": "Từ 250.000đ"
+    },
+    {
+      "key": "service4Name",
+      "label": "Dịch Vụ 4 - Tên",
+      "type": "text",
+      "default": "Hotel"
+    },
+    {
+      "key": "service4Desc",
+      "label": "Dịch Vụ 4 - Mô Tả",
+      "type": "text",
+      "default": "Khách sạn thú cưng 24/7 với chăm sóc tuyệt vời"
+    },
+    {
+      "key": "service4Price",
+      "label": "Dịch Vụ 4 - Giá",
+      "type": "text",
+      "default": "Từ 200.000đ/đêm"
+    },
+    {
+      "key": "pricing1Price",
+      "label": "Gói Cơ Bản - Giá",
+      "type": "text",
+      "default": "150.000đ"
+    },
+    {
+      "key": "pricing2Price",
+      "label": "Gói Tiêu Chuẩn - Giá",
+      "type": "text",
+      "default": "280.000đ"
+    },
+    {
+      "key": "pricing3Price",
+      "label": "Gói Cao Cấp - Giá",
+      "type": "text",
+      "default": "450.000đ"
+    }
+  ]
+}

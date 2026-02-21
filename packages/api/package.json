@@ -13,6 +13,7 @@
     "db:generate": "prisma generate"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.3",
     "@lpf/shared": "*",
     "@payos/node": "^2.0.4",
     "@prisma/client": "^6.0.0",
