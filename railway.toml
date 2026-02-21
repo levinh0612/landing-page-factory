@@ -3,6 +3,6 @@ builder = "nixpacks"
 buildCommand = "npm run build:shared && npm run build:api"
 
 [deploy]
-startCommand = "npm run db:migrate -w packages/api -- --skip-generate && npm run db:seed && node packages/api/dist/index.js"
+startCommand = "npx prisma migrate deploy --schema=packages/api/prisma/schema.prisma && npx tsx packages/api/prisma/seed.ts && node packages/api/dist/index.js"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3

@@ -15,7 +15,9 @@ Built for freelancers and agencies who repeatedly build landing pages for client
 | Auth | JWT + bcryptjs |
 | Validation | Zod (shared FE/BE) |
 | State | TanStack Query (server) + Zustand (client) |
-| Infra | Docker Compose (PostgreSQL 16 + Redis 7) |
+| Infra | Docker Compose (local) / Railway + Vercel (production) |
+| Email | Resend SDK |
+| Payment | PayOS (Vietnam) |
 
 ## Project Structure
 
@@ -25,10 +27,21 @@ landing-page-factory/
 │   ├── shared/          ← Types + Zod schemas (shared FE/BE)
 │   ├── api/             ← Express + Prisma (port 5001)
 │   └── dashboard/       ← React + Vite + shadcn/ui (port 5173)
-├── docker-compose.yml   ← PostgreSQL + Redis
+├── templates/
+│   └── petcare-anime/   ← Production template: anime-styled pet care site
+├── docker-compose.yml   ← PostgreSQL + Redis (local dev)
+├── railway.toml         ← Railway deployment config
 ├── package.json         ← Root workspace + scripts
 └── tsconfig.base.json
 ```
+
+## Live Deployments
+
+| Service | URL |
+|---------|-----|
+| **API** | https://lpf-api-production.up.railway.app |
+| **Admin Dashboard** | https://dashboard-le-vinhs-projects.vercel.app |
+| **Demo Site — 2 Mèo 1 Gâu** | https://petcare-anime.vercel.app |
 
 ## Quick Start
 
@@ -80,6 +93,14 @@ Password: password123
 
 ## API Endpoints
 
+### Client-Facing (Public — no auth required)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/projects/:slug/bookings` | Submit booking form |
+| POST | `/api/projects/:slug/contacts` | Submit contact form |
+| POST | `/api/projects/:slug/payments/initiate` | Initiate PayOS payment |
+| POST | `/api/projects/:slug/payments/webhook` | PayOS webhook callback |
+
 ### Auth
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -123,14 +144,16 @@ Password: password123
 
 ## Database Schema
 
-7 tables with UUID primary keys:
+10 tables with UUID primary keys:
 
 ```
 users ──────────────── activity_logs
                             │
 templates ── projects ──────┤
                 │           │
-clients ─────┘  ├── deployments
+clients ─────┘  ├── bookings ── payments
+                ├── contacts
+                ├── deployments
                 └── health_checks
 ```
 
@@ -170,8 +193,13 @@ clients ─────┘  ├── deployments
 - [x] Rollback to previous deployment
 - [x] Custom domain setup wizard
 
-### Phase 3.5 — Template Library (New)
+### Phase 3.5 — Template Library + Client APIs (Done)
 - [x] First production template: PetCare Anime (`templates/petcare-anime/`)
+- [x] Booking API: create/list/update status + email confirmation (Resend)
+- [x] Contact form API: submit + admin list
+- [x] Payment API: PayOS Vietnam integration + mock mode
+- [x] Multi-tenant: all data isolated by `project_slug`
+- [x] Deployed to Railway (API) + Vercel (dashboard + client sites)
 - [ ] Template tagging & category system
 - [ ] Template preview deployment (sandbox URL)
 - [ ] Clone-to-project workflow
@@ -200,7 +228,7 @@ clients ─────┘  ├── deployments
 | **1B** | Dashboard polish: edit forms, detail pages, UX | **Done** |
 | **2** | Template engine: upload, preview, config editor | **Done** |
 | **3** | Deployment pipeline: Vercel/Netlify, one-click deploy | **Done** |
-| **3.5** | Template library: first production templates | **In Progress** |
+| **3.5** | Template library + client APIs (booking/contact/payment) + deploy | **Done** |
 | **4** | Monitoring: health checks, SSL, uptime, alerts | Planned |
 | **5** | Multi-tenancy: RBAC, teams, webhooks, public API | Planned |
 
@@ -209,15 +237,57 @@ clients ─────┘  ├── deployments
 Copy `.env.example` to `packages/api/.env` and adjust:
 
 ```env
+# Database (Docker local)
 DATABASE_URL="postgresql://lpf_user:lpf_password@localhost:5433/lpf_db"
 REDIS_URL="redis://localhost:6379"
+
+# Auth
 JWT_SECRET="change-me-to-a-random-string"
 JWT_EXPIRES_IN="7d"
 API_PORT=5001
 NODE_ENV=development
+
+# Optional integrations
+RESEND_API_KEY="re_xxxx"         # Email confirmations (resend.com)
+PAYOS_CLIENT_ID="..."            # Vietnam payment (payos.vn)
+PAYOS_API_KEY="..."
+PAYOS_CHECKSUM_KEY="..."
+PUBLIC_API_URL="https://lpf-api-production.up.railway.app"
 ```
 
 > **Note:** Docker PostgreSQL runs on port **5433** to avoid conflict with local PostgreSQL on 5432.
+
+## Production Deployment
+
+### Railway (API + PostgreSQL + Redis)
+
+```bash
+npm install -g @railway/cli
+railway login
+railway init
+railway add --database postgres
+railway add --database redis
+railway up
+```
+
+The `railway.toml` config handles build + migrate + seed automatically.
+
+### Vercel (Dashboard)
+
+```bash
+cd packages/dashboard
+npm run build  # from repo root: npm run build:dashboard
+vercel --prod --prebuilt
+```
+
+### Vercel (Client Sites)
+
+Each client site is a static HTML file in `templates/`. Update `window.LPF_CONFIG` in the template with the Railway API URL, then:
+
+```bash
+cd templates/petcare-anime
+vercel --prod
+```
 
 ## Conventions
 
