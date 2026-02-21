@@ -1,6 +1,7 @@
 import { prisma } from '../../lib/prisma.js';
 import { AppError } from '../../middleware/error.js';
 import { sendBookingConfirmation } from '../../services/email.service.js';
+import { config } from '../../lib/config.js';
 
 export interface CreateBookingInput {
   service: string;
@@ -17,6 +18,27 @@ export interface CreateBookingInput {
 export async function create(projectSlug: string, input: CreateBookingInput) {
   const project = await prisma.project.findUnique({ where: { slug: projectSlug } });
   if (!project) throw new AppError(404, `Project '${projectSlug}' not found`);
+
+  // Rate limit: max bookings per calendar month (if configured)
+  if (config.MAX_BOOKINGS_PER_MONTH) {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    const countThisMonth = await prisma.booking.count({
+      where: {
+        projectId: project.id,
+        createdAt: { gte: monthStart, lt: monthEnd },
+      },
+    });
+
+    if (countThisMonth >= config.MAX_BOOKINGS_PER_MONTH) {
+      throw new AppError(
+        429,
+        `Đã đạt giới hạn ${config.MAX_BOOKINGS_PER_MONTH} lịch đặt trong tháng này. Vui lòng thử lại vào tháng sau.`,
+      );
+    }
+  }
 
   const booking = await prisma.booking.create({
     data: {

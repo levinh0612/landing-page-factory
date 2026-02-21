@@ -15,6 +15,7 @@ const envSchema = z.object({
   PAYOS_API_KEY: z.string().optional(),
   PAYOS_CHECKSUM_KEY: z.string().optional(),
   PUBLIC_API_URL: z.string().url().optional(),
+  MAX_BOOKINGS_PER_MONTH: z.coerce.number().positive().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
