@@ -44,8 +44,9 @@ app.use('/api/portal', portalRoutes);
 // Error handler (must be last)
 app.use(errorHandler);
 
-app.listen(config.API_PORT, () => {
-  console.info(`API running on http://localhost:${config.API_PORT}`);
+const port = config.PORT ?? config.API_PORT;
+app.listen(port, '0.0.0.0', () => {
+  console.info(`API running on port ${port}`);
 });
 
 export default app;
