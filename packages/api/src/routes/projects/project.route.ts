@@ -45,3 +45,8 @@ projectRoutes.patch('/:id/approval', authorize('ADMIN', 'EDITOR'), validate(upda
 // Deployments
 projectRoutes.post('/:id/deploy', authorize('ADMIN', 'EDITOR'), projectController.deploy);
 projectRoutes.get('/:id/deployments', projectController.listDeployments);
+
+// Vercel domain management
+projectRoutes.get('/:id/vercel-domains', projectController.listVercelDomains);
+projectRoutes.post('/:id/vercel-domains', authorize('ADMIN', 'EDITOR'), projectController.addVercelDomain);
+projectRoutes.delete('/:id/vercel-domains/:domain', authorize('ADMIN', 'EDITOR'), projectController.removeVercelDomain);

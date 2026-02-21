@@ -104,6 +104,47 @@ async function main() {
 
   // PetCare Anime template config schema
   const PETCARE_ANIME_ID = 'aa000000-0000-0000-0000-000000000001';
+  const KARINOX_CF_ID = 'bb000000-0000-0000-0000-000000000001';
+  const karinoxCfConfigSchema = {
+    fields: [
+      { key: 'brandName', label: 'Tên thương hiệu', type: 'text', default: 'Karinox Coffee', required: true },
+      { key: 'tagline', label: 'Tagline', type: 'text', default: 'Hương vị đặc trưng - Không gian riêng tư' },
+      { key: 'heroTitle', label: 'Tiêu đề Hero', type: 'text', default: 'Cà Phê Karinox', required: true },
+      { key: 'heroSubtitle', label: 'Mô tả Hero', type: 'textarea', default: 'Nơi bạn tìm thấy hương vị cà phê đặc trưng và không gian thư giãn tuyệt vời' },
+      { key: 'primaryColor', label: 'Màu chính', type: 'color', default: '#32373c' },
+      { key: 'accentColor', label: 'Màu nhấn', type: 'color', default: '#c8a96e' },
+      { key: 'aboutText', label: 'Giới thiệu thương hiệu', type: 'textarea', default: 'Karinox Coffee ra đời từ niềm đam mê với hạt cà phê Việt Nam.' },
+      { key: 'foundedYear', label: 'Năm thành lập', type: 'text', default: '2020' },
+      { key: 'phone', label: 'Số điện thoại', type: 'text', default: '0325 013 789', required: true },
+      { key: 'email', label: 'Email', type: 'email', default: 'karinox.coffee@gmail.com' },
+      { key: 'zalo', label: 'Zalo', type: 'text', default: '0325013789' },
+      { key: 'facebook', label: 'Facebook URL', type: 'url', default: '' },
+      { key: 'instagram', label: 'Instagram URL', type: 'url', default: '' },
+      { key: 'tiktok', label: 'TikTok URL', type: 'url', default: '' },
+      { key: 'youtube', label: 'YouTube URL', type: 'url', default: '' },
+      { key: 'shopee', label: 'Shopee URL', type: 'url', default: '' },
+      { key: 'store1Name', label: 'Cửa hàng 1 - Tên', type: 'text', default: 'Ninh Thuận' },
+      { key: 'store1Address', label: 'Cửa hàng 1 - Địa chỉ', type: 'text', default: 'Lô TM27-1 Hoàng Diệu, Phan Rang-Tháp Chàm' },
+      { key: 'store1MapUrl', label: 'Cửa hàng 1 - Google Maps URL', type: 'url', default: '' },
+      { key: 'store2Name', label: 'Cửa hàng 2 - Tên', type: 'text', default: 'Gia Lai' },
+      { key: 'store2Address', label: 'Cửa hàng 2 - Địa chỉ', type: 'text', default: '212 Nguyễn Tất Thành, Pleiku' },
+      { key: 'store2MapUrl', label: 'Cửa hàng 2 - Google Maps URL', type: 'url', default: '' },
+      { key: 'bookingWebhook', label: 'Booking Webhook URL', type: 'url', default: '' },
+      { key: 'payosClientId', label: 'PayOS Client ID', type: 'text', default: '' },
+      { key: 'payosApiKey', label: 'PayOS API Key', type: 'password', default: '' },
+      { key: 'member1Name', label: 'Thành viên cấp 1', type: 'text', default: 'Basic' },
+      { key: 'member1Price', label: 'Phí cấp 1 (VND)', type: 'text', default: 'Miễn phí' },
+      { key: 'member1Perks', label: 'Quyền lợi cấp 1', type: 'textarea', default: 'Tích điểm mỗi lần mua|Sinh nhật tặng 1 ly cà phê|Thông báo khuyến mãi sớm' },
+      { key: 'member2Name', label: 'Thành viên cấp 2', type: 'text', default: 'Silver' },
+      { key: 'member2Price', label: 'Phí cấp 2 (VND)', type: 'text', default: '199.000' },
+      { key: 'member2Perks', label: 'Quyền lợi cấp 2', type: 'textarea', default: 'Tất cả quyền lợi Basic|Giảm 10% mọi đơn hàng|Ưu tiên đặt bàn cuối tuần|Tặng 1 combo mỗi tháng' },
+      { key: 'member3Name', label: 'Thành viên cấp 3', type: 'text', default: 'Gold' },
+      { key: 'member3Price', label: 'Phí cấp 3 (VND)', type: 'text', default: '499.000' },
+      { key: 'member3Perks', label: 'Quyền lợi cấp 3', type: 'textarea', default: 'Tất cả quyền lợi Silver|Giảm 20% mọi đơn hàng|Bàn VIP riêng tư|Thức uống chào mừng miễn phí|Tư vấn cà phê 1-1 với chuyên gia' },
+      { key: 'footerTagline', label: 'Footer tagline', type: 'text', default: 'Hương vị đặc trưng từ vùng cao nguyên' },
+    ],
+  };
+
   const petcareAnimeConfigSchema = {
     fields: [
       { key: 'shopName', label: 'Tên cửa hàng', type: 'text', default: 'PetCare Shop', required: true },
@@ -209,8 +250,28 @@ async function main() {
         configSchema: petcareAnimeConfigSchema as unknown as Prisma.InputJsonValue,
       },
     }),
+    prisma.template.upsert({
+      where: { slug: 'karinox-cf' },
+      update: { configSchema: karinoxCfConfigSchema as unknown as Prisma.InputJsonValue },
+      create: {
+        id: KARINOX_CF_ID,
+        name: 'Karinox Coffee',
+        slug: 'karinox-cf',
+        category: 'cafe',
+        description: 'Landing page thương hiệu cà phê cao cấp. Đầy đủ: menu, đặt bàn, giỏ hàng, membership, hệ thống cửa hàng.',
+        techStack: ['HTML', 'CSS', 'JavaScript'],
+        plugins: ['booking', 'cart', 'payment', 'membership', 'gallery'],
+        status: 'ACTIVE',
+        version: 1,
+        filePath: `templates/${KARINOX_CF_ID}/v1`,
+        configSchema: karinoxCfConfigSchema as unknown as Prisma.InputJsonValue,
+      },
+    }),
   ]);
   console.info(`Templates: ${templates.length} created`);
+
+  // Client IDs
+  const KARINOX_CLIENT_ID = 'dd000000-0000-0000-0000-000000000001';
 
   // Clients
   const clients = await Promise.all([
@@ -238,6 +299,18 @@ async function main() {
       },
     }),
     prisma.client.upsert({
+      where: { id: KARINOX_CLIENT_ID },
+      update: {},
+      create: {
+        id: KARINOX_CLIENT_ID,
+        name: 'Karinox Coffee',
+        email: 'karinox.coffee@gmail.com',
+        phone: '0325013789',
+        company: 'Karinox Coffee',
+        notes: 'Thương hiệu cà phê tại Ninh Thuận & Gia Lai',
+      },
+    }),
+    prisma.client.upsert({
       where: { id: '00000000-0000-0000-0000-000000000003' },
       update: {},
       create: {
@@ -251,6 +324,9 @@ async function main() {
     }),
   ]);
   console.info(`Clients: ${clients.length} created`);
+
+  // Project IDs
+  const KARINOX_PROJECT_ID = 'cc000000-0000-0000-0000-000000000001';
 
   // Projects with config values
   const projects = await Promise.all([
@@ -311,6 +387,63 @@ async function main() {
       },
     }),
     prisma.project.upsert({
+      where: { id: KARINOX_PROJECT_ID },
+      update: {
+        config: {
+          brandName: 'Karinox Coffee',
+          tagline: 'Hương vị đặc trưng - Không gian riêng tư',
+          heroTitle: 'Cà Phê Karinox',
+          heroSubtitle: 'Nơi bạn tìm thấy hương vị cà phê đặc trưng và không gian thư giãn tuyệt vời',
+          primaryColor: '#32373c',
+          accentColor: '#c8a96e',
+          phone: '0325 013 789',
+          email: 'karinox.coffee@gmail.com',
+          zalo: '0325013789',
+          store1Name: 'Ninh Thuận',
+          store1Address: 'Lô TM27-1 Hoàng Diệu, Phan Rang-Tháp Chàm',
+          store2Name: 'Gia Lai',
+          store2Address: '212 Nguyễn Tất Thành, Pleiku',
+          footerTagline: 'Hương vị đặc trưng từ vùng cao nguyên',
+        } as unknown as Prisma.InputJsonValue,
+      },
+      create: {
+        id: KARINOX_PROJECT_ID,
+        templateId: KARINOX_CF_ID,
+        clientId: KARINOX_CLIENT_ID,
+        name: 'Karinox Coffee - Official',
+        slug: 'karinox-cf',
+        status: 'IN_PROGRESS',
+        deployTarget: 'VERCEL',
+        config: {
+          brandName: 'Karinox Coffee',
+          tagline: 'Hương vị đặc trưng - Không gian riêng tư',
+          heroTitle: 'Cà Phê Karinox',
+          heroSubtitle: 'Nơi bạn tìm thấy hương vị cà phê đặc trưng và không gian thư giãn tuyệt vời',
+          primaryColor: '#32373c',
+          accentColor: '#c8a96e',
+          aboutText: 'Karinox Coffee ra đời từ niềm đam mê với hạt cà phê Việt Nam. Chúng tôi mang đến không gian thư giãn sang trọng và hương vị cà phê đặc trưng từ vùng cao nguyên Gia Lai và Ninh Thuận.',
+          foundedYear: '2020',
+          phone: '0325 013 789',
+          email: 'karinox.coffee@gmail.com',
+          zalo: '0325013789',
+          store1Name: 'Ninh Thuận',
+          store1Address: 'Lô TM27-1 Hoàng Diệu, Phan Rang-Tháp Chàm',
+          store2Name: 'Gia Lai',
+          store2Address: '212 Nguyễn Tất Thành, Pleiku',
+          member1Name: 'Basic',
+          member1Price: 'Miễn phí',
+          member1Perks: 'Tích điểm mỗi lần mua|Sinh nhật tặng 1 ly cà phê|Thông báo khuyến mãi sớm',
+          member2Name: 'Silver',
+          member2Price: '199.000',
+          member2Perks: 'Tất cả quyền lợi Basic|Giảm 10% mọi đơn hàng|Ưu tiên đặt bàn cuối tuần|Tặng 1 combo mỗi tháng',
+          member3Name: 'Gold',
+          member3Price: '499.000',
+          member3Perks: 'Tất cả quyền lợi Silver|Giảm 20% mọi đơn hàng|Bàn VIP riêng tư|Thức uống chào mừng miễn phí|Tư vấn cà phê 1-1 với chuyên gia',
+          footerTagline: 'Hương vị đặc trưng từ vùng cao nguyên',
+        } as unknown as Prisma.InputJsonValue,
+      },
+    }),
+    prisma.project.upsert({
       where: { slug: 'hai-meo-mot-gau' },
       update: {
         config: {
@@ -364,6 +497,9 @@ async function main() {
       { userId: admin.id, action: 'template.created', entityType: 'template', entityId: templates[5].id, details: 'Created template PetCare Anime' },
       { userId: admin.id, action: 'template.uploaded', entityType: 'template', entityId: templates[5].id, details: 'Uploaded files for PetCare Anime v1' },
       { userId: admin.id, projectId: projects[2].id, action: 'project.created', entityType: 'project', entityId: projects[2].id, details: 'Created project 2 Mèo 1 Gâu - Landing Page' },
+      { userId: admin.id, action: 'template.created', entityType: 'template', entityId: KARINOX_CF_ID, details: 'Created template Karinox Coffee' },
+      { userId: admin.id, action: 'template.uploaded', entityType: 'template', entityId: KARINOX_CF_ID, details: 'Uploaded files for Karinox Coffee v1' },
+      { userId: admin.id, projectId: KARINOX_PROJECT_ID, action: 'project.created', entityType: 'project', entityId: KARINOX_PROJECT_ID, details: 'Created project Karinox Coffee - Official' },
     ],
     skipDuplicates: true,
   });

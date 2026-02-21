@@ -255,7 +255,7 @@ export function ProjectsPage() {
                           {project.status.replace('_', ' ')}
                         </Badge>
                       </TableCell>
-                      <TableCell>{project.domain || '-'}</TableCell>
+                      <TableCell>{project.domain || project.deployUrl || '-'}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditItem(project)}>

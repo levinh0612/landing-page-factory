@@ -178,6 +178,53 @@ export async function deploy(req: Request<{ id: string }>, res: Response, next: 
   }
 }
 
+// Vercel domain management
+export async function listVercelDomains(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+  try {
+    const { prisma } = await import('../../lib/prisma.js');
+    const project = await prisma.project.findUniqueOrThrow({ where: { id: req.params.id } });
+    const { listDomains } = await import('../../services/deploy/vercel.service.js');
+    const domains = await listDomains(project.slug);
+    res.json({ success: true, data: domains });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function addVercelDomain(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+  try {
+    const { prisma } = await import('../../lib/prisma.js');
+    const project = await prisma.project.findUniqueOrThrow({ where: { id: req.params.id } });
+    const { addDomain } = await import('../../services/deploy/vercel.service.js');
+    const domain = await addDomain(project.slug, req.body.domain);
+    // Also save to our DB
+    await prisma.project.update({ where: { id: req.params.id }, data: { domain: req.body.domain } });
+    res.json({ success: true, data: domain });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function removeVercelDomain(
+  req: Request<{ id: string; domain: string }>,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { prisma } = await import('../../lib/prisma.js');
+    const project = await prisma.project.findUniqueOrThrow({ where: { id: req.params.id } });
+    const { removeDomain } = await import('../../services/deploy/vercel.service.js');
+    await removeDomain(project.slug, req.params.domain);
+    // Clear from DB if it matches
+    if (project.domain === req.params.domain) {
+      await prisma.project.update({ where: { id: req.params.id }, data: { domain: null } });
+    }
+    res.json({ success: true, data: { message: 'Domain removed' } });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function listDeployments(req: Request<{ id: string }>, res: Response, next: NextFunction) {
   try {
     const { prisma } = await import('../../lib/prisma.js');

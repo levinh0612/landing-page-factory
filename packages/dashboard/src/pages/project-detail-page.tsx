@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Globe, Calendar, User, Layout, Save, ExternalLink, Share2, Rocket, FileText } from 'lucide-react';
+import { ArrowLeft, Globe, Calendar, User, Layout, Save, ExternalLink, Share2, Rocket, FileText, Activity, Check, X, Plus, Trash2, RefreshCw, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { api } from '@/lib/axios';
+import { Input } from '@/components/ui/input';
 import { ConfigEditor } from '@/components/config-editor';
 import { PreviewLinkDialog } from '@/components/preview-link-dialog';
 import { CommentThread } from '@/components/comment-thread';
@@ -63,6 +64,8 @@ export function ProjectDetailPage() {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showDeployDialog, setShowDeployDialog] = useState(false);
   const [selectedDeployment, setSelectedDeployment] = useState<any>(null);
+  const [addingDomain, setAddingDomain] = useState(false);
+  const [newDomainValue, setNewDomainValue] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['project', id],
@@ -101,6 +104,49 @@ export function ProjectDetailPage() {
   const handleSaveConfig = () => {
     saveConfigMutation.mutate(config);
   };
+
+  const pingMutation = useMutation({
+    mutationFn: () => api.post(`/monitor/projects/${id}/ping`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project', id] });
+      toast.success('Health check completed');
+    },
+    onError: () => toast.error('Health check failed'),
+  });
+
+  const { data: vercelDomains, isLoading: domainsLoading, refetch: refetchDomains } = useQuery<
+    Array<{ name: string; verified: boolean; createdAt: number }>
+  >({
+    queryKey: ['vercel-domains', id],
+    queryFn: async () => {
+      const res = await api.get(`/projects/${id}/vercel-domains`);
+      return res.data.data;
+    },
+    enabled: !!id && !!data?.deployUrl, // only fetch if project has been deployed
+    retry: false,
+  });
+
+  const addDomainMutation = useMutation({
+    mutationFn: (domain: string) => api.post(`/projects/${id}/vercel-domains`, { domain }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vercel-domains', id] });
+      queryClient.invalidateQueries({ queryKey: ['project', id] });
+      setAddingDomain(false);
+      setNewDomainValue('');
+      toast.success('Domain added to Vercel');
+    },
+    onError: (err: any) => toast.error(err?.response?.data?.error || 'Failed to add domain'),
+  });
+
+  const removeDomainMutation = useMutation({
+    mutationFn: (domain: string) => api.delete(`/projects/${id}/vercel-domains/${encodeURIComponent(domain)}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vercel-domains', id] });
+      queryClient.invalidateQueries({ queryKey: ['project', id] });
+      toast.success('Domain removed');
+    },
+    onError: () => toast.error('Failed to remove domain'),
+  });
 
   if (isLoading) {
     return (
@@ -167,17 +213,79 @@ export function ProjectDetailPage() {
 
         <TabsContent value="overview" className="space-y-4 mt-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Card>
+            <Card className="sm:col-span-2 lg:col-span-1">
               <CardHeader className="flex flex-row items-center gap-2 pb-2">
                 <Globe className="h-4 w-4 text-muted-foreground" />
-                <CardTitle className="text-sm font-medium">Domain</CardTitle>
+                <CardTitle className="text-sm font-medium">Domains</CardTitle>
+                <div className="ml-auto flex gap-1">
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => refetchDomains()} title="Refresh">
+                    <RefreshCw className="h-3 w-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setNewDomainValue(''); setAddingDomain(true); }} title="Add domain">
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-lg font-semibold">{project.domain || 'Not set'}</p>
+              <CardContent className="space-y-2">
+                {/* Raw deploy URL always shown */}
                 {project.deployUrl && (
-                  <a href={project.deployUrl} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline">
-                    {project.deployUrl}
+                  <a href={project.deployUrl} target="_blank" rel="noreferrer"
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary hover:underline truncate">
+                    {project.deployUrl} <ExternalLink className="h-3 w-3 shrink-0" />
                   </a>
+                )}
+
+                {/* Vercel domains list */}
+                {domainsLoading ? (
+                  <p className="text-xs text-muted-foreground">Loading domains…</p>
+                ) : vercelDomains && vercelDomains.length > 0 ? (
+                  <div className="space-y-1">
+                    {vercelDomains.map((d) => (
+                      <div key={d.name} className="flex items-center gap-2 group">
+                        {d.verified
+                          ? <ShieldCheck className="h-3.5 w-3.5 text-green-500 shrink-0" title="Verified" />
+                          : <ShieldAlert className="h-3.5 w-3.5 text-yellow-500 shrink-0" title="Not verified" />}
+                        <a href={`https://${d.name}`} target="_blank" rel="noreferrer"
+                          className="text-sm font-medium hover:underline flex-1 truncate">
+                          {d.name}
+                        </a>
+                        <Button
+                          variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100 text-destructive"
+                          onClick={() => removeDomainMutation.mutate(d.name)}
+                          disabled={removeDomainMutation.isPending}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : !project.deployUrl ? (
+                  <p className="text-xs text-muted-foreground">Deploy first to manage domains.</p>
+                ) : null}
+
+                {/* Add domain inline form */}
+                {addingDomain && (
+                  <div className="flex gap-1 pt-1">
+                    <Input
+                      value={newDomainValue}
+                      onChange={(e) => setNewDomainValue(e.target.value)}
+                      placeholder="e.g. mysite.com"
+                      className="h-7 text-xs"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newDomainValue) addDomainMutation.mutate(newDomainValue);
+                        if (e.key === 'Escape') setAddingDomain(false);
+                      }}
+                    />
+                    <Button size="sm" className="h-7 px-2 shrink-0"
+                      onClick={() => newDomainValue && addDomainMutation.mutate(newDomainValue)}
+                      disabled={addDomainMutation.isPending || !newDomainValue}>
+                      <Check className="h-3 w-3" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 px-2 shrink-0" onClick={() => setAddingDomain(false)}>
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -388,9 +496,25 @@ export function ProjectDetailPage() {
         </TabsContent>
 
         <TabsContent value="health" className="mt-4">
+          <div className="flex justify-between items-center mb-4">
+            <p className="text-sm text-muted-foreground">
+              {project.healthChecks?.length
+                ? `${project.healthChecks.length} health check(s) recorded`
+                : 'No health checks yet'}
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => pingMutation.mutate()}
+              disabled={pingMutation.isPending || !project.deployUrl}
+            >
+              <Activity className="mr-2 h-4 w-4" />
+              {pingMutation.isPending ? 'Pinging...' : 'Ping Now'}
+            </Button>
+          </div>
           {project.healthChecks?.length ? (
             <div className="grid gap-4 sm:grid-cols-2">
-              {project.healthChecks.slice(0, 5).map((h: any) => (
+              {project.healthChecks.slice(0, 10).map((h: any) => (
                 <Card key={h.id}>
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
@@ -415,7 +539,9 @@ export function ProjectDetailPage() {
           ) : (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
-                No health checks yet
+                {project.deployUrl
+                  ? 'Click "Ping Now" to run the first health check'
+                  : 'Deploy the project first to enable health checks'}
               </CardContent>
             </Card>
           )}
