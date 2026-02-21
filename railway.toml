@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm ci && npm run build:shared && npm run build:api"
+buildCommand = "npm run build:shared && npm run build:api"
 
 [deploy]
 startCommand = "npm run db:migrate -w packages/api -- --skip-generate && npm run db:seed && node packages/api/dist/index.js"
