@@ -31,5 +31,7 @@ coverage/
 # Turbo
 .turbo/
 
-# Uploaded template files
-packages/api/uploads/
+# Uploaded template files — keep seed templates in git, ignore user uploads
+packages/api/uploads/tmp/
+# Uncomment below if you want to exclude all uploads (use S3/R2 in production):
+# packages/api/uploads/

@@ -146,29 +146,35 @@ clients ─────┘  ├── deployments
 - [x] Seed data (admin user, 5 templates, 2 clients, 2 projects)
 - [x] One-shot `deploy-dev` command
 
-### Phase 1B — Dashboard Polish (Next)
-- [ ] Edit dialogs for templates, clients, projects (inline forms)
-- [ ] Detail pages with tabs (project overview, deployments, health)
-- [ ] Toast notifications (success/error feedback)
-- [ ] Pagination controls (previous/next, page size)
-- [ ] Responsive mobile layout
-- [ ] Dark mode toggle
-- [ ] Form validation error display improvements
+### Phase 1B — Dashboard Polish (Done)
+- [x] Edit dialogs for templates, clients, projects (inline forms)
+- [x] Detail pages with tabs (project overview, deployments, health)
+- [x] Toast notifications (success/error feedback)
+- [x] Pagination controls (previous/next, page size)
+- [x] Responsive mobile layout
+- [x] Dark mode toggle
+- [x] Form validation error display improvements
 
-### Phase 2 — Template Engine
-- [ ] Template file upload + storage (S3/Cloudflare R2)
-- [ ] Template preview iframe
-- [ ] Template config editor (JSON schema → dynamic form)
-- [ ] Template versioning
-- [ ] Template marketplace/gallery with filtering and tags
+### Phase 2 — Template Engine (Done)
+- [x] Template file upload + storage (S3/Cloudflare R2)
+- [x] Template preview iframe
+- [x] Template config editor (JSON schema → dynamic form)
+- [x] Template versioning
+- [x] Template marketplace/gallery with filtering and tags
 
-### Phase 3 — Deployment Pipeline
-- [ ] Vercel deployment integration (API)
-- [ ] Netlify deployment integration (API)
-- [ ] One-click deploy from dashboard
-- [ ] Build logs streaming (WebSocket)
-- [ ] Rollback to previous deployment
-- [ ] Custom domain setup wizard
+### Phase 3 — Deployment Pipeline (Done)
+- [x] Vercel deployment integration (API)
+- [x] Netlify deployment integration (API)
+- [x] One-click deploy from dashboard
+- [x] Build logs streaming (WebSocket)
+- [x] Rollback to previous deployment
+- [x] Custom domain setup wizard
+
+### Phase 3.5 — Template Library (New)
+- [x] First production template: PetCare Anime (`templates/petcare-anime/`)
+- [ ] Template tagging & category system
+- [ ] Template preview deployment (sandbox URL)
+- [ ] Clone-to-project workflow
 
 ### Phase 4 — Monitoring & Health
 - [ ] Automated health checks (cron)
@@ -191,9 +197,10 @@ clients ─────┘  ├── deployments
 | Phase | Scope | Status |
 |-------|-------|--------|
 | **1A** | Foundation: monorepo, API, dashboard skeleton | **Done** |
-| **1B** | Dashboard polish: edit forms, detail pages, UX | Planned |
-| **2** | Template engine: upload, preview, config editor | Planned |
-| **3** | Deployment pipeline: Vercel/Netlify, one-click deploy | Planned |
+| **1B** | Dashboard polish: edit forms, detail pages, UX | **Done** |
+| **2** | Template engine: upload, preview, config editor | **Done** |
+| **3** | Deployment pipeline: Vercel/Netlify, one-click deploy | **Done** |
+| **3.5** | Template library: first production templates | **In Progress** |
 | **4** | Monitoring: health checks, SSL, uptime, alerts | Planned |
 | **5** | Multi-tenancy: RBAC, teams, webhooks, public API | Planned |
 

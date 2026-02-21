@@ -55,6 +55,27 @@ enum ApprovalStatus {
   CHANGES_REQUESTED
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum ContactStatus {
+  NEW
+  READ
+  REPLIED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -134,6 +155,9 @@ model Project {
   activityLogs  ActivityLog[]
   previewTokens PreviewToken[]
   comments      Comment[]
+  bookings      Booking[]
+  contacts      Contact[]
+  payments      Payment[]
 
   @@map("projects")
 }
@@ -231,4 +255,63 @@ model Comment {
   user    User?   @relation(fields: [userId], references: [id])
 
   @@map("comments")
+}
+
+// ─── Client-facing models (bookings, contacts, payments) ─────────────────────
+
+model Booking {
+  id          String        @id @default(uuid())
+  projectId   String        @map("project_id")
+  service     String
+  petType     String        @map("pet_type")
+  petName     String        @map("pet_name")
+  ownerName   String        @map("owner_name")
+  phone       String
+  bookingDate DateTime      @map("booking_date")
+  timeSlot    String        @map("time_slot")
+  notes       String?
+  status      BookingStatus @default(PENDING)
+  emailSent   Boolean       @default(false) @map("email_sent")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  project  Project   @relation(fields: [projectId], references: [id])
+  payments Payment[]
+
+  @@map("bookings")
+}
+
+model Contact {
+  id        String        @id @default(uuid())
+  projectId String        @map("project_id")
+  name      String
+  email     String?
+  phone     String?
+  message   String
+  status    ContactStatus @default(NEW)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@map("contacts")
+}
+
+model Payment {
+  id         String        @id @default(uuid())
+  projectId  String        @map("project_id")
+  bookingId  String?       @map("booking_id")
+  amount     Int
+  status     PaymentStatus @default(PENDING)
+  provider   String
+  orderCode  String?       @unique @map("order_code")
+  paymentUrl String?       @map("payment_url")
+  paidAt     DateTime?     @map("paid_at")
+  metadata   Json?
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  project Project  @relation(fields: [projectId], references: [id])
+  booking Booking? @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
 }

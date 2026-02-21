@@ -8,6 +8,12 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   VERCEL_TOKEN: z.string().optional(),
   NETLIFY_TOKEN: z.string().optional(),
+  RESEND_API_KEY: z.string().optional(),
+  ADMIN_EMAIL: z.string().email().optional(),
+  PAYOS_CLIENT_ID: z.string().optional(),
+  PAYOS_API_KEY: z.string().optional(),
+  PAYOS_CHECKSUM_KEY: z.string().optional(),
+  PUBLIC_API_URL: z.string().url().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

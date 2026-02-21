@@ -10,6 +10,9 @@ import { dashboardRoutes } from './routes/dashboard/dashboard.route.js';
 import { userRoutes } from './routes/users/user.route.js';
 import { activityLogRoutes } from './routes/activity-logs/activity-log.route.js';
 import { portalRoutes } from './routes/portal/portal.route.js';
+import { bookingRoutes } from './routes/bookings/booking.route.js';
+import { contactRoutes } from './routes/contacts/contact.route.js';
+import { paymentRoutes } from './routes/payments/payment.route.js';
 
 const app = express();
 
@@ -25,6 +28,13 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/clients', clientRoutes);
+
+// Client-facing public routes — must be registered BEFORE projectRoutes
+// to avoid being caught by projectRoutes.use(authenticate)
+app.use('/api/projects/:slug/bookings', bookingRoutes);
+app.use('/api/projects/:slug/contacts', contactRoutes);
+app.use('/api/projects/:slug/payments', paymentRoutes);
+
 app.use('/api/projects', projectRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/users', userRoutes);

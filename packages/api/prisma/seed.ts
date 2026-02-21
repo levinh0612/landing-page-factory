@@ -102,6 +102,24 @@ async function main() {
     ],
   };
 
+  // PetCare Anime template config schema
+  const PETCARE_ANIME_ID = 'aa000000-0000-0000-0000-000000000001';
+  const petcareAnimeConfigSchema = {
+    fields: [
+      { key: 'shopName', label: 'Tên cửa hàng', type: 'text', default: 'PetCare Shop', required: true },
+      { key: 'heroTitle', label: 'Tiêu đề Hero', type: 'text', default: 'Thiên Đường Cho Thú Cưng Của Bạn', required: true },
+      { key: 'heroSubtitle', label: 'Mô tả Hero', type: 'textarea', default: 'Dịch vụ chăm sóc thú cưng toàn diện: Pet Shop, Grooming, Spa, Hotel', required: false },
+      { key: 'primaryColor', label: 'Màu chủ đạo', type: 'color', default: '#FF6B9D' },
+      { key: 'phone', label: 'Số điện thoại', type: 'text', default: '0785877686', required: true },
+      { key: 'address', label: 'Địa chỉ', type: 'text', default: '41B Trường Chinh, TP.HCM', required: true },
+      { key: 'zalo', label: 'Zalo', type: 'text', default: '0785877686' },
+      { key: 'facebook', label: 'Facebook URL', type: 'url', default: '' },
+      { key: 'showBooking', label: 'Hiện form đặt lịch', type: 'boolean', default: true },
+      { key: 'showPricing', label: 'Hiện bảng giá', type: 'boolean', default: true },
+      { key: 'showGallery', label: 'Hiện gallery', type: 'boolean', default: true },
+    ],
+  };
+
   // Templates
   const templates = await Promise.all([
     prisma.template.upsert({
@@ -174,6 +192,23 @@ async function main() {
         configSchema: portfolioConfigSchema as unknown as Prisma.InputJsonValue,
       },
     }),
+    prisma.template.upsert({
+      where: { slug: 'petcare-anime' },
+      update: { configSchema: petcareAnimeConfigSchema as unknown as Prisma.InputJsonValue },
+      create: {
+        id: PETCARE_ANIME_ID,
+        name: 'PetCare Anime',
+        slug: 'petcare-anime',
+        category: 'petcare',
+        description: 'Landing page phong cách anime/kawaii cho tiệm thú cưng. Đầy đủ: đặt lịch, bảng giá, gallery, thanh toán, CSKH.',
+        techStack: ['HTML', 'CSS', 'JavaScript'],
+        plugins: ['booking', 'pricing', 'gallery', 'payment', 'faq', 'chat-widget'],
+        status: 'ACTIVE',
+        version: 1,
+        filePath: `templates/${PETCARE_ANIME_ID}/v1`,
+        configSchema: petcareAnimeConfigSchema as unknown as Prisma.InputJsonValue,
+      },
+    }),
   ]);
   console.info(`Templates: ${templates.length} created`);
 
@@ -200,6 +235,18 @@ async function main() {
         email: 'tranthib@example.com',
         phone: '0912345678',
         company: 'Pho Saigon Restaurant',
+      },
+    }),
+    prisma.client.upsert({
+      where: { id: '00000000-0000-0000-0000-000000000003' },
+      update: {},
+      create: {
+        id: '00000000-0000-0000-0000-000000000003',
+        name: 'Nguyen Thi Bich',
+        email: 'bich.petshop@example.com',
+        phone: '0901122334',
+        company: '2 Mèo 1 Gâu Pet Shop',
+        notes: 'Tiệm thú cưng phong cách anime tại TP.HCM',
       },
     }),
   ]);
@@ -263,6 +310,46 @@ async function main() {
         } as unknown as Prisma.InputJsonValue,
       },
     }),
+    prisma.project.upsert({
+      where: { slug: 'hai-meo-mot-gau' },
+      update: {
+        config: {
+          shopName: '2 Mèo 1 Gâu Pet Shop',
+          heroTitle: 'Thiên Đường Cho Thú Cưng Của Bạn 🐱🐶',
+          heroSubtitle: 'Dịch vụ Grooming, Spa, Hotel & Shop thú cưng tại TP.HCM. Đội ngũ chuyên nghiệp, tận tâm 5★',
+          primaryColor: '#FF6B9D',
+          phone: '0901122334',
+          address: '123 Đường Thú Cưng, Quận 7, TP.HCM',
+          zalo: '0901122334',
+          facebook: 'https://facebook.com/2meo1gau',
+          showBooking: true,
+          showPricing: true,
+          showGallery: true,
+        } as unknown as Prisma.InputJsonValue,
+      },
+      create: {
+        clientId: clients[2].id,
+        templateId: templates[5].id, // petcare-anime (index 5)
+        name: '2 Mèo 1 Gâu - Landing Page',
+        slug: 'hai-meo-mot-gau',
+        status: 'IN_PROGRESS',
+        deployTarget: 'VERCEL',
+        domain: '2meo1gau.vercel.app',
+        config: {
+          shopName: '2 Mèo 1 Gâu Pet Shop',
+          heroTitle: 'Thiên Đường Cho Thú Cưng Của Bạn 🐱🐶',
+          heroSubtitle: 'Dịch vụ Grooming, Spa, Hotel & Shop thú cưng tại TP.HCM. Đội ngũ chuyên nghiệp, tận tâm 5★',
+          primaryColor: '#FF6B9D',
+          phone: '0901122334',
+          address: '123 Đường Thú Cưng, Quận 7, TP.HCM',
+          zalo: '0901122334',
+          facebook: 'https://facebook.com/2meo1gau',
+          showBooking: true,
+          showPricing: true,
+          showGallery: true,
+        } as unknown as Prisma.InputJsonValue,
+      },
+    }),
   ]);
   console.info(`Projects: ${projects.length} created`);
 
@@ -274,6 +361,9 @@ async function main() {
       { userId: admin.id, projectId: projects[1].id, action: 'project.created', entityType: 'project', entityId: projects[1].id, details: 'Created project Pho Saigon Website' },
       { userId: editor.id, action: 'auth.login', entityType: 'user', entityId: editor.id, details: 'Editor user logged in' },
       { userId: admin.id, action: 'template.created', entityType: 'template', entityId: templates[0].id, details: 'Created template Education Starter' },
+      { userId: admin.id, action: 'template.created', entityType: 'template', entityId: templates[5].id, details: 'Created template PetCare Anime' },
+      { userId: admin.id, action: 'template.uploaded', entityType: 'template', entityId: templates[5].id, details: 'Uploaded files for PetCare Anime v1' },
+      { userId: admin.id, projectId: projects[2].id, action: 'project.created', entityType: 'project', entityId: projects[2].id, details: 'Created project 2 Mèo 1 Gâu - Landing Page' },
     ],
     skipDuplicates: true,
   });

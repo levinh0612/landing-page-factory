@@ -1,0 +1,15 @@
+{
+  "fields": [
+    { "key": "shopName", "label": "Tên cửa hàng", "type": "text", "default": "PetCare Shop", "required": true },
+    { "key": "heroTitle", "label": "Tiêu đề Hero", "type": "text", "default": "Thiên Đường Cho Thú Cưng Của Bạn", "required": true },
+    { "key": "heroSubtitle", "label": "Mô tả Hero", "type": "textarea", "default": "Dịch vụ chăm sóc thú cưng toàn diện: Pet Shop, Grooming, Spa, Hotel", "required": false },
+    { "key": "primaryColor", "label": "Màu chủ đạo", "type": "color", "default": "#FF6B9D" },
+    { "key": "phone", "label": "Số điện thoại", "type": "text", "default": "0785877686", "required": true },
+    { "key": "address", "label": "Địa chỉ", "type": "text", "default": "41B Trường Chinh, TP.HCM", "required": true },
+    { "key": "zalo", "label": "Zalo", "type": "text", "default": "0785877686" },
+    { "key": "facebook", "label": "Facebook URL", "type": "url", "default": "" },
+    { "key": "showBooking", "label": "Hiện form đặt lịch", "type": "boolean", "default": true },
+    { "key": "showPricing", "label": "Hiện bảng giá", "type": "boolean", "default": true },
+    { "key": "showGallery", "label": "Hiện gallery", "type": "boolean", "default": true }
+  ]
+}
