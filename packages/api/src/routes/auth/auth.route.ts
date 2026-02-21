@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { loginSchema, registerSchema } from '@lpf/shared';
+import { validate } from '../../middleware/validate.js';
+import { authenticate } from '../../middleware/auth.js';
+import * as authController from './auth.controller.js';
+
+export const authRoutes = Router();
+
+authRoutes.post('/register', validate(registerSchema), authController.register);
+authRoutes.post('/login', validate(loginSchema), authController.login);
+authRoutes.get('/me', authenticate, authController.getMe);
+authRoutes.post('/logout', authenticate, authController.logout);

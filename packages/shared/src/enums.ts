@@ -1,0 +1,41 @@
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  EDITOR = 'EDITOR',
+  VIEWER = 'VIEWER',
+}
+
+export enum ProjectStatus {
+  DRAFT = 'DRAFT',
+  IN_PROGRESS = 'IN_PROGRESS',
+  READY = 'READY',
+  DEPLOYED = 'DEPLOYED',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum DeployTarget {
+  VERCEL = 'VERCEL',
+  NETLIFY = 'NETLIFY',
+  CLOUDFLARE = 'CLOUDFLARE',
+  CUSTOM = 'CUSTOM',
+}
+
+export enum TemplateStatus {
+  DRAFT = 'DRAFT',
+  ACTIVE = 'ACTIVE',
+  DEPRECATED = 'DEPRECATED',
+}
+
+export enum DeploymentStatus {
+  PENDING = 'PENDING',
+  BUILDING = 'BUILDING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  ROLLED_BACK = 'ROLLED_BACK',
+}
+
+export enum HealthCheckStatus {
+  HEALTHY = 'HEALTHY',
+  DEGRADED = 'DEGRADED',
+  DOWN = 'DOWN',
+  UNKNOWN = 'UNKNOWN',
+}
