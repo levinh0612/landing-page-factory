@@ -1,7 +1,8 @@
 [build]
 builder = "nixpacks"
+buildCommand = "npm ci && npm run build:shared && npm run build:api"
 
 [deploy]
-startCommand = "npm run start:prod"
+startCommand = "npm run db:migrate -w packages/api -- --skip-generate && npm run db:seed && node packages/api/dist/index.js"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
