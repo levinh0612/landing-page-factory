@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../middleware/error.js';
 import { localStorage } from './local-storage.js';
@@ -6,10 +5,10 @@ import { templateConfigSchema } from '@lpf/shared';
 import * as activityLog from './activity-log.service.js';
 import type { CreateTemplateInput, UpdateTemplateInput, PaginationInput, TemplateConfigSchema } from '@lpf/shared';
 
-function toJsonValue(val: Record<string, unknown> | null | undefined) {
-  if (val === null) return Prisma.JsonNull;
-  if (val === undefined) return undefined;
-  return val as Prisma.InputJsonValue;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toJsonValue(val: Record<string, unknown> | null | undefined): any {
+  if (val === null || val === undefined) return val;
+  return val;
 }
 
 export async function list(query: PaginationInput) {
@@ -109,11 +108,12 @@ export async function upload(id: string, zipBuffer: Buffer, userId?: string) {
 
   // Parse config.schema.json if present in the ZIP
   const parsedSchema = localStorage.parseConfigSchema(id, newVersion);
-  let configSchema: Prisma.InputJsonValue | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let configSchema: any;
   if (parsedSchema) {
     const result = templateConfigSchema.safeParse(parsedSchema);
     if (result.success) {
-      configSchema = result.data as unknown as Prisma.InputJsonValue;
+      configSchema = result.data;
     }
   }
 

@@ -9,10 +9,10 @@ import type {
   PaginationInput,
 } from '@lpf/shared';
 
-function toJsonValue(val: Record<string, unknown> | null | undefined) {
-  if (val === null) return Prisma.JsonNull;
-  if (val === undefined) return undefined;
-  return val as Prisma.InputJsonValue;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toJsonValue(val: Record<string, unknown> | null | undefined): any {
+  if (val === null || val === undefined) return val;
+  return val;
 }
 
 export async function list(query: PaginationInput & { status?: string }) {
