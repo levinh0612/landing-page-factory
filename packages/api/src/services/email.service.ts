@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 import { config } from '../lib/config.js';
 
 const resend = config.RESEND_API_KEY ? new Resend(config.RESEND_API_KEY) : null;
-const FROM = 'LPF Platform <noreply@lpf.local>';
+const FROM = 'LPF Platform <onboarding@resend.dev>';
 const ADMIN_EMAIL = config.ADMIN_EMAIL ?? 'admin@lpf.local';
 
 export interface BookingEmailData {
