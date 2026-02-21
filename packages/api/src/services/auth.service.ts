@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../lib/prisma.js';
 import { config } from '../lib/config.js';
 import { AppError } from '../middleware/error.js';
+import * as activityLog from './activity-log.service.js';
 import type { RegisterInput, LoginInput } from '@lpf/shared';
 
 export async function register(input: RegisterInput) {
@@ -18,7 +19,15 @@ export async function register(input: RegisterInput) {
       passwordHash,
       name: input.name,
     },
-    select: { id: true, email: true, name: true, role: true, createdAt: true, updatedAt: true },
+    select: { id: true, email: true, name: true, role: true, isActive: true, createdAt: true, updatedAt: true },
+  });
+
+  await activityLog.log({
+    userId: user.id,
+    action: 'auth.registered',
+    entityType: 'user',
+    entityId: user.id,
+    details: `User ${user.email} registered`,
   });
 
   return user;
@@ -28,6 +37,10 @@ export async function login(input: LoginInput) {
   const user = await prisma.user.findUnique({ where: { email: input.email } });
   if (!user) {
     throw new AppError(401, 'Invalid email or password');
+  }
+
+  if (!user.isActive) {
+    throw new AppError(403, 'Account is deactivated');
   }
 
   const valid = await bcrypt.compare(input.password, user.passwordHash);
@@ -40,6 +53,14 @@ export async function login(input: LoginInput) {
     config.JWT_SECRET,
     { expiresIn: config.JWT_EXPIRES_IN as string & jwt.SignOptions['expiresIn'] },
   );
+
+  await activityLog.log({
+    userId: user.id,
+    action: 'auth.login',
+    entityType: 'user',
+    entityId: user.id,
+    details: `User ${user.email} logged in`,
+  });
 
   return {
     token,
@@ -55,7 +76,7 @@ export async function login(input: LoginInput) {
 export async function getMe(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, name: true, role: true, createdAt: true, updatedAt: true },
+    select: { id: true, email: true, name: true, role: true, isActive: true, createdAt: true, updatedAt: true },
   });
 
   if (!user) {

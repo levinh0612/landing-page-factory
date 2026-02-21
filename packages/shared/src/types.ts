@@ -5,6 +5,7 @@ import type {
   TemplateStatus,
   DeploymentStatus,
   HealthCheckStatus,
+  ApprovalStatus,
 } from './enums.js';
 
 export interface User {
@@ -12,6 +13,7 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -28,6 +30,8 @@ export interface Template {
   plugins: string[];
   status: TemplateStatus;
   configSchema: Record<string, unknown> | null;
+  version: number;
+  filePath: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,6 +58,7 @@ export interface Project {
   deployTarget: DeployTarget | null;
   deployUrl: string | null;
   config: Record<string, unknown> | null;
+  approvalStatus: ApprovalStatus;
   createdAt: string;
   updatedAt: string;
   client?: Client;
@@ -68,6 +73,9 @@ export interface Deployment {
   platform: string;
   deployUrl: string | null;
   logs: string | null;
+  deployedBy: string | null;
+  buildTime: number | null;
+  metadata: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -87,6 +95,40 @@ export interface ActivityLog {
   userId: string;
   action: string;
   details: string | null;
+  entityType: string | null;
+  entityId: string | null;
+  createdAt: string;
+  user?: { name: string; email: string };
+}
+
+export interface TemplateVersion {
+  id: string;
+  templateId: string;
+  version: number;
+  filePath: string;
+  fileCount: number;
+  fileSize: number;
+  uploadedBy: string | null;
+  createdAt: string;
+  uploader?: { name: string };
+}
+
+export interface PreviewToken {
+  id: string;
+  projectId: string;
+  token: string;
+  expiresAt: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+export interface Comment {
+  id: string;
+  projectId: string;
+  userId: string | null;
+  authorName: string;
+  content: string;
+  isClient: boolean;
   createdAt: string;
 }
 

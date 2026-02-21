@@ -21,7 +21,7 @@ export async function getById(req: Request<{ id: string }>, res: Response, next:
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const client = await clientService.create(req.body);
+    const client = await clientService.create(req.body, req.user?.userId);
     res.status(201).json({ success: true, data: client });
   } catch (err) {
     next(err);
@@ -30,7 +30,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request<{ id: string }>, res: Response, next: NextFunction) {
   try {
-    const client = await clientService.update(req.params.id, req.body);
+    const client = await clientService.update(req.params.id, req.body, req.user?.userId);
     res.json({ success: true, data: client });
   } catch (err) {
     next(err);
@@ -39,7 +39,7 @@ export async function update(req: Request<{ id: string }>, res: Response, next: 
 
 export async function remove(req: Request<{ id: string }>, res: Response, next: NextFunction) {
   try {
-    await clientService.remove(req.params.id);
+    await clientService.remove(req.params.id, req.user?.userId);
     res.json({ success: true, data: { message: 'Client deleted' } });
   } catch (err) {
     next(err);

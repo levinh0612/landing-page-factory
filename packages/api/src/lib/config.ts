@@ -6,6 +6,8 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('7d'),
   API_PORT: z.coerce.number().default(5001),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  VERCEL_TOKEN: z.string().optional(),
+  NETLIFY_TOKEN: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

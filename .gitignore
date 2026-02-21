@@ -30,3 +30,6 @@ coverage/
 
 # Turbo
 .turbo/
+
+# Uploaded template files
+packages/api/uploads/

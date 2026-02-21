@@ -7,6 +7,9 @@ import { templateRoutes } from './routes/templates/template.route.js';
 import { clientRoutes } from './routes/clients/client.route.js';
 import { projectRoutes } from './routes/projects/project.route.js';
 import { dashboardRoutes } from './routes/dashboard/dashboard.route.js';
+import { userRoutes } from './routes/users/user.route.js';
+import { activityLogRoutes } from './routes/activity-logs/activity-log.route.js';
+import { portalRoutes } from './routes/portal/portal.route.js';
 
 const app = express();
 
@@ -24,6 +27,9 @@ app.use('/api/templates', templateRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/activity-logs', activityLogRoutes);
+app.use('/api/portal', portalRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

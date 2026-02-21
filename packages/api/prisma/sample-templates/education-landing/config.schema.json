@@ -1,0 +1,37 @@
+{
+  "fields": [
+    {
+      "key": "schoolName",
+      "label": "School Name",
+      "type": "text",
+      "default": "ABC Education Center",
+      "required": true
+    },
+    {
+      "key": "heroTitle",
+      "label": "Hero Title",
+      "type": "text",
+      "default": "Empowering Minds, Shaping Futures",
+      "required": true
+    },
+    {
+      "key": "heroSubtitle",
+      "label": "Hero Subtitle",
+      "type": "textarea",
+      "default": "Discover our world-class educational programs designed to inspire and empower the next generation.",
+      "required": false
+    },
+    {
+      "key": "primaryColor",
+      "label": "Primary Color",
+      "type": "color",
+      "default": "#2563eb"
+    },
+    {
+      "key": "showContact",
+      "label": "Show Contact Section",
+      "type": "boolean",
+      "default": true
+    }
+  ]
+}

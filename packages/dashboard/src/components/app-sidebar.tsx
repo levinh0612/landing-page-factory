@@ -3,6 +3,8 @@ import {
   Palette,
   Users,
   FolderKanban,
+  Shield,
+  History,
   LogOut,
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router';
@@ -20,17 +22,23 @@ import {
 } from '@/components/ui/sidebar';
 import { useAuthStore } from '@/stores/auth-store';
 
-const navItems = [
+const baseNavItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Templates', url: '/templates', icon: Palette },
   { title: 'Clients', url: '/clients', icon: Users },
   { title: 'Projects', url: '/projects', icon: FolderKanban },
+  { title: 'Users', url: '/users', icon: Shield, adminOnly: true },
+  { title: 'Activity', url: '/activity-logs', icon: History },
 ];
 
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+
+  const navItems = baseNavItems.filter(
+    (item) => !item.adminOnly || user?.role === 'ADMIN',
+  );
 
   const handleLogout = () => {
     logout();

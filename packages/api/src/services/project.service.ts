@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../middleware/error.js';
+import * as activityLog from './activity-log.service.js';
 import type {
   CreateProjectInput,
   UpdateProjectInput,
@@ -57,7 +58,7 @@ export async function getById(id: string) {
     include: {
       client: true,
       template: true,
-      deployments: { orderBy: { createdAt: 'desc' }, take: 5 },
+      deployments: { orderBy: { createdAt: 'desc' }, take: 10 },
       healthChecks: { orderBy: { checkedAt: 'desc' }, take: 1 },
     },
   });
@@ -65,7 +66,7 @@ export async function getById(id: string) {
   return project;
 }
 
-export async function create(input: CreateProjectInput) {
+export async function create(input: CreateProjectInput, userId?: string) {
   // Verify client and template exist
   const [client, template] = await Promise.all([
     prisma.client.findUnique({ where: { id: input.clientId } }),
@@ -78,16 +79,29 @@ export async function create(input: CreateProjectInput) {
   if (existing) throw new AppError(409, 'Project slug already exists');
 
   const { config, ...rest } = input;
-  return prisma.project.create({
+  const project = await prisma.project.create({
     data: { ...rest, config: toJsonValue(config) },
     include: {
       client: { select: { id: true, name: true } },
       template: { select: { id: true, name: true } },
     },
   });
+
+  if (userId) {
+    await activityLog.log({
+      userId,
+      action: 'project.created',
+      entityType: 'project',
+      entityId: project.id,
+      projectId: project.id,
+      details: `Created project ${project.name}`,
+    });
+  }
+
+  return project;
 }
 
-export async function update(id: string, input: UpdateProjectInput) {
+export async function update(id: string, input: UpdateProjectInput, userId?: string) {
   await getById(id);
 
   if (input.slug) {
@@ -98,7 +112,7 @@ export async function update(id: string, input: UpdateProjectInput) {
   }
 
   const { config, clientId, templateId, ...rest } = input;
-  return prisma.project.update({
+  const project = await prisma.project.update({
     where: { id },
     data: {
       ...rest,
@@ -111,26 +125,63 @@ export async function update(id: string, input: UpdateProjectInput) {
       template: { select: { id: true, name: true } },
     },
   });
+
+  if (userId) {
+    await activityLog.log({
+      userId,
+      action: 'project.updated',
+      entityType: 'project',
+      entityId: project.id,
+      projectId: project.id,
+      details: `Updated project ${project.name}`,
+    });
+  }
+
+  return project;
 }
 
-export async function updateStatus(id: string, input: UpdateProjectStatusInput) {
+export async function updateStatus(id: string, input: UpdateProjectStatusInput, userId?: string) {
   await getById(id);
-  return prisma.project.update({
+  const project = await prisma.project.update({
     where: { id },
     data: { status: input.status },
   });
+
+  if (userId) {
+    await activityLog.log({
+      userId,
+      action: 'project.status_changed',
+      entityType: 'project',
+      entityId: project.id,
+      projectId: project.id,
+      details: `Status changed to ${input.status}`,
+    });
+  }
+
+  return project;
 }
 
-export async function remove(id: string) {
+export async function remove(id: string, userId?: string) {
   const project = await getById(id);
 
   // Delete related records first
   await prisma.$transaction([
+    prisma.comment.deleteMany({ where: { projectId: id } }),
+    prisma.previewToken.deleteMany({ where: { projectId: id } }),
     prisma.activityLog.deleteMany({ where: { projectId: id } }),
     prisma.healthCheck.deleteMany({ where: { projectId: id } }),
     prisma.deployment.deleteMany({ where: { projectId: id } }),
     prisma.project.delete({ where: { id } }),
   ]);
+
+  if (userId) {
+    await activityLog.log({
+      userId,
+      action: 'project.deleted',
+      entityType: 'project',
+      details: `Deleted project ${project.name}`,
+    });
+  }
 
   return project;
 }

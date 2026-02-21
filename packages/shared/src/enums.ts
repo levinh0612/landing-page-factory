@@ -39,3 +39,9 @@ export enum HealthCheckStatus {
   DOWN = 'DOWN',
   UNKNOWN = 'UNKNOWN',
 }
+
+export enum ApprovalStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  CHANGES_REQUESTED = 'CHANGES_REQUESTED',
+}

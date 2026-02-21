@@ -1,30 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, Trash2, Pencil } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createProjectSchema, ProjectStatus } from '@lpf/shared';
 import type { CreateProjectInput } from '@lpf/shared';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { api } from '@/lib/axios';
+import { useDebounce } from '@/hooks/use-debounce';
+import { usePagination } from '@/hooks/use-pagination';
+import { PaginationControls } from '@/components/pagination-controls';
+import { EditProjectDialog } from '@/components/edit-project-dialog';
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -41,16 +42,26 @@ export function ProjectsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editItem, setEditItem] = useState<any>(null);
+
+  const debouncedSearch = useDebounce(search);
+  const { page, limit, setPage, setLimit, resetPage, meta, setMeta } = usePagination();
+
+  useEffect(() => { resetPage(); }, [debouncedSearch, statusFilter, resetPage]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['projects', search, statusFilter],
+    queryKey: ['projects', debouncedSearch, statusFilter, page, limit],
     queryFn: async () => {
-      const params: any = { search, limit: 50 };
+      const params: Record<string, unknown> = { search: debouncedSearch, page, limit };
       if (statusFilter) params.status = statusFilter;
       const res = await api.get('/projects', { params });
       return res.data;
     },
   });
+
+  useEffect(() => {
+    if (data?.meta) setMeta({ total: data.meta.total, totalPages: data.meta.totalPages });
+  }, [data?.meta, setMeta]);
 
   const { data: clientsData } = useQuery({
     queryKey: ['clients-select'],
@@ -70,7 +81,11 @@ export function ProjectsPage() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/projects/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['projects'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast.success('Project deleted');
+    },
+    onError: () => toast.error('Failed to delete project'),
   });
 
   const createMutation = useMutation({
@@ -78,21 +93,24 @@ export function ProjectsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       setDialogOpen(false);
+      toast.success('Project created');
     },
+    onError: () => toast.error('Failed to create project'),
   });
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateProjectInput>({
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<CreateProjectInput>({
     resolver: zodResolver(createProjectSchema),
   });
 
   const onSubmit = (formData: CreateProjectInput) => {
     createMutation.mutate(formData);
     reset();
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      deleteMutation.mutate(id);
+    }
   };
 
   const statuses = Object.values(ProjectStatus);
@@ -103,14 +121,10 @@ export function ProjectsPage() {
         <h1 className="text-2xl font-bold">Projects</h1>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> New Project
-            </Button>
+            <Button><Plus className="mr-2 h-4 w-4" /> New Project</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Project</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Create Project</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label>Name</Label>
@@ -124,28 +138,42 @@ export function ProjectsPage() {
               </div>
               <div className="space-y-2">
                 <Label>Client</Label>
-                <select
-                  {...register('clientId')}
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                >
-                  <option value="">Select client...</option>
-                  {clientsData?.map((c: any) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
+                <Controller
+                  name="clientId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select client..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clientsData?.map((c: any) => (
+                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.clientId && <p className="text-xs text-destructive">{errors.clientId.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Template</Label>
-                <select
-                  {...register('templateId')}
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                >
-                  <option value="">Select template...</option>
-                  {templatesData?.map((t: any) => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
+                <Controller
+                  name="templateId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select template..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {templatesData?.map((t: any) => (
+                          <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.templateId && <p className="text-xs text-destructive">{errors.templateId.message}</p>}
               </div>
               <div className="space-y-2">
@@ -160,7 +188,7 @@ export function ProjectsPage() {
         </Dialog>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4">
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -170,7 +198,7 @@ export function ProjectsPage() {
             className="pl-9"
           />
         </div>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           <Button
             variant={statusFilter === '' ? 'default' : 'outline'}
             size="sm"
@@ -192,61 +220,84 @@ export function ProjectsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-muted-foreground">Loading...</p>
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Template</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Domain</TableHead>
-                <TableHead className="w-[80px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data?.data?.length ? (
-                data.data.map((project: any) => (
-                  <TableRow key={project.id}>
-                    <TableCell className="font-medium">{project.name}</TableCell>
-                    <TableCell>{project.client?.name || '-'}</TableCell>
-                    <TableCell>{project.template?.name || '-'}</TableCell>
-                    <TableCell>
-                      <Badge variant={statusVariant(project.status)}>
-                        {project.status.replace('_', ' ')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{project.domain || '-'}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive"
-                          onClick={() => deleteMutation.mutate(project.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+        <>
+          <div className="overflow-x-auto rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Template</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Domain</TableHead>
+                  <TableHead className="w-[80px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data?.data?.length ? (
+                  data.data.map((project: any) => (
+                    <TableRow key={project.id}>
+                      <TableCell className="font-medium">
+                        <Link to={`/projects/${project.id}`} className="hover:underline text-primary">
+                          {project.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell>{project.client?.name || '-'}</TableCell>
+                      <TableCell>{project.template?.name || '-'}</TableCell>
+                      <TableCell>
+                        <Badge variant={statusVariant(project.status)}>
+                          {project.status.replace('_', ' ')}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{project.domain || '-'}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditItem(project)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                            onClick={() => handleDelete(project.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                      No projects found
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    No projects found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <PaginationControls
+            page={page}
+            totalPages={meta.totalPages}
+            limit={limit}
+            onPageChange={setPage}
+            onLimitChange={setLimit}
+          />
+        </>
       )}
+
+      <EditProjectDialog
+        project={editItem}
+        open={!!editItem}
+        onOpenChange={(open) => { if (!open) setEditItem(null); }}
+      />
     </div>
   );
 }
