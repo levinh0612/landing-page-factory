@@ -243,8 +243,8 @@ export function ProjectDetailPage() {
                     {vercelDomains.map((d) => (
                       <div key={d.name} className="flex items-center gap-2 group">
                         {d.verified
-                          ? <ShieldCheck className="h-3.5 w-3.5 text-green-500 shrink-0" title="Verified" />
-                          : <ShieldAlert className="h-3.5 w-3.5 text-yellow-500 shrink-0" title="Not verified" />}
+                          ? <ShieldCheck className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                          : <ShieldAlert className="h-3.5 w-3.5 text-yellow-500 shrink-0" />}
                         <a href={`https://${d.name}`} target="_blank" rel="noreferrer"
                           className="text-sm font-medium hover:underline flex-1 truncate">
                           {d.name}

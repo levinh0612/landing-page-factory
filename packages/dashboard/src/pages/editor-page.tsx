@@ -297,7 +297,7 @@ const STARTER_TEMPLATES = {
 export function EditorPage() {
   const [html, setHtml] = useState(STARTER_TEMPLATES.blank);
   const [iframeKey, setIframeKey] = useState(0);
-  const debounceTimerRef = useRef<NodeJS.Timeout>();
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [selectedTemplate, setSelectedTemplate] = useState('blank');
 
   // Debounced iframe update

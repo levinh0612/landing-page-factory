@@ -161,7 +161,7 @@ export function PostEditorPage() {
       {/* Right Sidebar */}
       <div className="w-72 border-l overflow-y-auto p-4 space-y-6">
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => saveMutation.mutate(undefined)} disabled={saveMutation.isPending}>
             <Save className="h-4 w-4 mr-1" /> Save Draft
           </Button>
           <Button size="sm" className="flex-1" onClick={() => saveMutation.mutate('PUBLISHED')} disabled={saveMutation.isPending}>
