@@ -21,6 +21,9 @@ import { siteCommentRoutes } from './routes/site-comments/site-comment.route.js'
 import { settingsRoutes } from './routes/settings/settings.route.js';
 import { monitorRoutes } from './routes/monitor/monitor.route.js';
 import aiRoutes from './routes/ai/ai.route.js';
+import { domainRecordRoutes } from './routes/domain-records/domain-record.route.js';
+import { pluginRoutes } from './routes/plugins/plugin.route.js';
+import { marketplaceRoutes } from './routes/marketplace/marketplace.route.js';
 import { ensureUploadDir } from './services/media.service.js';
 
 // Ensure upload directory exists
@@ -62,6 +65,9 @@ app.use('/api/site-comments', siteCommentRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/monitor', monitorRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/domain-records', domainRecordRoutes);
+app.use('/api/plugins', pluginRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

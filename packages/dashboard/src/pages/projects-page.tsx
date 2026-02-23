@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Trash2, Pencil } from 'lucide-react';
+import { Plus, Search, Trash2, Pencil, Rocket, Globe, ChevronDown, ChevronUp, ExternalLink, RefreshCw } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createProjectSchema, ProjectStatus } from '@lpf/shared';
@@ -26,6 +26,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { usePagination } from '@/hooks/use-pagination';
 import { PaginationControls } from '@/components/pagination-controls';
 import { EditProjectDialog } from '@/components/edit-project-dialog';
+import { DomainPanel } from '@/components/domain-panel';
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -43,6 +44,7 @@ export function ProjectsPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editItem, setEditItem] = useState<any>(null);
+  const [expandedDomain, setExpandedDomain] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(search);
   const { page, limit, setPage, setLimit, resetPage, meta, setMeta } = usePagination();
@@ -86,6 +88,16 @@ export function ProjectsPage() {
       toast.success('Project deleted');
     },
     onError: () => toast.error('Failed to delete project'),
+  });
+
+  const deployMutation = useMutation({
+    mutationFn: (id: string) => api.post(`/projects/${id}/deploy`),
+    onSuccess: (res, id) => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      const url = res.data?.data?.url;
+      toast.success(url ? `Deployed: ${url}` : 'Deployment started');
+    },
+    onError: (err: any) => toast.error(err?.response?.data?.error || 'Deploy failed'),
   });
 
   const createMutation = useMutation({
@@ -235,43 +247,88 @@ export function ProjectsPage() {
                   <TableHead>Client</TableHead>
                   <TableHead>Template</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Domain</TableHead>
-                  <TableHead className="w-[80px]">Actions</TableHead>
+                  <TableHead>Deploy URL</TableHead>
+                  <TableHead className="w-[160px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data?.data?.length ? (
                   data.data.map((project: any) => (
-                    <TableRow key={project.id}>
-                      <TableCell className="font-medium">
-                        <Link to={`/projects/${project.id}`} className="hover:underline text-primary">
-                          {project.name}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{project.client?.name || '-'}</TableCell>
-                      <TableCell>{project.template?.name || '-'}</TableCell>
-                      <TableCell>
-                        <Badge variant={statusVariant(project.status)}>
-                          {project.status.replace('_', ' ')}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{project.domain || project.deployUrl || '-'}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditItem(project)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive"
-                            onClick={() => handleDelete(project.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    <>
+                      <TableRow key={project.id}>
+                        <TableCell className="font-medium">
+                          <Link to={`/projects/${project.id}`} className="hover:underline text-primary">
+                            {project.name}
+                          </Link>
+                        </TableCell>
+                        <TableCell>{project.client?.name || '-'}</TableCell>
+                        <TableCell>{project.template?.name || '-'}</TableCell>
+                        <TableCell>
+                          <Badge variant={statusVariant(project.status)}>
+                            {project.status.replace('_', ' ')}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {project.deployUrl ? (
+                            <a
+                              href={project.deployUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-xs text-primary hover:underline truncate max-w-[160px]"
+                            >
+                              <ExternalLink className="h-3 w-3 shrink-0" />
+                              {project.domain || project.deployUrl.replace('https://', '')}
+                            </a>
+                          ) : '-'}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 px-2 text-xs"
+                              onClick={() => deployMutation.mutate(project.id)}
+                              disabled={deployMutation.isPending && deployMutation.variables === project.id}
+                              title={project.deployUrl ? 'Redeploy' : 'Deploy'}
+                            >
+                              {deployMutation.isPending && deployMutation.variables === project.id
+                                ? <RefreshCw className="h-3 w-3 animate-spin" />
+                                : <Rocket className="h-3 w-3" />}
+                              <span className="ml-1">{project.deployUrl ? 'Redeploy' : 'Deploy'}</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              title="Domains"
+                              onClick={() => setExpandedDomain(expandedDomain === project.id ? null : project.id)}
+                            >
+                              {expandedDomain === project.id
+                                ? <ChevronUp className="h-4 w-4" />
+                                : <Globe className="h-4 w-4" />}
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditItem(project)}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive"
+                              onClick={() => handleDelete(project.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      {expandedDomain === project.id && (
+                        <TableRow key={`${project.id}-domains`}>
+                          <TableCell colSpan={6} className="bg-muted/30 p-4">
+                            <DomainPanel projectId={project.id} deployUrl={project.deployUrl ?? null} />
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </>
                   ))
                 ) : (
                   <TableRow>

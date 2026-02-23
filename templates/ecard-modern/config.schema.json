@@ -1,0 +1,19 @@
+{
+  "fields": [
+    { "key": "fullName", "label": "Full Name", "type": "text", "default": "Alex Chen", "required": true },
+    { "key": "jobTitle", "label": "Job Title", "type": "text", "default": "Full-Stack Engineer", "required": true },
+    { "key": "company", "label": "Company", "type": "text", "default": "TechVentures Inc." },
+    { "key": "phone", "label": "Phone", "type": "text", "default": "+1 (415) 987-6543" },
+    { "key": "email", "label": "Email", "type": "text", "default": "alex@techventures.io" },
+    { "key": "avatarUrl", "label": "Avatar URL", "type": "url", "default": "" },
+    { "key": "tagline", "label": "Tagline", "type": "text", "default": "Building products at the intersection of design and engineering" },
+    { "key": "accentColor", "label": "Accent Color", "type": "color", "default": "#0ea5e9" },
+    { "key": "address", "label": "Location", "type": "text", "default": "San Francisco, CA" },
+    { "key": "website", "label": "Website URL", "type": "url", "default": "https://alexchen.dev" },
+    { "key": "linkedinUrl", "label": "LinkedIn URL", "type": "url", "default": "" },
+    { "key": "githubUrl", "label": "GitHub URL", "type": "url", "default": "" },
+    { "key": "twitterUrl", "label": "Twitter / X URL", "type": "url", "default": "" },
+    { "key": "showQR", "label": "Show QR Code", "type": "boolean", "default": true },
+    { "key": "qrValue", "label": "QR Code Value (URL)", "type": "url", "default": "https://alexchen.dev" }
+  ]
+}

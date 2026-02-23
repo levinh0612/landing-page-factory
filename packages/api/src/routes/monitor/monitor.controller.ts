@@ -6,9 +6,25 @@ import http from 'http';
 export async function systemInfo(_req: Request, res: Response, next: NextFunction) {
   try {
     const mem = process.memoryUsage();
+
+    // Real DB connectivity check
+    let dbOk = false;
+    let dbLatencyMs: number | null = null;
+    try {
+      const start = Date.now();
+      await prisma.$queryRaw`SELECT 1`;
+      dbLatencyMs = Date.now() - start;
+      dbOk = true;
+    } catch {
+      dbOk = false;
+    }
+
     res.json({
       success: true,
       data: {
+        api: true,
+        db: dbOk,
+        dbLatencyMs,
         uptime: process.uptime(),
         nodeVersion: process.version,
         platform: process.platform,

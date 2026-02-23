@@ -18,18 +18,27 @@ const STATUS_COLORS: Record<string, string> = {
 
 const TABS = ['All', 'PUBLISHED', 'DRAFT', 'ARCHIVED'];
 
+const PAGE_SIZE = 15;
+
 export function PostsPage() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  // Reset to page 1 when filters change
+  const handleFilterChange = (filter: string) => { setStatusFilter(filter); setPage(1); };
+  const handleSearchChange = (s: string) => { setSearch(s); setPage(1); };
+
   const { data, isLoading } = useQuery({
-    queryKey: ['posts', statusFilter, search],
+    queryKey: ['posts', statusFilter, search, page],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (statusFilter !== 'All') params.set('status', statusFilter);
       if (search) params.set('search', search);
+      params.set('page', String(page));
+      params.set('limit', String(PAGE_SIZE));
       const res = await api.get(`/posts?${params}`);
       return res.data;
     },
@@ -44,6 +53,8 @@ export function PostsPage() {
   });
 
   const posts = data?.data ?? [];
+  const meta = data?.meta;
+  const totalPages = meta?.totalPages ?? 1;
 
   return (
     <div className="space-y-6">
@@ -62,7 +73,7 @@ export function PostsPage() {
         {TABS.map((tab) => (
           <button
             key={tab}
-            onClick={() => setStatusFilter(tab)}
+            onClick={() => handleFilterChange(tab)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               statusFilter === tab
                 ? 'border-primary text-primary'
@@ -81,7 +92,7 @@ export function PostsPage() {
           placeholder="Search posts..."
           className="pl-9"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
         />
       </div>
 
@@ -155,6 +166,23 @@ export function PostsPage() {
             </tbody>
           </table>
         </div></div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">
+            Page {page} of {totalPages} · {meta?.total ?? 0} posts
+          </span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setPage((p) => p - 1)} disabled={page <= 1}>
+              Previous
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)} disabled={page >= totalPages}>
+              Next
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );

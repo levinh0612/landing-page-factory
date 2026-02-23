@@ -10,6 +10,7 @@ export enum ProjectStatus {
   READY = 'READY',
   DEPLOYED = 'DEPLOYED',
   ARCHIVED = 'ARCHIVED',
+  HANDED_OVER = 'HANDED_OVER',
 }
 
 export enum DeployTarget {
@@ -64,4 +65,12 @@ export enum SettingType {
   BOOLEAN = 'BOOLEAN',
   NUMBER = 'NUMBER',
   JSON = 'JSON',
+}
+
+export enum DomainStatus {
+  ACTIVE = 'ACTIVE',
+  EXPIRING_SOON = 'EXPIRING_SOON',
+  EXPIRED = 'EXPIRED',
+  TRANSFERRED = 'TRANSFERRED',
+  CANCELLED = 'CANCELLED',
 }

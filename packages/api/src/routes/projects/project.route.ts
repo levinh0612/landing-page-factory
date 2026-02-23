@@ -50,3 +50,8 @@ projectRoutes.get('/:id/deployments', projectController.listDeployments);
 projectRoutes.get('/:id/vercel-domains', projectController.listVercelDomains);
 projectRoutes.post('/:id/vercel-domains', authorize('ADMIN', 'EDITOR'), projectController.addVercelDomain);
 projectRoutes.delete('/:id/vercel-domains/:domain', authorize('ADMIN', 'EDITOR'), projectController.removeVercelDomain);
+projectRoutes.get('/:id/domain-availability', projectController.checkDomainAvailability);
+
+// Project Plugins
+projectRoutes.get('/:id/plugins', projectController.listProjectPlugins);
+projectRoutes.put('/:id/plugins', authorize('ADMIN', 'EDITOR'), projectController.updateProjectPlugins);

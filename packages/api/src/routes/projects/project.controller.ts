@@ -225,6 +225,65 @@ export async function removeVercelDomain(
   }
 }
 
+export async function checkDomainAvailability(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+  try {
+    // Strip protocol/path so users can paste full URLs
+    const name = String(req.query.name ?? '')
+      .trim()
+      .replace(/^https?:\/\//i, '')
+      .replace(/[/?#].*$/, '');
+    if (!name) {
+      res.status(400).json({ success: false, error: 'name query param required' });
+      return;
+    }
+    const { checkDomainAvailability: check } = await import('../../services/deploy/vercel.service.js');
+    const result = await check(name);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Project Plugin routes
+export async function listProjectPlugins(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+  try {
+    const { prisma } = await import('../../lib/prisma.js');
+    const projectPlugins = await prisma.projectPlugin.findMany({
+      where: { projectId: req.params.id },
+      include: { plugin: true },
+      orderBy: { plugin: { category: 'asc' } },
+    });
+    res.json({ success: true, data: projectPlugins });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateProjectPlugins(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+  try {
+    const { plugins } = req.body as { plugins: Array<{ pluginId: string; enabled: boolean; config?: Record<string, unknown> }> };
+    if (!Array.isArray(plugins)) {
+      res.status(400).json({ success: false, error: 'plugins array required' });
+      return;
+    }
+    const { prisma } = await import('../../lib/prisma.js');
+    const results = await Promise.all(
+      plugins.map((p) => {
+        const configValue = p.config != null ? (p.config as any) : undefined;
+        return prisma.projectPlugin.upsert({
+          where: { projectId_pluginId: { projectId: req.params.id, pluginId: p.pluginId } },
+          update: { enabled: p.enabled, config: configValue },
+          create: { projectId: req.params.id, pluginId: p.pluginId, enabled: p.enabled, config: configValue },
+          include: { plugin: true },
+        });
+      })
+    );
+    res.json({ success: true, data: results });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function listDeployments(req: Request<{ id: string }>, res: Response, next: NextFunction) {
   try {
     const { prisma } = await import('../../lib/prisma.js');

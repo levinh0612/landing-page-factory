@@ -168,6 +168,24 @@ export async function addDomain(projectName: string, domain: string): Promise<{ 
   return { name: d.name, verified: d.verified ?? false };
 }
 
+export async function checkDomainAvailability(domain: string): Promise<{ available: boolean; purchasable: boolean }> {
+  const token = process.env.VERCEL_TOKEN;
+  if (!token) throw new AppError(400, 'VERCEL_TOKEN is not configured');
+
+  // New Registrar API (v1) — replaces sunsetted v4/domains/status
+  const res = await fetch(
+    `https://api.vercel.com/v1/registrar/domains/${encodeURIComponent(domain)}/availability`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!res.ok) {
+    const err = await res.text();
+    throw new AppError(502, `Vercel domain check failed: ${err}`);
+  }
+  const data = await res.json() as any;
+  // New API only returns `available`; purchasable is implied when available
+  return { available: data.available ?? false, purchasable: data.available ?? false };
+}
+
 export async function removeDomain(projectName: string, domain: string): Promise<void> {
   const token = process.env.VERCEL_TOKEN;
   if (!token) throw new AppError(400, 'VERCEL_TOKEN is not configured');

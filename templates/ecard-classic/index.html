@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{config.fullName}} — Business Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" />
+  <style>
+    :root {
+      --accent: {{config.accentColor}};
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0ece4;
+      font-family: 'Source Sans 3', sans-serif;
+      padding: 24px;
+    }
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 680px;
+      border-radius: 2px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.08);
+      overflow: hidden;
+      display: flex;
+    }
+    .sidebar {
+      width: 8px;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .body {
+      flex: 1;
+      padding: 40px 36px;
+    }
+    .header {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    .avatar-wrap {
+      flex-shrink: 0;
+    }
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+    }
+    .avatar-placeholder {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    .name-block { flex: 1; }
+    .name {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .job-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+    .company {
+      font-size: 14px;
+      color: #666;
+      font-weight: 400;
+    }
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, var(--accent), transparent);
+      margin: 0 0 24px;
+    }
+    .tagline {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 24px;
+      margin-bottom: 28px;
+    }
+    .contact-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .contact-label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #999;
+      font-weight: 600;
+    }
+    .contact-value {
+      font-size: 14px;
+      color: #222;
+      font-weight: 500;
+      word-break: break-all;
+      text-decoration: none;
+    }
+    .contact-value:hover { color: var(--accent); }
+    .footer {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .social-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #777;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .social-link:hover { color: var(--accent); }
+    .social-icon {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+    #qr-wrap {
+      text-align: center;
+    }
+    #qr canvas {
+      display: block;
+    }
+    .qr-label {
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #bbb;
+      margin-top: 4px;
+    }
+    @media (max-width: 520px) {
+      .contact-grid { grid-template-columns: 1fr; }
+      .footer { flex-direction: column; align-items: flex-start; }
+      .card { flex-direction: column; }
+      .sidebar { width: 100%; height: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="sidebar"></div>
+    <div class="body">
+      <div class="header">
+        <div class="avatar-wrap" id="avatar-wrap">
+          <div class="avatar-placeholder" id="avatar-placeholder">
+            <span id="avatar-initials"></span>
+          </div>
+          <img class="avatar" id="avatar-img" src="{{config.avatarUrl}}" alt="Avatar" style="display:none" />
+        </div>
+        <div class="name-block">
+          <div class="name">{{config.fullName}}</div>
+          <div class="job-title">{{config.jobTitle}}</div>
+          <div class="company">{{config.company}}</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="tagline">"{{config.tagline}}"</div>
+
+      <div class="contact-grid">
+        <div class="contact-item">
+          <span class="contact-label">Phone</span>
+          <a class="contact-value" href="tel:{{config.phone}}">{{config.phone}}</a>
+        </div>
+        <div class="contact-item">
+          <span class="contact-label">Email</span>
+          <a class="contact-value" href="mailto:{{config.email}}">{{config.email}}</a>
+        </div>
+        <div class="contact-item">
+          <span class="contact-label">Address</span>
+          <span class="contact-value">{{config.address}}</span>
+        </div>
+        <div class="contact-item" id="website-item">
+          <span class="contact-label">Website</span>
+          <a class="contact-value" href="{{config.website}}" target="_blank" rel="noopener">{{config.website}}</a>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="social-links" id="social-links">
+          <a href="{{config.linkedinUrl}}" target="_blank" rel="noopener" class="social-link" id="li-link">
+            <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </a>
+          <a href="{{config.facebookUrl}}" target="_blank" rel="noopener" class="social-link" id="fb-link">
+            <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
+          </a>
+        </div>
+        <div id="qr-wrap" style="display:none">
+          <div id="qr"></div>
+          <div class="qr-label">Scan Me</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Avatar
+    (function() {
+      var avatarUrl = "{{config.avatarUrl}}";
+      var name = "{{config.fullName}}";
+      if (avatarUrl && avatarUrl.trim() && avatarUrl !== "undefined") {
+        var img = document.getElementById('avatar-img');
+        img.style.display = 'block';
+        document.getElementById('avatar-placeholder').style.display = 'none';
+      } else {
+        var parts = name.trim().split(' ');
+        var initials = parts.length >= 2 ? parts[0][0] + parts[parts.length - 1][0] : parts[0].substring(0, 2);
+        document.getElementById('avatar-initials').textContent = initials.toUpperCase();
+      }
+    })();
+
+    // Hide empty social links
+    (function() {
+      var liLink = "{{config.linkedinUrl}}";
+      var fbLink = "{{config.facebookUrl}}";
+      if (!liLink || liLink.trim() === '' || liLink === 'undefined') document.getElementById('li-link').style.display = 'none';
+      if (!fbLink || fbLink.trim() === '' || fbLink === 'undefined') document.getElementById('fb-link').style.display = 'none';
+      var websiteUrl = "{{config.website}}";
+      if (!websiteUrl || websiteUrl.trim() === '' || websiteUrl === 'undefined') document.getElementById('website-item').style.display = 'none';
+    })();
+
+    // QR Code
+    var SHOW_QR = "{{config.showQR}}";
+    var QR_VALUE = "{{config.qrValue}}";
+    if (SHOW_QR === "true" && QR_VALUE && QR_VALUE !== 'undefined') {
+      document.getElementById('qr-wrap').style.display = 'block';
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"
+    onload="(function(){ var v = '{{config.qrValue}}'; var s = '{{config.showQR}}'; if(s==='true'&&v&&v!=='undefined'){QRCode.toCanvas(document.getElementById('qr'),v,{width:80,margin:1},function(){});} })()">
+  </script>
+</body>
+</html>

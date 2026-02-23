@@ -19,6 +19,7 @@ enum ProjectStatus {
   READY
   DEPLOYED
   ARCHIVED
+  HANDED_OVER
 }
 
 enum DeployTarget {
@@ -96,6 +97,14 @@ enum SettingType {
   JSON
 }
 
+enum DomainStatus {
+  ACTIVE
+  EXPIRING_SOON
+  EXPIRED
+  TRANSFERRED
+  CANCELLED
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -148,7 +157,8 @@ model Client {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  projects Project[]
+  projects      Project[]
+  domainRecords DomainRecord[]
 
   @@map("clients")
 }
@@ -178,6 +188,8 @@ model Project {
   bookings      Booking[]
   contacts      Contact[]
   payments      Payment[]
+  domainRecords  DomainRecord[]
+  projectPlugins ProjectPlugin[]
 
   @@map("projects")
 }
@@ -457,4 +469,87 @@ model Setting {
   label   String      @default("")
 
   @@map("settings")
+}
+
+// ─── Domain Registry ──────────────────────────────────────────────────────────
+
+model DomainRecord {
+  id           String       @id @default(cuid())
+  domain       String       @unique
+  clientId     String       @map("client_id")
+  projectId    String?      @map("project_id")
+
+  registrar    String?
+  purchasedAt  DateTime?    @map("purchased_at")
+  expiresAt    DateTime?    @map("expires_at")
+  autoRenew    Boolean      @default(false) @map("auto_renew")
+
+  purchaseCost Float?       @map("purchase_cost")
+  renewCost    Float?       @map("renew_cost")
+  billedAmount Float?       @map("billed_amount")
+
+  notes        String?
+  status       DomainStatus @default(ACTIVE)
+
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  client  Client   @relation(fields: [clientId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@map("domain_records")
+}
+
+// ─── Plugin System ────────────────────────────────────────────────────────────
+
+model Plugin {
+  id           String   @id @default(uuid())
+  slug         String   @unique
+  name         String
+  description  String   @default("")
+  category     String
+  icon         String?
+  configSchema Json?    @map("config_schema")
+  isBuiltIn    Boolean  @default(true) @map("is_built_in")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  projectPlugins ProjectPlugin[]
+
+  @@map("plugins")
+}
+
+model ProjectPlugin {
+  id        String   @id @default(uuid())
+  projectId String   @map("project_id")
+  pluginId  String   @map("plugin_id")
+  enabled   Boolean  @default(true)
+  config    Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  plugin  Plugin  @relation(fields: [pluginId], references: [id])
+
+  @@unique([projectId, pluginId])
+  @@map("project_plugins")
+}
+
+// ─── Template Marketplace ─────────────────────────────────────────────────────
+
+model MarketplaceTemplate {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  name        String
+  description String   @default("")
+  category    String
+  tags        String[]
+  previewUrl  String?  @map("preview_url")
+  sourceUrl   String?  @map("source_url")
+  source      String
+  githubRepo  String?  @map("github_repo")
+  stars       Int?
+  clonedToId  String?  @map("cloned_to_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("marketplace_templates")
 }

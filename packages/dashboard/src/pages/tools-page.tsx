@@ -7,12 +7,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import api from '@/lib/axios';
 
 export function ToolsPage() {
-  const [healthResult, setHealthResult] = useState<{ db: boolean; api: boolean } | null>(null);
+  const [healthResult, setHealthResult] = useState<{ db: boolean; api: boolean; dbLatencyMs: number | null } | null>(null);
 
   const healthMutation = useMutation({
     mutationFn: async () => {
-      const [apiRes] = await Promise.allSettled([api.get('/health')]);
-      return { api: apiRes.status === 'fulfilled', db: apiRes.status === 'fulfilled' };
+      try {
+        const res = await api.get('/monitor/system');
+        const d = res.data.data;
+        return { api: true, db: d.db === true, dbLatencyMs: d.dbLatencyMs ?? null };
+      } catch {
+        return { api: false, db: false, dbLatencyMs: null };
+      }
     },
     onSuccess: (result) => {
       setHealthResult(result);
@@ -75,6 +80,9 @@ export function ToolsPage() {
                     <XCircle className="h-4 w-4 text-red-500" />
                   )}
                   <span>Database</span>
+                  {healthResult.dbLatencyMs !== null && (
+                    <span className="ml-auto text-xs text-muted-foreground">{healthResult.dbLatencyMs}ms</span>
+                  )}
                 </div>
               </div>
             )}

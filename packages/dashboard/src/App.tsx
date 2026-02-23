@@ -27,6 +27,9 @@ import { SettingsPage } from '@/pages/settings-page';
 import { PluginsPage } from '@/pages/plugins-page';
 import { EditorPage } from '@/pages/editor-page';
 import { GeneratorPage } from '@/pages/generator-page';
+import { ECardsPage } from '@/pages/e-cards-page';
+import { DomainsPage } from '@/pages/domains-page';
+import { MarketplacePage } from '@/pages/marketplace-page';
 
 export default function App() {
   return (
@@ -67,6 +70,9 @@ export default function App() {
                 <Route path="/plugins" element={<PluginsPage />} />
                 <Route path="/editor" element={<EditorPage />} />
                 <Route path="/generator" element={<GeneratorPage />} />
+                <Route path="/e-cards" element={<ECardsPage />} />
+                <Route path="/domains" element={<DomainsPage />} />
+                <Route path="/marketplace" element={<MarketplacePage />} />
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

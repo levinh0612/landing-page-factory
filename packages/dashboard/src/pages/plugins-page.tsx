@@ -1,50 +1,56 @@
 import { useState } from 'react';
-import { Package, CheckCircle, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { Package, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import api from '@/lib/axios';
+import type { Plugin } from '@lpf/shared';
 
-const MOCK_PLUGINS = [
-  { id: '1', name: 'Analytics Pro', description: 'Track page views, conversions, and user behavior', category: 'Analytics', installed: false, icon: '📊' },
-  { id: '2', name: 'SEO Optimizer', description: 'Automated meta tags, sitemap generation, schema markup', category: 'SEO', installed: true, icon: '🔍' },
-  { id: '3', name: 'Payment Gateway', description: 'Accept payments via Stripe, PayPal, and local processors', category: 'Payments', installed: false, icon: '💳' },
-  { id: '4', name: 'Live Chat', description: 'Embed live chat widget on client websites', category: 'Support', installed: false, icon: '💬' },
-  { id: '5', name: 'Form Builder', description: 'Drag-and-drop form builder with email notifications', category: 'Tools', installed: true, icon: '📝' },
-  { id: '6', name: 'Image Optimizer', description: 'Automatic WebP conversion and lazy loading', category: 'Performance', installed: false, icon: '🖼️' },
-];
+const CATEGORY_ICONS: Record<string, string> = {
+  booking: '📅',
+  contact: '📬',
+  payment: '💳',
+  analytics: '📊',
+  seo: '🔍',
+  chat: '💬',
+  gallery: '🖼️',
+  video: '▶️',
+  countdown: '⏱️',
+};
 
 export function PluginsPage() {
   const [search, setSearch] = useState('');
-  const [installed, setInstalled] = useState<Set<string>>(
-    new Set(MOCK_PLUGINS.filter((p) => p.installed).map((p) => p.id))
-  );
 
-  const filtered = MOCK_PLUGINS.filter(
-    (p) => p.name.toLowerCase().includes(search.toLowerCase()) || p.description.toLowerCase().includes(search.toLowerCase())
-  );
+  const { data, isLoading } = useQuery({
+    queryKey: ['plugins'],
+    queryFn: async () => {
+      const res = await api.get('/plugins');
+      return res.data.data as Plugin[];
+    },
+  });
 
-  const toggleInstall = (id: string) => {
-    setInstalled((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+  const plugins = (data ?? []).filter(
+    (p) =>
+      !search ||
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.description.toLowerCase().includes(search.toLowerCase()) ||
+      p.category.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Plugins</h1>
-          <p className="text-muted-foreground">Extend your platform with plugins</p>
+          <p className="text-muted-foreground">Available plugins — enable them per project in Project → Plugins tab</p>
         </div>
-        <Badge variant="outline">{installed.size} installed</Badge>
+        <Badge variant="outline">
+          <Package className="h-3.5 w-3.5 mr-1" />
+          {data?.length ?? 0} available
+        </Badge>
       </div>
 
-      {/* Search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -55,47 +61,34 @@ export function PluginsPage() {
         />
       </div>
 
-      {/* Plugin Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((plugin) => {
-          const isInstalled = installed.has(plugin.id);
-          return (
-            <Card key={plugin.id} className={isInstalled ? 'border-primary/50' : ''}>
+      {isLoading ? (
+        <div className="text-center py-12 text-muted-foreground">Loading plugins...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {plugins.map((plugin) => (
+            <Card key={plugin.id}>
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{plugin.icon}</span>
-                    <div>
-                      <CardTitle className="text-sm flex items-center gap-1.5">
-                        {plugin.name}
-                        {isInstalled && <CheckCircle className="h-3.5 w-3.5 text-green-500" />}
-                      </CardTitle>
-                      <Badge variant="outline" className="text-xs mt-0.5">{plugin.category}</Badge>
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{plugin.icon ?? CATEGORY_ICONS[plugin.category] ?? '🔌'}</span>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-sm">{plugin.name}</CardTitle>
+                    <div className="flex gap-1 mt-1 flex-wrap">
+                      <Badge variant="secondary" className="text-xs capitalize">{plugin.category}</Badge>
+                      {plugin.isBuiltIn && <Badge variant="outline" className="text-xs">Built-in</Badge>}
                     </div>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-xs mb-4">{plugin.description}</CardDescription>
-                <Button
-                  size="sm"
-                  variant={isInstalled ? 'outline' : 'default'}
-                  className="w-full"
-                  onClick={() => toggleInstall(plugin.id)}
-                >
-                  {isInstalled ? (
-                    'Uninstall'
-                  ) : (
-                    <>
-                      <Plus className="h-3.5 w-3.5 mr-1" /> Install
-                    </>
-                  )}
-                </Button>
+                <CardDescription className="text-xs">{plugin.description}</CardDescription>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+          ))}
+          {plugins.length === 0 && (
+            <p className="col-span-full text-center text-muted-foreground py-12">No plugins found</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

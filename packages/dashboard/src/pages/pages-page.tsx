@@ -17,18 +17,26 @@ const STATUS_COLORS: Record<string, string> = {
 
 const TABS = ['All', 'PUBLISHED', 'DRAFT', 'ARCHIVED'];
 
+const PAGE_SIZE = 15;
+
 export function PagesPage() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const handleFilterChange = (filter: string) => { setStatusFilter(filter); setPage(1); };
+  const handleSearchChange = (s: string) => { setSearch(s); setPage(1); };
+
   const { data, isLoading } = useQuery({
-    queryKey: ['site-pages', statusFilter, search],
+    queryKey: ['site-pages', statusFilter, search, page],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (statusFilter !== 'All') params.set('status', statusFilter);
       if (search) params.set('search', search);
+      params.set('page', String(page));
+      params.set('limit', String(PAGE_SIZE));
       const res = await api.get(`/site-pages?${params}`);
       return res.data;
     },
@@ -43,6 +51,8 @@ export function PagesPage() {
   });
 
   const pages = data?.data ?? [];
+  const meta = data?.meta;
+  const totalPages = meta?.totalPages ?? 1;
 
   return (
     <div className="space-y-6">
@@ -60,7 +70,7 @@ export function PagesPage() {
         {TABS.map((tab) => (
           <button
             key={tab}
-            onClick={() => setStatusFilter(tab)}
+            onClick={() => handleFilterChange(tab)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               statusFilter === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
@@ -72,7 +82,7 @@ export function PagesPage() {
 
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search pages..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Input placeholder="Search pages..." className="pl-9" value={search} onChange={(e) => handleSearchChange(e.target.value)} />
       </div>
 
       {isLoading ? (
@@ -130,6 +140,23 @@ export function PagesPage() {
             </tbody>
           </table>
         </div></div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">
+            Page {page} of {totalPages} · {meta?.total ?? 0} pages
+          </span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setPage((p) => p - 1)} disabled={page <= 1}>
+              Previous
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)} disabled={page >= totalPages}>
+              Next
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -19,6 +19,9 @@ import {
   ChevronRight,
   Code2,
   Wand2,
+  CreditCard,
+  Globe2,
+  Store,
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router';
 import {
@@ -67,6 +70,7 @@ const navGroups: NavGroup[] = [
     label: 'Design',
     items: [
       { title: 'Templates', url: '/templates', icon: Palette },
+      { title: 'Marketplace', url: '/marketplace', icon: Store },
       { title: 'Components', url: '/components', icon: Layers },
       { title: 'Appearance', url: '/appearance', icon: Paintbrush },
     ],
@@ -75,6 +79,8 @@ const navGroups: NavGroup[] = [
     label: 'Projects',
     items: [
       { title: 'All Projects', url: '/projects', icon: FolderKanban },
+      { title: 'E-Cards', url: '/e-cards', icon: CreditCard },
+      { title: 'Domains', url: '/domains', icon: Globe2 },
       { title: 'Clients', url: '/clients', icon: Users },
     ],
   },

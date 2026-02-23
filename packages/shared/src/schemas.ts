@@ -138,3 +138,23 @@ export type CreateCommentInput = z.infer<typeof createCommentSchema>;
 export type CreatePreviewTokenInput = z.infer<typeof createPreviewTokenSchema>;
 export type UpdateApprovalInput = z.infer<typeof updateApprovalSchema>;
 export type PaginationInput = z.infer<typeof paginationSchema>;
+
+// Domain Record schemas
+export const createDomainRecordSchema = z.object({
+  domain: z.string().min(1),
+  clientId: z.string().cuid(),
+  projectId: z.string().cuid().optional(),
+  registrar: z.string().optional(),
+  purchasedAt: z.string().datetime().optional(),
+  expiresAt: z.string().datetime().optional(),
+  autoRenew: z.boolean().optional(),
+  purchaseCost: z.number().optional(),
+  renewCost: z.number().optional(),
+  billedAmount: z.number().optional(),
+  notes: z.string().optional(),
+  fetchWhois: z.boolean().optional(),
+});
+
+export const updateDomainRecordSchema = createDomainRecordSchema.partial();
+export type CreateDomainRecordInput = z.infer<typeof createDomainRecordSchema>;
+export type UpdateDomainRecordInput = z.infer<typeof updateDomainRecordSchema>;

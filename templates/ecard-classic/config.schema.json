@@ -1,0 +1,18 @@
+{
+  "fields": [
+    { "key": "fullName", "label": "Full Name", "type": "text", "default": "Jonathan Smith", "required": true },
+    { "key": "jobTitle", "label": "Job Title", "type": "text", "default": "Senior Product Manager", "required": true },
+    { "key": "company", "label": "Company", "type": "text", "default": "Acme Corporation" },
+    { "key": "phone", "label": "Phone", "type": "text", "default": "+1 (555) 123-4567" },
+    { "key": "email", "label": "Email", "type": "text", "default": "jonathan@acmecorp.com" },
+    { "key": "avatarUrl", "label": "Avatar URL", "type": "url", "default": "" },
+    { "key": "tagline", "label": "Tagline", "type": "text", "default": "Turning ideas into products people love" },
+    { "key": "accentColor", "label": "Accent Color", "type": "color", "default": "#1e3a5f" },
+    { "key": "address", "label": "Address", "type": "text", "default": "New York, NY, USA" },
+    { "key": "website", "label": "Website URL", "type": "url", "default": "https://jonathansmith.com" },
+    { "key": "linkedinUrl", "label": "LinkedIn URL", "type": "url", "default": "" },
+    { "key": "facebookUrl", "label": "Facebook URL", "type": "url", "default": "" },
+    { "key": "showQR", "label": "Show QR Code", "type": "boolean", "default": true },
+    { "key": "qrValue", "label": "QR Code Value (URL)", "type": "url", "default": "https://jonathansmith.com" }
+  ]
+}

@@ -9,6 +9,7 @@ import type {
   PostStatus,
   CommentStatus,
   SettingType,
+  DomainStatus,
 } from './enums.js';
 
 export interface User {
@@ -231,6 +232,65 @@ export interface Setting {
   type: SettingType;
   section: string;
   label: string;
+}
+
+export interface DomainRecord {
+  id: string;
+  domain: string;
+  clientId: string;
+  projectId: string | null;
+  registrar: string | null;
+  purchasedAt: string | null;
+  expiresAt: string | null;
+  autoRenew: boolean;
+  purchaseCost: number | null;
+  renewCost: number | null;
+  billedAmount: number | null;
+  notes: string | null;
+  status: DomainStatus;
+  createdAt: string;
+  updatedAt: string;
+  client?: { id: string; name: string };
+  project?: { id: string; name: string } | null;
+}
+
+export interface Plugin {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  icon: string | null;
+  configSchema: Record<string, unknown> | null;
+  isBuiltIn: boolean;
+  createdAt: string;
+}
+
+export interface ProjectPlugin {
+  id: string;
+  projectId: string;
+  pluginId: string;
+  enabled: boolean;
+  config: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt: string;
+  plugin?: Plugin;
+}
+
+export interface MarketplaceTemplate {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  tags: string[];
+  previewUrl: string | null;
+  sourceUrl: string | null;
+  source: string;
+  githubRepo: string | null;
+  stars: number | null;
+  clonedToId: string | null;
+  createdAt: string;
 }
 
 // Dashboard stats

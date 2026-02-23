@@ -1,0 +1,19 @@
+{
+  "fields": [
+    { "key": "fullName", "label": "Full Name", "type": "text", "default": "Sakura Tanaka", "required": true },
+    { "key": "jobTitle", "label": "Job Title", "type": "text", "default": "Digital Artist & Illustrator", "required": true },
+    { "key": "company", "label": "Company / Studio", "type": "text", "default": "Sakura Creative Studio" },
+    { "key": "phone", "label": "Phone", "type": "text", "default": "+84 012 345 6789" },
+    { "key": "email", "label": "Email", "type": "text", "default": "sakura@creative.studio" },
+    { "key": "avatarUrl", "label": "Avatar URL", "type": "url", "default": "" },
+    { "key": "tagline", "label": "Tagline", "type": "text", "default": "✨ Bringing dreams to life, one brushstroke at a time" },
+    { "key": "primaryColor", "label": "Primary Color (Pink)", "type": "color", "default": "#FF6B9D" },
+    { "key": "accentColor", "label": "Accent Color (Purple)", "type": "color", "default": "#7C3AED" },
+    { "key": "address", "label": "Address", "type": "text", "default": "Ho Chi Minh City, Vietnam" },
+    { "key": "instagramUrl", "label": "Instagram URL", "type": "url", "default": "" },
+    { "key": "tiktokUrl", "label": "TikTok URL", "type": "url", "default": "" },
+    { "key": "zaloUrl", "label": "Zalo URL", "type": "url", "default": "" },
+    { "key": "showQR", "label": "Show QR Code", "type": "boolean", "default": true },
+    { "key": "qrValue", "label": "QR Code Value (URL)", "type": "url", "default": "https://instagram.com/sakura.art" }
+  ]
+}

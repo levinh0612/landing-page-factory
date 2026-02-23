@@ -1,5 +1,10 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __seedDirname = path.dirname(fileURLToPath(import.meta.url));
 
 const prisma = new PrismaClient();
 
@@ -102,6 +107,20 @@ async function main() {
     ],
   };
 
+  // Helper: copy template source files into uploads directory
+  function seedTemplateFiles(templateId: string, sourceFolder: string) {
+    const srcDir = path.resolve(__seedDirname, '../../../templates', sourceFolder);
+    const destDir = path.resolve(__seedDirname, '../uploads/templates', templateId, 'v1');
+    if (fs.existsSync(destDir)) return; // already seeded
+    fs.mkdirSync(destDir, { recursive: true });
+    for (const file of fs.readdirSync(srcDir)) {
+      const srcFile = path.join(srcDir, file);
+      if (fs.statSync(srcFile).isFile()) {
+        fs.copyFileSync(srcFile, path.join(destDir, file));
+      }
+    }
+  }
+
   // PetCare Anime template config schema
   const PETCARE_ANIME_ID = 'aa000000-0000-0000-0000-000000000001';
   const KARINOX_CF_ID = 'bb000000-0000-0000-0000-000000000001';
@@ -158,6 +177,70 @@ async function main() {
       { key: 'showBooking', label: 'Hiện form đặt lịch', type: 'boolean', default: true },
       { key: 'showPricing', label: 'Hiện bảng giá', type: 'boolean', default: true },
       { key: 'showGallery', label: 'Hiện gallery', type: 'boolean', default: true },
+    ],
+  };
+
+  // E-Card template IDs
+  const ECARD_CLASSIC_ID = 'ee000000-0000-0000-0000-000000000001';
+  const ECARD_ANIME_ID = 'ee000000-0000-0000-0000-000000000002';
+  const ECARD_MODERN_ID = 'ee000000-0000-0000-0000-000000000003';
+
+  const ecardClassicConfigSchema = {
+    fields: [
+      { key: 'fullName', label: 'Full Name', type: 'text', default: 'Jonathan Smith', required: true },
+      { key: 'jobTitle', label: 'Job Title', type: 'text', default: 'Senior Product Manager', required: true },
+      { key: 'company', label: 'Company', type: 'text', default: 'Acme Corporation' },
+      { key: 'phone', label: 'Phone', type: 'text', default: '+1 (555) 123-4567' },
+      { key: 'email', label: 'Email', type: 'text', default: 'jonathan@acmecorp.com' },
+      { key: 'avatarUrl', label: 'Avatar URL', type: 'url', default: '' },
+      { key: 'tagline', label: 'Tagline', type: 'text', default: 'Turning ideas into products people love' },
+      { key: 'accentColor', label: 'Accent Color', type: 'color', default: '#1e3a5f' },
+      { key: 'address', label: 'Address', type: 'text', default: 'New York, NY, USA' },
+      { key: 'website', label: 'Website URL', type: 'url', default: 'https://jonathansmith.com' },
+      { key: 'linkedinUrl', label: 'LinkedIn URL', type: 'url', default: '' },
+      { key: 'facebookUrl', label: 'Facebook URL', type: 'url', default: '' },
+      { key: 'showQR', label: 'Show QR Code', type: 'boolean', default: true },
+      { key: 'qrValue', label: 'QR Code Value (URL)', type: 'url', default: 'https://jonathansmith.com' },
+    ],
+  };
+
+  const ecardAnimeConfigSchema = {
+    fields: [
+      { key: 'fullName', label: 'Full Name', type: 'text', default: 'Sakura Tanaka', required: true },
+      { key: 'jobTitle', label: 'Job Title', type: 'text', default: 'Digital Artist & Illustrator', required: true },
+      { key: 'company', label: 'Company / Studio', type: 'text', default: 'Sakura Creative Studio' },
+      { key: 'phone', label: 'Phone', type: 'text', default: '+84 012 345 6789' },
+      { key: 'email', label: 'Email', type: 'text', default: 'sakura@creative.studio' },
+      { key: 'avatarUrl', label: 'Avatar URL', type: 'url', default: '' },
+      { key: 'tagline', label: 'Tagline', type: 'text', default: '✨ Bringing dreams to life, one brushstroke at a time' },
+      { key: 'primaryColor', label: 'Primary Color (Pink)', type: 'color', default: '#FF6B9D' },
+      { key: 'accentColor', label: 'Accent Color (Purple)', type: 'color', default: '#7C3AED' },
+      { key: 'address', label: 'Address', type: 'text', default: 'Ho Chi Minh City, Vietnam' },
+      { key: 'instagramUrl', label: 'Instagram URL', type: 'url', default: '' },
+      { key: 'tiktokUrl', label: 'TikTok URL', type: 'url', default: '' },
+      { key: 'zaloUrl', label: 'Zalo URL', type: 'url', default: '' },
+      { key: 'showQR', label: 'Show QR Code', type: 'boolean', default: true },
+      { key: 'qrValue', label: 'QR Code Value (URL)', type: 'url', default: 'https://instagram.com/sakura.art' },
+    ],
+  };
+
+  const ecardModernConfigSchema = {
+    fields: [
+      { key: 'fullName', label: 'Full Name', type: 'text', default: 'Alex Chen', required: true },
+      { key: 'jobTitle', label: 'Job Title', type: 'text', default: 'Full-Stack Engineer', required: true },
+      { key: 'company', label: 'Company', type: 'text', default: 'TechVentures Inc.' },
+      { key: 'phone', label: 'Phone', type: 'text', default: '+1 (415) 987-6543' },
+      { key: 'email', label: 'Email', type: 'text', default: 'alex@techventures.io' },
+      { key: 'avatarUrl', label: 'Avatar URL', type: 'url', default: '' },
+      { key: 'tagline', label: 'Tagline', type: 'text', default: 'Building products at the intersection of design and engineering' },
+      { key: 'accentColor', label: 'Accent Color', type: 'color', default: '#0ea5e9' },
+      { key: 'address', label: 'Location', type: 'text', default: 'San Francisco, CA' },
+      { key: 'website', label: 'Website URL', type: 'url', default: 'https://alexchen.dev' },
+      { key: 'linkedinUrl', label: 'LinkedIn URL', type: 'url', default: '' },
+      { key: 'githubUrl', label: 'GitHub URL', type: 'url', default: '' },
+      { key: 'twitterUrl', label: 'Twitter / X URL', type: 'url', default: '' },
+      { key: 'showQR', label: 'Show QR Code', type: 'boolean', default: true },
+      { key: 'qrValue', label: 'QR Code Value (URL)', type: 'url', default: 'https://alexchen.dev' },
     ],
   };
 
@@ -267,7 +350,64 @@ async function main() {
         configSchema: karinoxCfConfigSchema as unknown as Prisma.InputJsonValue,
       },
     }),
+    prisma.template.upsert({
+      where: { slug: 'ecard-classic' },
+      update: { configSchema: ecardClassicConfigSchema as unknown as Prisma.InputJsonValue },
+      create: {
+        id: ECARD_CLASSIC_ID,
+        name: 'E-Card Classic',
+        slug: 'ecard-classic',
+        category: 'e-card',
+        description: 'Professional digital business card — navy accent, serif typography, clean layout.',
+        techStack: ['HTML', 'CSS', 'JavaScript'],
+        plugins: ['qr-code'],
+        status: 'ACTIVE',
+        version: 1,
+        filePath: `templates/${ECARD_CLASSIC_ID}/v1`,
+        configSchema: ecardClassicConfigSchema as unknown as Prisma.InputJsonValue,
+      },
+    }),
+    prisma.template.upsert({
+      where: { slug: 'ecard-anime' },
+      update: { configSchema: ecardAnimeConfigSchema as unknown as Prisma.InputJsonValue },
+      create: {
+        id: ECARD_ANIME_ID,
+        name: 'E-Card Anime',
+        slug: 'ecard-anime',
+        category: 'e-card',
+        description: 'Cute & creative digital business card — pink-purple gradient, Nunito font, sparkle animations.',
+        techStack: ['HTML', 'CSS', 'JavaScript'],
+        plugins: ['qr-code'],
+        status: 'ACTIVE',
+        version: 1,
+        filePath: `templates/${ECARD_ANIME_ID}/v1`,
+        configSchema: ecardAnimeConfigSchema as unknown as Prisma.InputJsonValue,
+      },
+    }),
+    prisma.template.upsert({
+      where: { slug: 'ecard-modern' },
+      update: { configSchema: ecardModernConfigSchema as unknown as Prisma.InputJsonValue },
+      create: {
+        id: ECARD_MODERN_ID,
+        name: 'E-Card Modern',
+        slug: 'ecard-modern',
+        category: 'e-card',
+        description: 'Minimal modern digital business card — white canvas, Inter font, single accent color.',
+        techStack: ['HTML', 'CSS', 'JavaScript'],
+        plugins: ['qr-code'],
+        status: 'ACTIVE',
+        version: 1,
+        filePath: `templates/${ECARD_MODERN_ID}/v1`,
+        configSchema: ecardModernConfigSchema as unknown as Prisma.InputJsonValue,
+      },
+    }),
   ]);
+
+  // Seed e-card template files into uploads directory
+  seedTemplateFiles(ECARD_CLASSIC_ID, 'ecard-classic');
+  seedTemplateFiles(ECARD_ANIME_ID, 'ecard-anime');
+  seedTemplateFiles(ECARD_MODERN_ID, 'ecard-modern');
+
   console.info(`Templates: ${templates.length} created`);
 
   // Client IDs
@@ -504,6 +644,60 @@ async function main() {
     skipDuplicates: true,
   });
   console.info('Activity logs created');
+
+  // ─── Built-in Plugins ──────────────────────────────────────────────────────
+  const builtInPlugins = [
+    { slug: 'booking', name: 'Booking System', description: 'Allow visitors to book appointments directly from the landing page', category: 'booking', icon: '📅' },
+    { slug: 'contact-form', name: 'Contact Form', description: 'Capture leads with a customizable contact form and email notifications', category: 'contact', icon: '📬' },
+    { slug: 'payment', name: 'Payment Gateway', description: 'Accept payments via PayOS, Stripe, or VNPay', category: 'payment', icon: '💳' },
+    { slug: 'analytics', name: 'Analytics', description: 'Track page views, conversion rates, and visitor behavior', category: 'analytics', icon: '📊' },
+    { slug: 'seo', name: 'SEO Optimizer', description: 'Automated meta tags, structured data, and sitemap generation', category: 'seo', icon: '🔍' },
+    { slug: 'live-chat', name: 'Live Chat', description: 'Embed a live chat widget (Tidio, Crisp, or Tawk.to) on the page', category: 'chat', icon: '💬' },
+    { slug: 'gallery', name: 'Photo Gallery', description: 'Lightbox gallery with masonry layout and lazy loading', category: 'gallery', icon: '🖼️' },
+    { slug: 'video-player', name: 'Video Player', description: 'Embed YouTube, Vimeo, or self-hosted videos with autoplay options', category: 'video', icon: '▶️' },
+    { slug: 'countdown', name: 'Countdown Timer', description: 'Create urgency with customizable countdown timers and launch events', category: 'countdown', icon: '⏱️' },
+  ];
+
+  for (const plugin of builtInPlugins) {
+    await prisma.plugin.upsert({
+      where: { slug: plugin.slug },
+      update: { name: plugin.name, description: plugin.description, category: plugin.category, icon: plugin.icon },
+      create: { ...plugin, isBuiltIn: true },
+    });
+  }
+  console.info(`Plugins: ${builtInPlugins.length} seeded`);
+
+  // ─── Marketplace Templates ─────────────────────────────────────────────────
+  const curatedTemplates = [
+    // Landing pages
+    { slug: 'html5up-massively', name: 'Massively', description: 'Big background imagery and the massively opinionated design language', category: 'landing-page', tags: ['blog', 'magazine', 'bold'], previewUrl: 'https://html5up.net/massively', sourceUrl: 'https://github.com/html5up/massively', githubRepo: null, stars: 3200, source: 'curated' },
+    { slug: 'html5up-stellar', name: 'Stellar', description: 'Beautifully designed landing page with an innovative scroll-based layout', category: 'landing-page', tags: ['minimal', 'clean', 'scroll'], previewUrl: 'https://html5up.net/stellar', sourceUrl: 'https://github.com/html5up/stellar', githubRepo: null, stars: 4100, source: 'curated' },
+    { slug: 'html5up-editorial', name: 'Editorial', description: 'Sleek magazine-style layout with sidebar navigation', category: 'landing-page', tags: ['sidebar', 'magazine', 'content'], previewUrl: 'https://html5up.net/editorial', sourceUrl: 'https://github.com/html5up/editorial', githubRepo: null, stars: 2800, source: 'curated' },
+    { slug: 'html5up-phantom', name: 'Phantom', description: 'Clean tile-based layout perfect for showcasing products or projects', category: 'landing-page', tags: ['tiles', 'portfolio', 'grid'], previewUrl: 'https://html5up.net/phantom', sourceUrl: 'https://github.com/html5up/phantom', githubRepo: null, stars: 2200, source: 'curated' },
+    { slug: 'startbootstrap-agency', name: 'Agency', description: 'One-page theme for agencies and freelancers with portfolio section', category: 'landing-page', tags: ['agency', 'one-page', 'portfolio'], previewUrl: 'https://startbootstrap.com/theme/agency', sourceUrl: 'https://github.com/StartBootstrap/startbootstrap-agency', githubRepo: 'StartBootstrap/startbootstrap-agency', stars: 7200, source: 'curated' },
+    // E-commerce
+    { slug: 'html5up-store', name: 'Store', description: 'Clean product showcase with grid layout and cart-ready design', category: 'e-commerce', tags: ['store', 'products', 'grid'], previewUrl: 'https://html5up.net/overflow', sourceUrl: 'https://github.com/html5up/overflow', githubRepo: null, stars: 1900, source: 'curated' },
+    { slug: 'startbootstrap-shop', name: 'Shop Homepage', description: 'Bootstrap e-commerce homepage with product cards and featured items', category: 'e-commerce', tags: ['bootstrap', 'shop', 'cards'], previewUrl: 'https://startbootstrap.com/template/shop-homepage', sourceUrl: 'https://github.com/StartBootstrap/startbootstrap-shop-homepage', githubRepo: 'StartBootstrap/startbootstrap-shop-homepage', stars: 1500, source: 'curated' },
+    { slug: 'colorlib-cart', name: 'Cart eCommerce', description: 'Full ecommerce template with cart, product pages, and checkout flow', category: 'e-commerce', tags: ['cart', 'checkout', 'full'], previewUrl: 'https://colorlib.com/wp/template/cart/', sourceUrl: 'https://colorlib.com/wp/template/cart/', githubRepo: null, stars: 1200, source: 'curated' },
+    // E-learning
+    { slug: 'html5up-learn', name: 'Learn', description: 'Course-focused layout with module lists, instructors, and enrollment CTAs', category: 'e-learning', tags: ['course', 'education', 'lms'], previewUrl: 'https://html5up.net/lens', sourceUrl: 'https://github.com/html5up/lens', githubRepo: null, stars: 1600, source: 'curated' },
+    { slug: 'startbootstrap-course', name: 'Course Landing', description: 'Clean course landing page with curriculum, instructor bio, and FAQ', category: 'e-learning', tags: ['curriculum', 'instructor', 'faq'], previewUrl: 'https://startbootstrap.com/template/landing-page', sourceUrl: 'https://github.com/StartBootstrap/startbootstrap-landing-page', githubRepo: 'StartBootstrap/startbootstrap-landing-page', stars: 8100, source: 'curated' },
+    { slug: 'colorlib-education', name: 'Educa', description: 'Modern education platform template with course catalog and testimonials', category: 'e-learning', tags: ['catalog', 'testimonials', 'modern'], previewUrl: 'https://colorlib.com/wp/template/educa/', sourceUrl: 'https://colorlib.com/wp/template/educa/', githubRepo: null, stars: 980, source: 'curated' },
+    // E-cards
+    { slug: 'vcard-portfolio', name: 'vCard Portfolio', description: 'Personal vCard template with social links, skills chart, and timeline', category: 'e-card', tags: ['vcard', 'personal', 'timeline'], previewUrl: 'https://html5up.net/read-only', sourceUrl: 'https://github.com/html5up/read-only', githubRepo: null, stars: 3400, source: 'curated' },
+    { slug: 'cv-resume-card', name: 'CV Resume Card', description: 'Clean one-page resume style digital business card', category: 'e-card', tags: ['resume', 'cv', 'one-page'], previewUrl: 'https://startbootstrap.com/theme/resume', sourceUrl: 'https://github.com/StartBootstrap/startbootstrap-resume', githubRepo: 'StartBootstrap/startbootstrap-resume', stars: 6800, source: 'curated' },
+    { slug: 'minimal-link-card', name: 'Minimal Link Card', description: 'Linktree-style card with clean minimal design and social icons', category: 'e-card', tags: ['linktree', 'links', 'minimal'], previewUrl: 'https://html5up.net/miniport', sourceUrl: 'https://github.com/html5up/miniport', githubRepo: null, stars: 2100, source: 'curated' },
+    { slug: 'creative-portfolio-card', name: 'Creative Portfolio Card', description: 'Bold creative portfolio business card with hero section and work gallery', category: 'e-card', tags: ['creative', 'portfolio', 'bold'], previewUrl: 'https://startbootstrap.com/theme/freelancer', sourceUrl: 'https://github.com/StartBootstrap/startbootstrap-freelancer', githubRepo: 'StartBootstrap/startbootstrap-freelancer', stars: 5100, source: 'curated' },
+  ];
+
+  for (const tpl of curatedTemplates) {
+    await prisma.marketplaceTemplate.upsert({
+      where: { slug: tpl.slug },
+      update: { name: tpl.name, description: tpl.description, stars: tpl.stars },
+      create: tpl,
+    });
+  }
+  console.info(`Marketplace templates: ${curatedTemplates.length} seeded`);
 
   console.info('Seed completed!');
 }

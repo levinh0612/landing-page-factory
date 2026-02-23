@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Globe, Calendar, User, Layout, Save, ExternalLink, Share2, Rocket, FileText, Activity, Check, X, Plus, Trash2, RefreshCw, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Globe, Calendar, User, Layout, Save, ExternalLink, Share2, Rocket, FileText, Activity, Check, X, Plus, Trash2, RefreshCw, ShieldCheck, ShieldAlert, Puzzle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +18,8 @@ import { PreviewLinkDialog } from '@/components/preview-link-dialog';
 import { CommentThread } from '@/components/comment-thread';
 import { DeployDialog } from '@/components/deploy-dialog';
 import { DeploymentLogsDialog } from '@/components/deployment-logs-dialog';
-import type { TemplateConfigSchema } from '@lpf/shared';
+import type { TemplateConfigSchema, Plugin, ProjectPlugin } from '@lpf/shared';
+import { Switch } from '@/components/ui/switch';
 
 const statusVariant = (status: string) => {
   switch (status) {
@@ -148,6 +149,36 @@ export function ProjectDetailPage() {
     onError: () => toast.error('Failed to remove domain'),
   });
 
+  // Plugin management
+  const { data: allPlugins } = useQuery<Plugin[]>({
+    queryKey: ['plugins'],
+    queryFn: async () => (await api.get('/plugins')).data.data,
+  });
+
+  const { data: projectPluginData, refetch: refetchProjectPlugins } = useQuery<ProjectPlugin[]>({
+    queryKey: ['project-plugins', id],
+    queryFn: async () => (await api.get(`/projects/${id}/plugins`)).data.data,
+    enabled: !!id,
+  });
+
+  const updatePluginsMutation = useMutation({
+    mutationFn: (plugins: Array<{ pluginId: string; enabled: boolean }>) =>
+      api.put(`/projects/${id}/plugins`, { plugins }),
+    onSuccess: () => {
+      refetchProjectPlugins();
+      toast.success('Plugins updated');
+    },
+    onError: () => toast.error('Failed to update plugins'),
+  });
+
+  const projectPluginMap = new Map(
+    (projectPluginData ?? []).map((pp) => [pp.pluginId, pp]),
+  );
+
+  const togglePlugin = (pluginId: string, enabled: boolean) => {
+    updatePluginsMutation.mutate([{ pluginId, enabled }]);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -209,6 +240,7 @@ export function ProjectDetailPage() {
           <TabsTrigger value="comments">Comments</TabsTrigger>
           <TabsTrigger value="deployments">Deployments</TabsTrigger>
           <TabsTrigger value="health">Health</TabsTrigger>
+          <TabsTrigger value="plugins">Plugins</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4 mt-4">
@@ -545,6 +577,40 @@ export function ProjectDetailPage() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+        <TabsContent value="plugins" className="mt-4">
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">Enable or disable plugins for this project.</p>
+            {(allPlugins ?? []).length === 0 ? (
+              <p className="text-muted-foreground text-sm">No plugins available.</p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {(allPlugins ?? []).map((plugin) => {
+                  const pp = projectPluginMap.get(plugin.id);
+                  const isEnabled = pp?.enabled ?? false;
+                  return (
+                    <Card key={plugin.id} className={isEnabled ? 'border-primary/50' : ''}>
+                      <CardHeader className="pb-2 flex flex-row items-start gap-3">
+                        <span className="text-xl mt-0.5">{plugin.icon ?? '🔌'}</span>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-sm">{plugin.name}</CardTitle>
+                          <Badge variant="secondary" className="text-xs capitalize mt-0.5">{plugin.category}</Badge>
+                        </div>
+                        <Switch
+                          checked={isEnabled}
+                          onCheckedChange={(v) => togglePlugin(plugin.id, v)}
+                          disabled={updatePluginsMutation.isPending}
+                        />
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <p className="text-xs text-muted-foreground">{plugin.description}</p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
 
