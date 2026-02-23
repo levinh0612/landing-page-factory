@@ -1233,6 +1233,148 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
+
+// =====================
+// STAGE PREVIEW PANEL
+// =====================
+function initStagePreview() {
+    const stageNames = [
+        'Khu đất trống', 'Nền móng', 'Bức tường',
+        'Cột trụ', 'Cổng vòm', 'Mái ngói',
+        'Cửa sổ', 'Khu vườn', 'Vườn hoa',
+        'Đài phun', 'Lễ đường ✨'
+    ];
+
+    const panel = document.createElement('div');
+    panel.id = 'stagePreviewPanel';
+    panel.innerHTML = `
+        <button id="stagePanelToggle" title="Xem trước từng giai đoạn">
+            <span style="font-size:1.1rem">🏛</span>
+            <span style="font-size:0.7rem;display:block;margin-top:2px;letter-spacing:.05em">Stage</span>
+        </button>
+        <div id="stagePanelContent">
+            <div style="font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:#a07880;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,.06)">
+                Xem trước giai đoạn
+            </div>
+            <div id="stageButtons" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px"></div>
+            <div id="stagePanelLabel" style="font-size:0.78rem;text-align:center;color:#6a4050;font-style:italic;min-height:1.4em"></div>
+        </div>
+    `;
+    document.body.appendChild(panel);
+
+    const style = document.createElement('style');
+    style.textContent = `
+        #stagePreviewPanel {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            font-family: "Trebuchet MS", sans-serif;
+        }
+        #stagePanelToggle {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--male, #4A90D9), var(--female, #E91E8C));
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,.18);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform .2s, box-shadow .2s;
+            margin-left: auto;
+        }
+        #stagePanelToggle:hover { transform: scale(1.08); box-shadow: 0 6px 22px rgba(0,0,0,.22); }
+        #stagePanelContent {
+            display: none;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,.8);
+            border-radius: 16px;
+            padding: 14px;
+            width: 220px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.12);
+            margin-bottom: 10px;
+            animation: panelSlideUp .2s ease;
+        }
+        #stagePanelContent.open { display: block; }
+        @keyframes panelSlideUp {
+            from { opacity:0; transform:translateY(10px) }
+            to   { opacity:1; transform:translateY(0) }
+        }
+        .stage-btn {
+            padding: 5px 2px;
+            border: 1px solid rgba(0,0,0,.1);
+            border-radius: 8px;
+            background: #f9f0f5;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s;
+            color: #6a4050;
+            text-align: center;
+        }
+        .stage-btn:hover { background: #ffe0ec; border-color: var(--female,#E91E8C); }
+        .stage-btn.active {
+            background: linear-gradient(135deg, var(--male,#4A90D9), var(--female,#E91E8C));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(0,0,0,.15);
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Build stage buttons
+    const stageButtons = document.getElementById('stageButtons');
+    for (let i = 0; i <= 10; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'stage-btn' + (i === Math.min(window.TEMPLATE_CONFIG.milestoneCount, 10) ? ' active' : '');
+        btn.textContent = i === 10 ? '10 ✨' : String(i);
+        btn.dataset.stage = String(i);
+        btn.addEventListener('click', () => setPreviewStage(i));
+        stageButtons.appendChild(btn);
+    }
+
+    // Toggle panel
+    document.getElementById('stagePanelToggle').addEventListener('click', () => {
+        document.getElementById('stagePanelContent').classList.toggle('open');
+    });
+
+    // Set initial label
+    updateStageLabel(Math.min(window.TEMPLATE_CONFIG.milestoneCount, 10));
+}
+
+function setPreviewStage(stage) {
+    // Update config
+    window.TEMPLATE_CONFIG.milestoneCount = stage;
+    // Re-render building + progress
+    renderBuilding();
+    updateProgress();
+    // Update active button
+    document.querySelectorAll('.stage-btn').forEach(btn => {
+        btn.classList.toggle('active', Number(btn.dataset.stage) === stage);
+    });
+    updateStageLabel(stage);
+    // Scroll building into view
+    document.querySelector('.hall-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function updateStageLabel(stage) {
+    const names = [
+        'Khu đất trống 🌱','Nền móng đá ⬜','Tường xây cao 🧱',
+        'Cột trụ Hy Lạp 🏛','Cổng vòm lớn 🚪','Mái ngói + đỉnh vàng 🏠',
+        'Cửa sổ phát sáng 🌟','Khu vườn cây xanh 🌿','Vườn hoa nở 🌸',
+        'Đài phun nước 💧','Lễ đường hoàn thành ✨'
+    ];
+    const el = document.getElementById('stagePanelLabel');
+    if (el) el.textContent = names[stage] || '';
+}
+
+initStagePreview();
 </script>
 </body>
 </html>
