@@ -121,6 +121,9 @@ async function main() {
     }
   }
 
+  // Anniversary Dream Hall template
+  const ANNIVERSARY_ID = 'ff000000-0000-0000-0000-000000000001';
+
   // PetCare Anime template config schema
   const PETCARE_ANIME_ID = 'aa000000-0000-0000-0000-000000000001';
   const KARINOX_CF_ID = 'bb000000-0000-0000-0000-000000000001';
@@ -401,12 +404,53 @@ async function main() {
         configSchema: ecardModernConfigSchema as unknown as Prisma.InputJsonValue,
       },
     }),
+    prisma.template.upsert({
+      where: { slug: 'anniversary-dream-hall' },
+      update: {},
+      create: {
+        id: ANNIVERSARY_ID,
+        name: 'Anniversary Dream Hall',
+        slug: 'anniversary-dream-hall',
+        category: 'anniversary',
+        description: 'Lễ đường trong mơ — kiến trúc 3D isometric phát triển theo từng cột mốc tình yêu. Đếm ngược đến ngày kỷ niệm tiếp theo.',
+        techStack: ['HTML', 'CSS', 'JavaScript'],
+        plugins: [],
+        status: 'ACTIVE',
+        version: 1,
+        filePath: `templates/${ANNIVERSARY_ID}/v1`,
+        configSchema: {
+          fields: [
+            { key: 'maleName', label: 'Tên người Nam', type: 'text', default: 'Anh' },
+            { key: 'femaleName', label: 'Tên người Nữ', type: 'text', default: 'Em' },
+            { key: 'maleColor', label: 'Màu chủ đạo Nam', type: 'color', default: '#4A90D9' },
+            { key: 'femaleColor', label: 'Màu chủ đạo Nữ', type: 'color', default: '#E91E8C' },
+            { key: 'primaryBg', label: 'Màu nền', type: 'color', default: '#FFF0F5' },
+            { key: 'coupleStartDate', label: 'Ngày bắt đầu yêu (YYYY-MM-DD)', type: 'text', default: '2023-01-01' },
+            { key: 'nextAnniversaryDate', label: 'Ngày cột mốc tiếp theo (YYYY-MM-DD)', type: 'text', default: '2026-01-01' },
+            { key: 'nextAnniversaryLabel', label: 'Tên cột mốc tiếp theo', type: 'text', default: 'Kỷ niệm 3 năm' },
+            { key: 'milestoneCount', label: 'Số cột mốc đã đạt (0-10)', type: 'text', default: '0' },
+            { key: 'anniversary1Date', label: 'Cột mốc 1 — Ngày', type: 'text', default: '' },
+            { key: 'anniversary1Label', label: 'Cột mốc 1 — Nhãn', type: 'text', default: '' },
+            { key: 'anniversary2Date', label: 'Cột mốc 2 — Ngày', type: 'text', default: '' },
+            { key: 'anniversary2Label', label: 'Cột mốc 2 — Nhãn', type: 'text', default: '' },
+            { key: 'anniversary3Date', label: 'Cột mốc 3 — Ngày', type: 'text', default: '' },
+            { key: 'anniversary3Label', label: 'Cột mốc 3 — Nhãn', type: 'text', default: '' },
+            { key: 'anniversary4Date', label: 'Cột mốc 4 — Ngày', type: 'text', default: '' },
+            { key: 'anniversary4Label', label: 'Cột mốc 4 — Nhãn', type: 'text', default: '' },
+            { key: 'anniversary5Date', label: 'Cột mốc 5 — Ngày', type: 'text', default: '' },
+            { key: 'anniversary5Label', label: 'Cột mốc 5 — Nhãn', type: 'text', default: '' },
+            { key: 'dreamMessage', label: 'Thông điệp tình yêu', type: 'text', default: 'Hành trình đến lễ đường trong mơ của chúng ta' },
+          ],
+        } as unknown as Prisma.InputJsonValue,
+      },
+    }),
   ]);
 
   // Seed e-card template files into uploads directory
   seedTemplateFiles(ECARD_CLASSIC_ID, 'ecard-classic');
   seedTemplateFiles(ECARD_ANIME_ID, 'ecard-anime');
   seedTemplateFiles(ECARD_MODERN_ID, 'ecard-modern');
+  seedTemplateFiles(ANNIVERSARY_ID, 'anniversary-dream-hall');
 
   console.info(`Templates: ${templates.length} created`);
 

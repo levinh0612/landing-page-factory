@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anniversary Dream Hall</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --male: #4A90D9;
+            --female: #E91E8C;
+            --bg: #FFF0F5;
+            --gold: #D4A853;
+            --dark-bg: #2a1020;
+            --accent: #D4607A;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #FFFFFF 100%);
+            color: #333;
+            scroll-behavior: smooth;
+        }
+
+        /* ============ FLOATING HEARTS ============ */
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            opacity: 0.4;
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 0.4;
+                transform: translateY(0) translateX(0) rotate(0deg);
+            }
+            50% {
+                opacity: 0.6;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100vh) translateX(100px) rotate(360deg);
+            }
+        }
+
+        /* ============ MAIN CONTENT WRAPPER ============ */
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============ HERO SECTION ============ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .ornament {
+            font-size: 1.2rem;
+            letter-spacing: 0.5em;
+            color: var(--gold);
+            margin-bottom: 2rem;
+            animation: fadeIn 1.5s ease-out 0.3s both;
+        }
+
+        .names {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            animation: nameReveal 1s ease-out 0.6s both;
+        }
+
+        .name-male, .name-female {
+            font-family: "Palatino Linotype", Palatino, Georgia, serif;
+            font-size: clamp(2rem, 7vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .name-male {
+            background: linear-gradient(135deg, var(--male) 0%, #6B7FB3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .name-female {
+            background: linear-gradient(135deg, var(--female) 0%, #C71E70 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .heart-separator {
+            font-size: 2rem;
+            animation: heartbeat 1.4s ease-in-out infinite;
+            color: var(--gold);
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.15); }
+            50% { transform: scale(1); }
+        }
+
+        .since-date {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #666;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 1s ease-out 0.9s both;
+        }
+
+        .dream-message {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            font-style: italic;
+            color: #555;
+            max-width: 500px;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+            animation: fadeIn 1s ease-out 1.2s both;
+        }
+
+        .scroll-hint {
+            margin-top: 3rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .scroll-hint-arrow {
+            font-size: 1.5rem;
+            color: var(--gold);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes nameReveal {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============ COUNTDOWN SECTION ============ */
+        .countdown-section {
+            padding: 4rem 2rem;
+            background: rgba(255, 240, 245, 0.7);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .countdown-title {
+            font-family: "Palatino Linotype", Palatino, Georgia, serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--female);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .countdown-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            width: clamp(55px, 12vw, 80px);
+            height: clamp(60px, 14vw, 90px);
+            padding: 0.5rem;
+        }
+
+        .countdown-number {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-weight: 700;
+            color: var(--male);
+            line-height: 1;
+            min-height: 1.5em;
+            overflow: hidden;
+        }
+
+        .countdown-label {
+            font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.3rem;
+        }
+
+        .countdown-separator {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            color: var(--gold);
+            margin: 0 0.25rem;
+            line-height: 1;
+        }
+
+        .countdown-message {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: #555;
+            margin-top: 1.5rem;
+        }
+
+        /* ============ DREAM HALL SECTION ============ */
+        .dream-hall-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, rgba(255, 240, 245, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%);
+            text-align: center;
+        }
+
+        .dream-hall-title {
+            font-family: "Palatino Linotype", Palatino, Georgia, serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--male);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .hall-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 3rem;
+            perspective: 1000px;
+        }
+
+        .building-svg {
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            max-height: 400px;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.1));
+        }
+
+        .sparkle-overlay {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: sparkle 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0.8) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2) rotate(180deg);
+            }
+        }
+
+        .progress-info {
+            margin-bottom: 1.5rem;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 400px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--male) 0%, var(--female) 100%);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .stage-description {
+            font-size: 1rem;
+            color: #666;
+            font-style: italic;
+            max-width: 400px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ============ TIMELINE SECTION ============ */
+        .timeline-section {
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .timeline-title {
+            font-family: "Palatino Linotype", Palatino, Georgia, serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--female);
+            margin-bottom: 3rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .timeline {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--male) 0%, var(--female) 100%);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            margin-bottom: 2.5rem;
+            padding-left: 2rem;
+            animation: slideInLeft 0.6s ease-out both;
+            opacity: 0;
+        }
+
+        .timeline-item:nth-child(1) { animation-delay: 0.1s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.2s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.3s; }
+        .timeline-item:nth-child(4) { animation-delay: 0.4s; }
+        .timeline-item:nth-child(5) { animation-delay: 0.5s; }
+        .timeline-item:nth-child(6) { animation-delay: 0.6s; }
+
+        .timeline-item.visible {
+            animation: slideInLeft 0.6s ease-out forwards;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -1.35rem;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border: 3px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .timeline-date {
+            font-weight: 600;
+            color: var(--male);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-label {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .timeline-coming {
+            background: linear-gradient(135deg, rgba(74, 144, 217, 0.1) 0%, rgba(233, 30, 140, 0.1) 100%);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--female);
+        }
+
+        .timeline-coming-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--female);
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-empty {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            padding: 3rem 2rem;
+            background: linear-gradient(180deg, rgba(255, 240, 245, 0.8) 0%, rgba(212, 96, 122, 0.1) 100%);
+            text-align: center;
+            border-top: 2px solid var(--gold);
+        }
+
+        .footer-quote {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            font-style: italic;
+            color: #555;
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+
+        .footer-hearts {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .footer-heart {
+            font-size: 1.5rem;
+            color: var(--female);
+            animation: heartbeat 1.4s ease-in-out infinite;
+        }
+
+        .footer-heart:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .footer-heart:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 640px) {
+            .names {
+                gap: 0.5rem;
+            }
+
+            .heart-separator {
+                font-size: 1.5rem;
+            }
+
+            .countdown-separator {
+                margin: 0 0.1rem;
+            }
+
+            .timeline {
+                padding-left: 1.5rem;
+            }
+
+            .timeline-dot {
+                left: -1.05rem;
+                width: 16px;
+                height: 16px;
+                border-width: 2px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<script>
+window.TEMPLATE_CONFIG = {
+  maleName: "{{config.maleName}}",
+  femaleName: "{{config.femaleName}}",
+  maleColor: "{{config.maleColor}}",
+  femaleColor: "{{config.femaleColor}}",
+  coupleStartDate: "{{config.coupleStartDate}}",
+  nextAnniversaryDate: "{{config.nextAnniversaryDate}}",
+  nextAnniversaryLabel: "{{config.nextAnniversaryLabel}}",
+  milestoneCount: {{config.milestoneCount}},
+  anniversaries: [
+    {date:"{{config.anniversary1Date}}",label:"{{config.anniversary1Label}}"},
+    {date:"{{config.anniversary2Date}}",label:"{{config.anniversary2Label}}"},
+    {date:"{{config.anniversary3Date}}",label:"{{config.anniversary3Label}}"},
+    {date:"{{config.anniversary4Date}}",label:"{{config.anniversary4Label}}"},
+    {date:"{{config.anniversary5Date}}",label:"{{config.anniversary5Label}}"}
+  ].filter(a => a.date && !a.date.includes('{')),
+  dreamMessage: "{{config.dreamMessage}}",
+  primaryBg: "{{config.primaryBg}}"
+};
+</script>
+
+<div class="floating-hearts" id="floatingHearts"></div>
+
+<div class="content">
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="ornament">✦   ✦   ✦</div>
+        <div class="names">
+            <span class="name-male" id="maleName"></span>
+            <span class="heart-separator">♥</span>
+            <span class="name-female" id="femaleName"></span>
+        </div>
+        <div class="since-date" id="sinceDate"></div>
+        <div class="dream-message" id="dreamMessage"></div>
+        <div class="scroll-hint">
+            <div class="scroll-hint-arrow">↓</div>
+        </div>
+    </section>
+
+    <!-- COUNTDOWN SECTION -->
+    <section class="countdown-section">
+        <h2 class="countdown-title">Đếm Ngược</h2>
+        <div class="countdown-container">
+            <div class="countdown-card">
+                <div class="countdown-number" id="daysNum">0</div>
+                <div class="countdown-label">Ngày</div>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-card">
+                <div class="countdown-number" id="hoursNum">0</div>
+                <div class="countdown-label">Giờ</div>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-card">
+                <div class="countdown-number" id="minutesNum">0</div>
+                <div class="countdown-label">Phút</div>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-card">
+                <div class="countdown-number" id="secondsNum">0</div>
+                <div class="countdown-label">Giây</div>
+            </div>
+        </div>
+        <div class="countdown-message" id="countdownMessage"></div>
+    </section>
+
+    <!-- DREAM HALL SECTION -->
+    <section class="dream-hall-section">
+        <h2 class="dream-hall-title">Lễ Đường Trong Mơ</h2>
+        <div class="hall-container">
+            <svg class="building-svg" id="buildingSvg" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div id="sparkles"></div>
+        </div>
+        <div class="progress-info" id="progressInfo">Hành trình: 0 / 10 cột mốc</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="stage-description" id="stageDescription">Hành trình của tình yêu bắt đầu từ một khoảnh khắc...</div>
+    </section>
+
+    <!-- TIMELINE SECTION -->
+    <section class="timeline-section">
+        <h2 class="timeline-title">Những Cột Mốc Yêu Thương</h2>
+        <div class="timeline" id="timeline"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <section class="footer">
+        <div class="footer-quote" id="footerQuote"></div>
+        <div class="footer-hearts">
+            <span class="footer-heart">♥</span>
+            <span class="footer-heart">♥</span>
+            <span class="footer-heart">♥</span>
+        </div>
+    </section>
+</div>
+
+<script>
+// ============ UTILITY FUNCTIONS ============
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+function getTimeUntil(targetDate) {
+    const now = new Date();
+    const target = new Date(targetDate);
+    const diff = target - now;
+
+    if (diff <= 0) {
+        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    return {
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000)
+    };
+}
+
+// ============ INITIALIZE CSS VARIABLES ============
+function initializeCssVariables() {
+    const config = window.TEMPLATE_CONFIG;
+    document.documentElement.style.setProperty('--male', config.maleColor);
+    document.documentElement.style.setProperty('--female', config.femaleColor);
+    document.documentElement.style.setProperty('--bg', config.primaryBg);
+}
+
+// ============ CREATE FLOATING HEARTS ============
+function createFloatingHearts() {
+    const container = document.getElementById('floatingHearts');
+    const hearts = ['♥', '♡', '💕'];
+
+    for (let i = 0; i < 20; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.textContent = hearts[i % hearts.length];
+
+        const left = Math.random() * 100;
+        const duration = 6 + Math.random() * 8;
+        const delay = Math.random() * 2;
+        const color = Math.random() > 0.5 ? 'var(--male)' : 'var(--female)';
+
+        heart.style.left = left + '%';
+        heart.style.color = color;
+        heart.style.animationDuration = duration + 's';
+        heart.style.animationDelay = delay + 's';
+
+        container.appendChild(heart);
+    }
+}
+
+// ============ POPULATE HERO SECTION ============
+function populateHeroSection() {
+    const config = window.TEMPLATE_CONFIG;
+    document.getElementById('maleName').textContent = config.maleName;
+    document.getElementById('femaleName').textContent = config.femaleName;
+    document.getElementById('sinceDate').textContent = `Từ ngày ${formatDate(config.coupleStartDate)}`;
+    document.getElementById('dreamMessage').textContent = config.dreamMessage;
+    document.getElementById('footerQuote').textContent = config.dreamMessage;
+}
+
+// ============ COUNTDOWN TIMER ============
+function updateCountdown() {
+    const config = window.TEMPLATE_CONFIG;
+    const time = getTimeUntil(config.nextAnniversaryDate);
+
+    document.getElementById('daysNum').textContent = String(time.days).padStart(2, '0');
+    document.getElementById('hoursNum').textContent = String(time.hours).padStart(2, '0');
+    document.getElementById('minutesNum').textContent = String(time.minutes).padStart(2, '0');
+    document.getElementById('secondsNum').textContent = String(time.seconds).padStart(2, '0');
+
+    const daysRemaining = time.days;
+    document.getElementById('countdownMessage').textContent =
+        `Còn ${daysRemaining} ngày nữa đến ${config.nextAnniversaryLabel}`;
+}
+
+// ============ ISOMETRIC BUILDING ============
+const IsoBuilding = (() => {
+    const CX = 200;
+    const CY = 210;
+    const TW = 28;
+    const TH = 14;
+    const TZ = 22;
+
+    function project(x, y, z) {
+        return {
+            x: (x - y) * TW / 2 + CX,
+            y: (x + y) * TH / 2 - z * TZ + CY
+        };
+    }
+
+    function polygon(points3d, fill, stroke = 'none', strokeWidth = 1) {
+        const points = points3d.map(p => project(p.x, p.y, p.z));
+        const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+
+        const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        poly.setAttribute('points', pointsStr);
+        poly.setAttribute('fill', fill);
+        if (stroke !== 'none') {
+            poly.setAttribute('stroke', stroke);
+            poly.setAttribute('stroke-width', strokeWidth);
+        }
+        return poly;
+    }
+
+    function isoBox(x, y, z, w, d, h, color, addToSvg) {
+        // Calculate vertices
+        const tl = {x, y, z};                    // top-left-front
+        const tr = {x: x + w, y, z};            // top-right-front
+        const bl = {x, y: y + d, z};            // bottom-left-front
+        const br = {x: x + w, y: y + d, z};    // bottom-right-front
+        const tlb = {x, y, z: z + h};          // top-left-back (higher)
+        const trb = {x: x + w, y, z: z + h};   // top-right-back
+        const blb = {x, y: y + d, z: z + h};   // bottom-left-back
+        const brb = {x: x + w, y: y + d, z: z + h}; // bottom-right-back
+
+        // Darken color for sides
+        const darkColor = shadeColor(color, -20);
+        const lightColor = shadeColor(color, 20);
+
+        // Front face (x=left)
+        addToSvg(polygon([tl, tr, br, bl], color));
+
+        // Top face (z=top) - lighter
+        addToSvg(polygon([tl, tr, trb, tlb], lightColor));
+
+        // Right face (y=front, slanted) - darker
+        addToSvg(polygon([tr, br, brb, trb], darkColor));
+    }
+
+    function shadeColor(color, percent) {
+        const num = parseInt(color.replace('#', ''), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = Math.min(255, Math.max(0, (num >> 16) + amt));
+        const G = Math.min(255, Math.max(0, (num >> 8 & 0x00FF) + amt));
+        const B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
+        return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+    }
+
+    return { project, polygon, isoBox, shadeColor };
+})();
+
+function renderBuilding() {
+    const config = window.TEMPLATE_CONFIG;
+    const svg = document.getElementById('buildingSvg');
+    svg.innerHTML = '';
+
+    const elements = [];
+
+    // Stage 0: Always draw ground
+    const groundPoints = [
+        {x: 0, y: 4, z: 0},
+        {x: 6, y: 4, z: 0},
+        {x: 10, y: 0, z: 0},
+        {x: 4, y: 0, z: 0}
+    ];
+    const groundPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    const groundProjected = groundPoints.map(p => IsoBuilding.project(p.x, p.y, p.z));
+    groundPoly.setAttribute('points', groundProjected.map(p => `${p.x},${p.y}`).join(' '));
+    groundPoly.setAttribute('fill', '#B8E090');
+    svg.appendChild(groundPoly);
+
+    // Helper function to add styled elements
+    function addElement(el, delay) {
+        el.style.animation = `buildIn 0.6s ease-out ${delay}s both`;
+        svg.appendChild(el);
+    }
+
+    // Stage 1: Foundation
+    if (config.milestoneCount >= 1) {
+        const found = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const foundPoints = [
+            {x: 0.5, y: 0.5, z: 0},
+            {x: 5.5, y: 0.5, z: 0},
+            {x: 5.5, y: 3.5, z: 0},
+            {x: 0.5, y: 3.5, z: 0},
+            {x: 0.5, y: 0.5, z: 0.5},
+            {x: 5.5, y: 0.5, z: 0.5},
+            {x: 5.5, y: 3.5, z: 0.5},
+            {x: 0.5, y: 3.5, z: 0.5}
+        ];
+        const p1 = IsoBuilding.project(foundPoints[0].x, foundPoints[0].y, foundPoints[0].z);
+        const p2 = IsoBuilding.project(foundPoints[1].x, foundPoints[1].y, foundPoints[1].z);
+        const p3 = IsoBuilding.project(foundPoints[2].x, foundPoints[2].y, foundPoints[2].z);
+        const p4 = IsoBuilding.project(foundPoints[3].x, foundPoints[3].y, foundPoints[3].z);
+
+        const foundRect = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        foundRect.setAttribute('points', `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`);
+        foundRect.setAttribute('fill', '#D4B896');
+        foundRect.setAttribute('stroke', '#C4A876');
+        foundRect.setAttribute('stroke-width', '1');
+        addElement(foundRect, 0.2);
+    }
+
+    // Stage 2: Walls
+    if (config.milestoneCount >= 2) {
+        const wall = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const wp1 = IsoBuilding.project(1, 1, 0.5);
+        const wp2 = IsoBuilding.project(5, 1, 0.5);
+        const wp3 = IsoBuilding.project(5, 3, 0.5);
+        const wp4 = IsoBuilding.project(1, 3, 0.5);
+
+        const wallRect = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        wallRect.setAttribute('points', `${wp1.x},${wp1.y} ${wp2.x},${wp2.y} ${wp3.x},${wp3.y} ${wp4.x},${wp4.y}`);
+        wallRect.setAttribute('fill', '#E8D4BC');
+        wallRect.setAttribute('stroke', '#D8C4AC');
+        wallRect.setAttribute('stroke-width', '1');
+        addElement(wallRect, 0.4);
+    }
+
+    // Stage 3: Columns (4 columns at front)
+    if (config.milestoneCount >= 3) {
+        const colPositions = [
+            {x: 1.2, y: 2.8},
+            {x: 2.2, y: 2.8},
+            {x: 3.8, y: 2.8},
+            {x: 4.8, y: 2.8}
+        ];
+
+        colPositions.forEach((pos, idx) => {
+            const cp1 = IsoBuilding.project(pos.x, pos.y, 0.5);
+            const cp2 = IsoBuilding.project(pos.x + 0.35, pos.y, 0.5);
+            const cp3 = IsoBuilding.project(pos.x + 0.35, pos.y + 0.35, 0.5);
+            const cp4 = IsoBuilding.project(pos.x, pos.y + 0.35, 0.5);
+
+            const col = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            col.setAttribute('points', `${cp1.x},${cp1.y} ${cp2.x},${cp2.y} ${cp3.x},${cp3.y} ${cp4.x},${cp4.y}`);
+            col.setAttribute('fill', '#F5E8D0');
+            col.setAttribute('stroke', '#E5D8C0');
+            col.setAttribute('stroke-width', '0.5');
+            addElement(col, 0.5 + idx * 0.1);
+        });
+    }
+
+    // Stage 4: Grand doorway
+    if (config.milestoneCount >= 4) {
+        const doorTop = IsoBuilding.project(2.3, 2.8, 0.5);
+        const doorRight = IsoBuilding.project(3.7, 2.8, 0.5);
+        const doorBotRight = IsoBuilding.project(3.7, 3.1, 0.5);
+        const doorBotLeft = IsoBuilding.project(2.3, 3.1, 0.5);
+
+        const door = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        door.setAttribute('points', `${doorTop.x},${doorTop.y} ${doorRight.x},${doorRight.y} ${doorBotRight.x},${doorBotRight.y} ${doorBotLeft.x},${doorBotLeft.y}`);
+        door.setAttribute('fill', '#2a1020');
+        addElement(door, 0.8);
+    }
+
+    // Stage 5: Roof
+    if (config.milestoneCount >= 5) {
+        const roofBase = IsoBuilding.project(0.8, 0.8, 2.5);
+        const roofRight = IsoBuilding.project(5.2, 0.8, 2.5);
+        const roofBot = IsoBuilding.project(5.2, 3.2, 2.5);
+        const roofLeft = IsoBuilding.project(0.8, 3.2, 2.5);
+
+        const roof = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        roof.setAttribute('points', `${roofBase.x},${roofBase.y} ${roofRight.x},${roofRight.y} ${roofBot.x},${roofBot.y} ${roofLeft.x},${roofLeft.y}`);
+        roof.setAttribute('fill', '#D4607A');
+        roof.setAttribute('stroke', '#C4505A');
+        roof.setAttribute('stroke-width', '1');
+        addElement(roof, 1.0);
+
+        // Roof peak
+        const roofPeakTop = IsoBuilding.project(3, 2, 3.5);
+        const roofPeakLeft = IsoBuilding.project(0.8, 0.8, 2.5);
+        const roofPeakRight = IsoBuilding.project(5.2, 0.8, 2.5);
+
+        const roofPeak = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        roofPeak.setAttribute('points', `${roofPeakTop.x},${roofPeakTop.y} ${roofPeakLeft.x},${roofPeakLeft.y} ${roofPeakRight.x},${roofPeakRight.y}`);
+        roofPeak.setAttribute('fill', '#E47090');
+        addElement(roofPeak, 1.1);
+    }
+
+    // Stage 6: Windows with glow
+    if (config.milestoneCount >= 6) {
+        const windowPositions = [
+            {x: 1.5, y: 1.5},
+            {x: 3.5, y: 1.5},
+            {x: 1.5, y: 2.3},
+            {x: 3.5, y: 2.3}
+        ];
+
+        windowPositions.forEach((pos, idx) => {
+            const wc1 = IsoBuilding.project(pos.x, pos.y, 1.2);
+            const wc2 = IsoBuilding.project(pos.x + 0.4, pos.y, 1.2);
+            const wc3 = IsoBuilding.project(pos.x + 0.4, pos.y + 0.3, 1.2);
+            const wc4 = IsoBuilding.project(pos.x, pos.y + 0.3, 1.2);
+
+            const win = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            win.setAttribute('points', `${wc1.x},${wc1.y} ${wc2.x},${wc2.y} ${wc3.x},${wc3.y} ${wc4.x},${wc4.y}`);
+            win.setAttribute('fill', '#FFFACD');
+            win.setAttribute('filter', 'url(#glow)');
+            addElement(win, 1.2 + idx * 0.08);
+        });
+
+        // Add glow filter
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+        filter.setAttribute('id', 'glow');
+        const feGaussianBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+        feGaussianBlur.setAttribute('stdDeviation', '2');
+        feGaussianBlur.setAttribute('result', 'coloredBlur');
+        filter.appendChild(feGaussianBlur);
+        const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
+        const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+        feMergeNode1.setAttribute('in', 'coloredBlur');
+        const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+        feMergeNode2.setAttribute('in', 'SourceGraphic');
+        feMerge.appendChild(feMergeNode1);
+        feMerge.appendChild(feMergeNode2);
+        filter.appendChild(feMerge);
+        defs.appendChild(filter);
+        svg.insertBefore(defs, svg.firstChild);
+    }
+
+    // Stage 7: Garden trees
+    if (config.milestoneCount >= 7) {
+        const treePositions = [
+            {x: -0.5, y: 1.5},
+            {x: 5.8, y: 1.5}
+        ];
+
+        treePositions.forEach((pos, idx) => {
+            // Tree trunk
+            const trunk1 = IsoBuilding.project(pos.x, pos.y, 0);
+            const trunk2 = IsoBuilding.project(pos.x + 0.3, pos.y, 0);
+            const trunk3 = IsoBuilding.project(pos.x + 0.3, pos.y + 0.3, 0);
+            const trunk4 = IsoBuilding.project(pos.x, pos.y + 0.3, 0);
+
+            const trunk = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            trunk.setAttribute('points', `${trunk1.x},${trunk1.y} ${trunk2.x},${trunk2.y} ${trunk3.x},${trunk3.y} ${trunk4.x},${trunk4.y}`);
+            trunk.setAttribute('fill', '#8B6F47');
+            addElement(trunk, 1.4 + idx * 0.1);
+
+            // Tree leaves
+            const leaf1 = IsoBuilding.project(pos.x - 0.2, pos.y, 0.8);
+            const leaf2 = IsoBuilding.project(pos.x + 0.5, pos.y, 0.8);
+            const leaf3 = IsoBuilding.project(pos.x + 0.5, pos.y + 0.5, 0.8);
+            const leaf4 = IsoBuilding.project(pos.x - 0.2, pos.y + 0.5, 0.8);
+
+            const leaf = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            leaf.setAttribute('points', `${leaf1.x},${leaf1.y} ${leaf2.x},${leaf2.y} ${leaf3.x},${leaf3.y} ${leaf4.x},${leaf4.y}`);
+            leaf.setAttribute('fill', '#6BA82A');
+            addElement(leaf, 1.5 + idx * 0.1);
+        });
+    }
+
+    // Stage 8: Flower garden
+    if (config.milestoneCount >= 8) {
+        const flowerPositions = [
+            {x: 1.2, y: 3.5, color: '#FF69B4'},
+            {x: 1.8, y: 3.6, color: '#FF1493'},
+            {x: 4.2, y: 3.5, color: '#FFB6C1'},
+            {x: 4.8, y: 3.6, color: '#FF69B4'}
+        ];
+
+        flowerPositions.forEach((flower, idx) => {
+            const fp = IsoBuilding.project(flower.x, flower.y, 0);
+            const fl = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            fl.setAttribute('cx', fp.x);
+            fl.setAttribute('cy', fp.y);
+            fl.setAttribute('r', '4');
+            fl.setAttribute('fill', flower.color);
+            fl.style.animation = `buildIn 0.6s ease-out 1.6s, pulse 1.5s ease-in-out ${1.6 + idx * 0.1}s infinite`;
+            svg.appendChild(fl);
+        });
+    }
+
+    // Stage 9: Fountain
+    if (config.milestoneCount >= 9) {
+        const fount = IsoBuilding.project(3, 3.8, 0);
+        const fountainBase = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        fountainBase.setAttribute('cx', fount.x);
+        fountainBase.setAttribute('cy', fount.y);
+        fountainBase.setAttribute('r', '6');
+        fountainBase.setAttribute('fill', '#87CEEB');
+        fountainBase.style.animation = 'buildIn 0.6s ease-out 1.8s both';
+        svg.appendChild(fountainBase);
+
+        // Sparkles around fountain
+        for (let i = 0; i < 3; i++) {
+            const angle = (i / 3) * Math.PI * 2;
+            const sparkleX = fount.x + Math.cos(angle) * 15;
+            const sparkleY = fount.y + Math.sin(angle) * 15;
+            const spark = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            spark.setAttribute('x', sparkleX);
+            spark.setAttribute('y', sparkleY);
+            spark.setAttribute('font-size', '10');
+            spark.setAttribute('text-anchor', 'middle');
+            spark.textContent = '✦';
+            spark.setAttribute('fill', '#FFD700');
+            spark.style.animation = `sparkle 1.5s ease-in-out ${1.8 + i * 0.2}s infinite`;
+            svg.appendChild(spark);
+        }
+    }
+
+    // Stage 10+: Full magical glow
+    if (config.milestoneCount >= 10) {
+        const buildingCenter = IsoBuilding.project(3, 2, 1.5);
+
+        // Orbiting stars
+        for (let i = 0; i < 5; i++) {
+            const angle = (i / 5) * Math.PI * 2;
+            const star = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            star.setAttribute('x', buildingCenter.x);
+            star.setAttribute('y', buildingCenter.y);
+            star.setAttribute('font-size', '12');
+            star.setAttribute('text-anchor', 'middle');
+            star.textContent = '⭐';
+            star.style.animation = `orbit 4s linear ${i * 0.8}s infinite`;
+            star.style.transformOrigin = `${buildingCenter.x}px ${buildingCenter.y}px`;
+            svg.appendChild(star);
+        }
+    }
+
+    // Add CSS animation for building elements
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes buildIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes pulse {
+            0%, 100% { r: 4; opacity: 0.8; }
+            50% { r: 5; opacity: 1; }
+        }
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(40px); }
+            to { transform: rotate(360deg) translateX(40px); }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+const stageDescriptions = [
+    'Hành trình của tình yêu bắt đầu từ một khoảnh khắc...',
+    'Nền tảng vững chắc của tình yêu được xây dựng',
+    'Những bức tường bao bọc tình cảm yêu thương',
+    'Những cột trụ vững chắc gìn giữ yêu thương',
+    'Cánh cửa rộng mở cho tương lai chung',
+    'Mái nhà che chở cho mọi giấc mơ',
+    'Ánh sáng ấm áp của tình yêu tỏa sáng',
+    'Thiên nhiên ơi, hãy chứng thực tình yêu',
+    'Hoa nở, dâm dương tán, yêu thương bao la',
+    'Vòi phun nước, khúc mắc lên tiếng ca tình',
+    'Lễ đường trong mơ đã thành hiện thực!'
+];
+
+// ============ UPDATE PROGRESS ============
+function updateProgress() {
+    const config = window.TEMPLATE_CONFIG;
+    const percent = (Math.min(config.milestoneCount, 10) / 10) * 100;
+
+    document.getElementById('progressInfo').textContent =
+        `Hành trình: ${config.milestoneCount} / 10 cột mốc`;
+
+    const progressFill = document.getElementById('progressFill');
+    setTimeout(() => {
+        progressFill.style.width = percent + '%';
+    }, 100);
+
+    const stageIdx = Math.min(config.milestoneCount, 10);
+    document.getElementById('stageDescription').textContent = stageDescriptions[stageIdx];
+}
+
+// ============ BUILD TIMELINE ============
+function buildTimeline() {
+    const config = window.TEMPLATE_CONFIG;
+    const timelineContainer = document.getElementById('timeline');
+
+    if (config.anniversaries.length === 0) {
+        timelineContainer.innerHTML = '<div class="timeline-empty">Những cột mốc yêu thương sẽ hiện ra ở đây...</div>';
+        return;
+    }
+
+    const icons = ['💕', '⭐', '💍', '🌸', '🎊', '✨'];
+
+    config.anniversaries.forEach((anniversary, idx) => {
+        if (!anniversary.date) return;
+
+        const item = document.createElement('div');
+        item.className = 'timeline-item';
+
+        const dot = document.createElement('div');
+        dot.className = 'timeline-dot';
+        dot.textContent = icons[idx % icons.length];
+
+        const date = document.createElement('div');
+        date.className = 'timeline-date';
+        date.textContent = formatDate(anniversary.date);
+
+        const label = document.createElement('div');
+        label.className = 'timeline-label';
+        label.textContent = anniversary.label;
+
+        item.appendChild(dot);
+        item.appendChild(date);
+        item.appendChild(label);
+
+        timelineContainer.appendChild(item);
+    });
+
+    // Add upcoming milestone
+    const nextItem = document.createElement('div');
+    nextItem.className = 'timeline-item timeline-coming';
+
+    const nextLabel = document.createElement('div');
+    nextLabel.className = 'timeline-coming-label';
+    nextLabel.textContent = 'Sắp đến';
+
+    const nextDate = document.createElement('div');
+    nextDate.className = 'timeline-date';
+    nextDate.textContent = formatDate(config.nextAnniversaryDate);
+
+    const nextDesc = document.createElement('div');
+    nextDesc.className = 'timeline-label';
+    nextDesc.textContent = config.nextAnniversaryLabel;
+
+    nextItem.appendChild(nextLabel);
+    nextItem.appendChild(nextDate);
+    nextItem.appendChild(nextDesc);
+
+    timelineContainer.appendChild(nextItem);
+
+    // Trigger animation on scroll
+    observeTimelineItems();
+}
+
+// ============ INTERSECTION OBSERVER FOR TIMELINE ============
+function observeTimelineItems() {
+    const items = document.querySelectorAll('.timeline-item');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    items.forEach(item => observer.observe(item));
+}
+
+// ============ INITIALIZE SPARKLES ============
+function initSparkles() {
+    const container = document.getElementById('sparkles');
+    const positions = [
+        {top: '10%', left: '5%'},
+        {top: '20%', right: '8%'},
+        {top: '40%', left: '3%'},
+        {bottom: '15%', right: '10%'},
+        {bottom: '25%', left: '8%'},
+        {top: '60%', right: '5%'}
+    ];
+
+    positions.forEach((pos, idx) => {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle-overlay';
+        sparkle.textContent = ['✦', '✧', '⭐'][idx % 3];
+
+        Object.entries(pos).forEach(([key, val]) => {
+            sparkle.style[key] = val;
+        });
+
+        sparkle.style.animationDelay = (idx * 0.3) + 's';
+        container.appendChild(sparkle);
+    });
+}
+
+// ============ MAIN INITIALIZATION ============
+function init() {
+    initializeCssVariables();
+    createFloatingHearts();
+    populateHeroSection();
+    updateCountdown();
+    renderBuilding();
+    updateProgress();
+    buildTimeline();
+    initSparkles();
+
+    // Update countdown every second
+    setInterval(updateCountdown, 1000);
+}
+
+// Run when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+</script>
+</body>
+</html>
