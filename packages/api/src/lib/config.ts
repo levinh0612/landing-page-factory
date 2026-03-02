@@ -16,6 +16,11 @@ const envSchema = z.object({
   PAYOS_CHECKSUM_KEY: z.string().optional(),
   PUBLIC_API_URL: z.string().url().optional(),
   MAX_BOOKINGS_PER_MONTH: z.coerce.number().positive().optional(),
+  JIRA_DOMAIN: z.string().url().optional(),
+  JIRA_PAT: z.string().optional(),
+  JIRA_PROJECT_KEY: z.string().optional(),
+  JIRA_BOARD_ID: z.string().optional(),
+  JIRA_MEMBERS: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

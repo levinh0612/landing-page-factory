@@ -22,6 +22,7 @@ import {
   CreditCard,
   Globe2,
   Store,
+  Trello,
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router';
 import {
@@ -96,6 +97,12 @@ const navGroups: NavGroup[] = [
     items: [
       { title: 'Editor', url: '/editor', icon: Code2 },
       { title: 'AI Generator', url: '/generator', icon: Wand2 },
+    ],
+  },
+  {
+    label: 'Team',
+    items: [
+      { title: 'Jira Tasks', url: '/jira', icon: Trello },
     ],
   },
   {

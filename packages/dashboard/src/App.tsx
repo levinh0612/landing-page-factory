@@ -30,6 +30,7 @@ import { GeneratorPage } from '@/pages/generator-page';
 import { ECardsPage } from '@/pages/e-cards-page';
 import { DomainsPage } from '@/pages/domains-page';
 import { MarketplacePage } from '@/pages/marketplace-page';
+import { JiraPage } from '@/pages/jira-page';
 
 export default function App() {
   return (
@@ -73,6 +74,7 @@ export default function App() {
                 <Route path="/e-cards" element={<ECardsPage />} />
                 <Route path="/domains" element={<DomainsPage />} />
                 <Route path="/marketplace" element={<MarketplacePage />} />
+                <Route path="/jira" element={<JiraPage />} />
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
