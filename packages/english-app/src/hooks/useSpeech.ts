@@ -17,7 +17,7 @@ export const useSpeech = (options: UseSpeechOptions = {}) => {
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.language = language;
+      utterance.lang = language;
       utterance.rate = rate;
       utterance.pitch = pitch;
 
@@ -48,7 +48,7 @@ export const useSpeech = (options: UseSpeechOptions = {}) => {
       }
 
       const recognition = new SpeechRecognition();
-      recognition.language = language;
+      recognition.lang = language;
       recognition.continuous = false;
       recognition.interimResults = false;
 

@@ -1,0 +1,15 @@
+{
+  "buildCommand": "npm run build -w packages/english-app",
+  "outputDirectory": "packages/english-app/dist",
+  "installCommand": "npm install",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://lpf-api-production.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
