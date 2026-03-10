@@ -141,7 +141,7 @@ export function ChatPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0f172a] pb-20">
+    <div className="flex min-h-screen flex-col bg-[#0f172a] pb-24">
       {/* Header */}
       <div className="border-b border-[#1f2d40] bg-[#111827] px-4 py-4 sm:px-6">
         <div className="mx-auto max-w-2xl">

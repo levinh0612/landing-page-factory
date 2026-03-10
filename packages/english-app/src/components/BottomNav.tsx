@@ -13,23 +13,23 @@ export function BottomNav() {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 border-t border-[#1f2d40] bg-[#0f172a] safe-area-inset-bottom">
-      <div className="flex h-16 items-center justify-around sm:justify-center sm:gap-8">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#1f2d40] bg-[#0f172a]/95 backdrop-blur-sm safe-area-inset-bottom">
+      <div className="flex h-16 items-center justify-around">
         {NAV_ITEMS.map(({ path, label, icon: Icon }) => {
           const isActive = location.pathname === path;
           return (
             <Link
               key={path}
               to={path}
-              className={`flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs font-medium transition-colors duration-200 ${
+              className={`flex flex-col items-center justify-center gap-0.5 rounded-xl px-4 py-2 text-[11px] font-medium transition-all duration-200 ${
                 isActive
                   ? 'text-[#10b981]'
-                  : 'text-[#94a3b8] hover:text-[#f1f5f9]'
+                  : 'text-[#64748b] active:text-[#f1f5f9]'
               }`}
-              style={{ minHeight: '44px', minWidth: '44px' }}
+              style={{ minHeight: '52px', minWidth: '52px' }}
             >
-              <Icon size={24} />
-              <span className="hidden sm:inline">{label}</span>
+              <Icon size={22} strokeWidth={isActive ? 2.5 : 1.8} />
+              <span>{label}</span>
             </Link>
           );
         })}

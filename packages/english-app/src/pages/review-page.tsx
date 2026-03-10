@@ -27,7 +27,7 @@ export function ReviewPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0f172a] pb-20">
+    <div className="min-h-screen bg-[#0f172a] pb-24">
       {/* Header */}
       <div className="border-b border-[#1f2d40] bg-[#111827] px-4 py-6 sm:px-6">
         <div className="mx-auto max-w-2xl">

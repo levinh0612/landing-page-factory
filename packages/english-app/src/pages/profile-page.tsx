@@ -83,7 +83,7 @@ export function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] pb-20">
+    <div className="min-h-screen bg-[#0f172a] pb-24">
       {/* Header */}
       <div className="border-b border-[#1f2d40] bg-gradient-to-br from-[#1e293b] to-[#111827] px-4 py-8 sm:px-6">
         <div className="mx-auto max-w-2xl">

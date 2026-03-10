@@ -168,7 +168,7 @@ export function LessonPage() {
 
   if (quizScore !== null) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0f172a] px-4 py-6 pb-20">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0f172a] px-4 py-6 pb-24">
         <div className="w-full max-w-sm rounded-2xl border border-[#1f2d40] bg-[#1e293b] p-8 text-center">
           <h2 className="mb-4 text-3xl font-bold text-[#f1f5f9]">
             Kết quả 🎉
@@ -201,7 +201,7 @@ export function LessonPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] px-4 py-6 pb-20">
+    <div className="min-h-screen bg-[#0f172a] px-4 py-6 pb-24">
       <div className="mx-auto max-w-2xl">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-[#f1f5f9]">
