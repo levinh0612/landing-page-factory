@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{config.fullName}} — {{config.jobTitle}}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── CSS VARIABLES — LIGHT ──────────────────────────────────── */
+    :root {
+      --primary:    {{config.primaryColor}};
+      --accent:     {{config.accentColor}};
+      --bg:         #f0efec;
+      --white:      #ffffff;
+      --text:       #111827;
+      --muted:      #4b5563;
+      --light:      #9ca3af;
+      --border:     #e5e7eb;
+      --chip-bg:    #f3f4f6;
+      --role-bg:    #f9fafb;
+      --card-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 40px rgba(0,0,0,.09), 0 24px 60px rgba(0,0,0,.04);
+    }
+
+    /* ─── DARK MODE ───────────────────────────────────────────────── */
+    html[data-theme="dark"] {
+      --bg:         #0e1119;
+      --white:      #141922;
+      --text:       #dde3ec;
+      --muted:      #8fa3bc;
+      --light:      #4a5a72;
+      --border:     #243044;
+      --chip-bg:    #1c2535;
+      --role-bg:    #162030;
+      --card-shadow: 0 4px 32px rgba(0,0,0,.6);
+    }
+
+    /* Dark mode: primary (dark navy) is invisible on dark bg → use accent for headings */
+    html[data-theme="dark"] .name                  { color: var(--accent); }
+    html[data-theme="dark"] .section-heading h2    { color: var(--accent); }
+    html[data-theme="dark"] .section-heading       { border-bottom-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+    html[data-theme="dark"] .work-block            { border-left-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+    html[data-theme="dark"] .work-block::before    { background: var(--accent); box-shadow: 0 0 0 2px var(--accent); border-color: var(--white); }
+    html[data-theme="dark"] .role-skills-line      { color: #7aadda; }
+    html[data-theme="dark"] .role-skills-line .skill-pfx { color: var(--light); }
+    html[data-theme="dark"] #download-btn          { background: var(--accent); color: #1a1200; }
+    html[data-theme="dark"] #download-btn:hover    { background: #daa44c; }
+    html[data-theme="dark"] .ctrl-btn              { background: #1c2535; border-color: #2d3c50; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+    html[data-theme="dark"] .ctrl-btn:hover        { border-color: var(--accent); color: var(--accent); }
+    html[data-theme="dark"] .ach-proof-placeholder { border-color: var(--border); }
+    html[data-theme="dark"] .ach-proof-placeholder svg { color: var(--light); }
+
+    /* ─── LANGUAGE VISIBILITY ────────────────────────────────────── */
+    #cv-content.lang-vi .show-en { display: none !important; }
+    #cv-content.lang-en .show-vi { display: none !important; }
+
+    /* ─── RESET ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── BASE ───────────────────────────────────────────────────── */
+    html, body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      transition: background .3s, color .3s;
+    }
+
+    body { padding: 40px 20px 120px; line-height: 1.6; }
+
+    /* ─── PAGE CONTROLS ──────────────────────────────────────────── */
+    #page-controls {
+      position: fixed;
+      top: 16px; right: 20px;
+      display: flex;
+      gap: 8px;
+      z-index: 200;
+    }
+
+    .ctrl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      color: var(--text);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      transition: border-color .2s, color .2s, background .3s, box-shadow .3s;
+      white-space: nowrap;
+    }
+
+    .ctrl-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ─── CV CARD ────────────────────────────────────────────────── */
+    #cv-content {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--white);
+      box-shadow: var(--card-shadow);
+      transition: background .3s, box-shadow .3s;
+      animation: cardIn .45s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    @keyframes cardIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    #cv-content::before {
+      content: '';
+      display: block;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 55%, var(--primary) 100%);
+    }
+
+    /* ─── HEADER ─────────────────────────────────────────────────── */
+    .cv-header {
+      padding: 44px 56px 36px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+      transition: border-color .3s;
+    }
+
+    .name {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.9rem, 5vw, 2.7rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--primary);
+      margin-bottom: 6px;
+      transition: color .3s;
+    }
+
+    .job-title-line {
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: .02em;
+      margin-bottom: 14px;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      transition: color .3s;
+    }
+
+    .meta-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--border); flex-shrink: 0; transition: background .3s; }
+
+    .contact-grid { display: flex; flex-direction: column; gap: 6px; }
+
+    .contact-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 0.81rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .contact-item:hover { color: var(--primary); }
+    .contact-item svg { flex-shrink: 0; opacity: .55; }
+
+    /* ─── AVATAR ─────────────────────────────────────────────────── */
+    .avatar-img {
+      width: 88px; height: 88px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+      display: block;
+      transition: border-color .3s;
+    }
+
+    .avatar-placeholder {
+      width: 88px; height: 88px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .avatar-initials {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      color: white;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    /* ─── BODY ───────────────────────────────────────────────────── */
+    .cv-body { padding: 0 56px 52px; }
+
+    /* ─── SECTION ────────────────────────────────────────────────── */
+    .cv-section { padding-top: 38px; }
+
+    .section-heading {
+      margin-bottom: 20px;
+      padding-bottom: 9px;
+      border-bottom: 2px solid var(--primary);
+      transition: border-color .3s;
+    }
+
+    .section-heading h2 {
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--primary);
+      transition: color .3s;
+    }
+
+    /* ─── OBJECTIVE ──────────────────────────────────────────────── */
+    .objective-text {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.85;
+      font-weight: 300;
+      transition: color .3s;
+    }
+
+    /* ─── EDUCATION ──────────────────────────────────────────────── */
+    .edu-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
+
+    .edu-school { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 3px; letter-spacing: -0.01em; transition: color .3s; }
+    .edu-major  { font-size: 0.84rem; color: var(--muted); font-style: italic; margin-bottom: 4px; transition: color .3s; }
+    .edu-detail { font-size: 0.8rem; color: var(--light); transition: color .3s; }
+    .edu-detail strong { color: var(--muted); font-weight: 500; }
+
+    .edu-period {
+      font-size: 0.75rem; color: var(--light); font-weight: 500;
+      white-space: nowrap; text-align: right; padding-top: 3px;
+      transition: color .3s;
+    }
+
+    .gpa-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 10px;
+      padding: 3px 12px;
+      border: 1.5px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    /* ─── SKILLS ─────────────────────────────────────────────────── */
+    .skills-table { display: flex; flex-direction: column; gap: 9px; }
+
+    .skill-row { display: grid; grid-template-columns: 130px 1fr; gap: 14px; align-items: flex-start; }
+
+    .skill-label {
+      font-size: 0.69rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--light); padding-top: 5px; transition: color .3s;
+    }
+
+    .tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
+
+    .skill-chip {
+      display: inline-block;
+      padding: 4px 11px;
+      background: var(--chip-bg);
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+      cursor: default;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+
+    .skill-chip:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .soft-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 400;
+      transition: color .3s;
+    }
+
+    .soft-chip::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* ─── ACHIEVEMENTS ───────────────────────────────────────────── */
+    .ach-list { display: flex; flex-direction: column; }
+
+    .ach-item {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+      transition: border-color .3s;
+    }
+
+    .ach-item:last-child { border-bottom: none; }
+
+    .ach-year {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+      color: var(--accent);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      padding-top: 1px;
+    }
+
+    .ach-title {
+      font-size: 0.87rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 5px;
+      line-height: 1.4;
+      transition: color .3s;
+    }
+
+    .ach-meta { display: flex; align-items: center; gap: 8px; }
+
+    .ach-org { font-size: 0.74rem; color: var(--light); font-weight: 500; transition: color .3s; }
+
+    .ach-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      opacity: .75;
+    }
+
+    /* Proof image column */
+    .ach-proof {
+      width: 72px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ach-proof-img {
+      width: 72px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+      display: block;
+    }
+
+    .ach-proof-img:hover {
+      border-color: var(--accent);
+      transform: scale(1.06);
+      box-shadow: 0 4px 14px rgba(0,0,0,.2);
+    }
+
+    .ach-proof-placeholder {
+      width: 72px;
+      height: 56px;
+      border: 1.5px dashed #d1d5db;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: default;
+    }
+
+    .ach-proof-placeholder svg { width: 18px; height: 18px; color: #d1d5db; }
+
+    /* Hide proof placeholder in PDF */
+    @media print { .ach-proof-placeholder { display: none !important; } }
+
+    /* ─── LIGHTBOX ───────────────────────────────────────────────── */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.82);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      animation: fadeIn .2s ease both;
+    }
+
+    #lightbox.open { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    #lightbox img {
+      max-width: 90vw;
+      max-height: 88vh;
+      border-radius: 6px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.6);
+      cursor: default;
+    }
+
+    #lightbox-close {
+      position: fixed;
+      top: 20px; right: 24px;
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,.12);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+    }
+
+    #lightbox-close:hover { background: rgba(255,255,255,.25); }
+
+    /* ─── WORK EXPERIENCE ────────────────────────────────────────── */
+    .work-block {
+      border-left: 2px solid var(--primary);
+      padding-left: 24px;
+      position: relative;
+      transition: border-color .3s;
+    }
+
+    .work-block::before {
+      content: '';
+      position: absolute;
+      left: -6px; top: 5px;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 2px solid var(--white);
+      box-shadow: 0 0 0 2px var(--primary);
+      transition: background .3s, border-color .3s, box-shadow .3s;
+    }
+
+    .company-header { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: flex-start; margin-bottom: 4px; }
+
+    .company-name {
+      font-size: 0.88rem; font-weight: 700; letter-spacing: .03em;
+      color: var(--text); text-transform: uppercase; transition: color .3s;
+    }
+
+    .company-period { font-size: 0.74rem; font-weight: 600; color: var(--accent); white-space: nowrap; padding-top: 2px; }
+
+    .company-location {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.76rem; color: var(--light); margin-bottom: 16px; transition: color .3s;
+    }
+
+    .role-card {
+      background: var(--role-bg);
+      border: 1px solid var(--border);
+      padding: 15px 18px;
+      margin-bottom: 10px;
+      position: relative;
+      transition: background .3s, border-color .3s;
+    }
+
+    .role-card:last-child { margin-bottom: 0; }
+
+    .role-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--accent);
+    }
+
+    .role-top { display: grid; grid-template-columns: 1fr auto; gap: 12px; margin-bottom: 5px; }
+
+    .role-title { font-size: 0.87rem; font-weight: 600; color: var(--text); letter-spacing: -0.01em; transition: color .3s; }
+    .role-period { font-size: 0.72rem; color: var(--light); white-space: nowrap; font-weight: 500; padding-top: 2px; transition: color .3s; }
+
+    .role-skills-line {
+      font-size: 0.73rem;
+      color: var(--primary);
+      font-weight: 600;
+      letter-spacing: .03em;
+      margin-bottom: 9px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color .3s;
+    }
+
+    /* "SKILL" / "KỸ NĂNG" prefix label — replaced ::before with real spans */
+    .skill-pfx {
+      font-size: 0.61rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--light);
+      flex-shrink: 0;
+      transition: color .3s;
+    }
+
+    .role-bullets { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+
+    .role-bullet { display: flex; gap: 10px; font-size: 0.8rem; color: var(--muted); line-height: 1.6; transition: color .3s; }
+    .bullet-arrow { color: var(--accent); font-size: 0.8rem; padding-top: 2px; flex-shrink: 0; }
+
+    /* ─── HOBBY ──────────────────────────────────────────────────── */
+    .hobby-flex { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .hobby-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-radius: 100px;
+      transition: border-color .15s, color .15s, background .3s;
+    }
+
+    .hobby-pill:hover { border-color: var(--primary); color: var(--primary); }
+    .hobby-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+    /* ─── FOOTER ─────────────────────────────────────────────────── */
+    .cv-footer {
+      border-top: 1px solid var(--border);
+      padding: 14px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color .3s;
+    }
+
+    .cv-footer-text { font-size: 0.69rem; color: var(--light); letter-spacing: .04em; transition: color .3s; }
+    .cv-footer-bar { width: 36px; height: 3px; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 2px; }
+
+    /* ─── DOWNLOAD BUTTON ────────────────────────────────────────── */
+    #download-btn {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 22px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,.18);
+      transition: background .2s, transform .2s, box-shadow .2s;
+      z-index: 100;
+    }
+
+    #download-btn:hover  { background: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,.22); }
+    #download-btn:active { transform: translateY(-1px); }
+    #download-btn svg   { width: 14px; height: 14px; }
+
+    /* ─── PRINT / SAVE AS PDF ────────────────────────────────────── */
+    @media print {
+      /* margin:0 on @page = Chrome suppresses its own URL/date/page-number header+footer */
+      @page { size: A4; margin: 0; }
+
+      * { -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important; }
+
+      html, body { background: white !important; padding: 0 !important; margin: 0 !important; }
+
+      #download-btn, #page-controls, #lightbox { display: none !important; }
+
+      #cv-content {
+        box-shadow: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        /* Replace @page margins with padding so content stays inset */
+        padding-left: 18mm !important;
+        padding-right: 18mm !important;
+      }
+
+      .cv-header  { padding: 14mm 0 12px; }
+      .cv-body    { padding: 0 0 16px; }
+      .cv-footer  { padding: 10px 0 14mm; }
+
+      .ach-proof-placeholder { display: none !important; }
+
+      /* ── Page break control ── */
+      .cv-section, .edu-row, .company-block,
+      .role-card, .ach-item, .skill-row, .hobby-flex {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .section-heading {
+        page-break-after: avoid;
+        break-after: avoid;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .cv-header {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      body { padding: 16px 12px 100px; }
+      .cv-header  { padding: 28px 20px 24px; grid-template-columns: 1fr; }
+      .cv-body    { padding: 0 20px 36px; }
+      .cv-footer  { padding: 12px 20px; }
+      .skill-row  { grid-template-columns: 1fr; gap: 5px; }
+      .skill-label { padding-top: 0; }
+      .edu-row, .company-header, .role-top { grid-template-columns: 1fr; gap: 4px; }
+      .edu-period, .company-period, .role-period { text-align: left; }
+      .ach-item   { grid-template-columns: 52px 1fr auto; gap: 10px; }
+      .ach-proof-img, .ach-proof-placeholder { width: 56px; height: 44px; }
+      #page-controls { top: 8px; right: 8px; gap: 6px; }
+      .ctrl-btn   { padding: 6px 10px; font-size: 0.7rem; }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- ══ LIGHTBOX ════════════════════════════════════════════════ -->
+  <div id="lightbox" onclick="closeLightbox(event)">
+    <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="Proof" onclick="event.stopPropagation()">
+  </div>
+
+  <!-- ══ PAGE CONTROLS (not in PDF) ═════════════════════════════ -->
+  <div id="page-controls">
+    <button class="ctrl-btn" id="lang-btn" onclick="toggleLang()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      <span id="lang-label">VI</span>
+    </button>
+    <button class="ctrl-btn" id="dark-btn" onclick="toggleDark()">
+      <span id="dark-icon">🌙</span>
+    </button>
+  </div>
+
+  <!-- ══ DOWNLOAD BUTTON (not in PDF) ═══════════════════════════ -->
+  <button id="download-btn" onclick="downloadPDF()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+    <span id="dl-label-en">Download PDF</span>
+    <span id="dl-label-vi" style="display:none">Tải CV PDF</span>
+  </button>
+
+  <!-- ══ CV CARD ═════════════════════════════════════════════════ -->
+  <div id="cv-content" class="lang-en">
+
+    <!-- ── HEADER ─────────────────────────────────────────────── -->
+    <header class="cv-header">
+      <div class="header-left">
+        <h1 class="name">{{config.fullName}}</h1>
+
+        <div class="job-title-line">
+          <span class="show-en">{{config.jobTitle}}</span>
+          <span class="show-vi">{{config.jobTitleVi}}</span>
+        </div>
+
+        <div class="header-meta">
+          <span class="meta-chip">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            {{config.dob}}
+          </span>
+          <span class="meta-sep"></span>
+          <span class="meta-chip">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {{config.location}}
+          </span>
+        </div>
+
+        <div class="contact-grid">
+          <a class="contact-item" href="tel:{{config.phone}}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81 19.79 19.79 0 01.01 6.18 2 2 0 012 4h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 11.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+            {{config.phone}}
+          </a>
+          <a class="contact-item" href="mailto:{{config.email}}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            {{config.email}}
+          </a>
+          <a class="contact-item" href="{{config.linkedinUrl}}" target="_blank" rel="noopener">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            {{config.linkedinUrl}}
+          </a>
+        </div>
+      </div>
+
+      <!-- Avatar -->
+      <div id="avatar-wrapper"></div>
+    </header>
+
+    <!-- ── BODY ────────────────────────────────────────────────── -->
+    <main class="cv-body">
+
+      <!-- OBJECTIVE -->
+      <section class="cv-section">
+        <div class="section-heading">
+          <h2><span class="show-en">OBJECTIVE</span><span class="show-vi">MỤC TIÊU NGHỀ NGHIỆP</span></h2>
+        </div>
+        <p class="objective-text show-en">{{config.objective}}</p>
+        <p class="objective-text show-vi">{{config.objectiveVi}}</p>
+      </section>
+
+      <!-- EDUCATION -->
+      <section class="cv-section">
+        <div class="section-heading">
+          <h2><span class="show-en">EDUCATION</span><span class="show-vi">HỌC VẤN</span></h2>
+        </div>
+        <div class="edu-row">
+          <div>
+            <div class="edu-school">{{config.schoolName}}</div>
+            <div class="edu-major">
+              <span class="show-en">Major:</span><span class="show-vi">Chuyên ngành:</span>
+              {{config.schoolMajor}}
+            </div>
+            <div class="edu-detail">
+              <strong><span class="show-en">Main subject:</span><span class="show-vi">Môn học chính:</span></strong>
+              {{config.schoolSubject}}
+            </div>
+            <div class="gpa-badge">GPA &nbsp;{{config.schoolGPA}}</div>
+          </div>
+          <div class="edu-period">{{config.schoolPeriod}}</div>
+        </div>
+      </section>
+
+      <!-- SKILLS -->
+      <section class="cv-section">
+        <div class="section-heading">
+          <h2><span class="show-en">SKILLS</span><span class="show-vi">KỸ NĂNG</span></h2>
+        </div>
+        <div class="skills-table">
+          <div class="skill-row">
+            <span class="skill-label"><span class="show-en">FrontEnd</span><span class="show-vi">Giao Diện</span></span>
+            <div class="tag-list" data-skills="{{config.skillFrontend}}"></div>
+          </div>
+          <div class="skill-row">
+            <span class="skill-label"><span class="show-en">BackEnd</span><span class="show-vi">Máy Chủ</span></span>
+            <div class="tag-list" data-skills="{{config.skillBackend}}"></div>
+          </div>
+          <div class="skill-row">
+            <span class="skill-label"><span class="show-en">Platform</span><span class="show-vi">Nền Tảng</span></span>
+            <div class="tag-list" data-skills="{{config.skillPlatform}}"></div>
+          </div>
+          <div class="skill-row">
+            <span class="skill-label"><span class="show-en">Database</span><span class="show-vi">Cơ Sở Dữ Liệu</span></span>
+            <div class="tag-list" data-skills="{{config.skillDatabase}}"></div>
+          </div>
+          <div class="skill-row">
+            <span class="skill-label"><span class="show-en">DevOps / Tools</span><span class="show-vi">DevOps / Công Cụ</span></span>
+            <div class="tag-list" data-skills="{{config.skillDevOps}}"></div>
+          </div>
+          <div class="skill-row">
+            <span class="skill-label"><span class="show-en">Soft Skills</span><span class="show-vi">Kỹ Năng Mềm</span></span>
+            <div class="tag-list" data-soft="{{config.skillSoft}}"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACHIEVEMENTS -->
+      <section class="cv-section">
+        <div class="section-heading">
+          <h2><span class="show-en">ACHIEVEMENTS</span><span class="show-vi">THÀNH TÍCH NỔI BẬT</span></h2>
+        </div>
+        <div class="ach-list">
+
+          <!-- Achievement 1 -->
+          <div class="ach-item">
+            <div class="ach-year">{{config.ach1Year}}</div>
+            <div class="ach-right">
+              <div class="ach-title show-en">{{config.ach1En}}</div>
+              <div class="ach-title show-vi">{{config.ach1Vi}}</div>
+              <div class="ach-meta">
+                <span class="ach-org">{{config.achOrg}}</span>
+                <span class="ach-badge"><span class="show-en">Award</span><span class="show-vi">Khen Thưởng</span></span>
+              </div>
+            </div>
+            <div class="ach-proof" id="proof-1" data-src="{{config.ach1ProofUrl}}"></div>
+          </div>
+
+          <!-- Achievement 2 -->
+          <div class="ach-item">
+            <div class="ach-year">{{config.ach2Year}}</div>
+            <div class="ach-right">
+              <div class="ach-title show-en">{{config.ach2En}}</div>
+              <div class="ach-title show-vi">{{config.ach2Vi}}</div>
+              <div class="ach-meta">
+                <span class="ach-org">{{config.achOrg}}</span>
+                <span class="ach-badge"><span class="show-en">Award</span><span class="show-vi">Khen Thưởng</span></span>
+              </div>
+            </div>
+            <div class="ach-proof" id="proof-2" data-src="{{config.ach2ProofUrl}}"></div>
+          </div>
+
+          <!-- Achievement 3 -->
+          <div class="ach-item">
+            <div class="ach-year">{{config.ach3Year}}</div>
+            <div class="ach-right">
+              <div class="ach-title show-en">{{config.ach3En}}</div>
+              <div class="ach-title show-vi">{{config.ach3Vi}}</div>
+              <div class="ach-meta">
+                <span class="ach-org">{{config.achOrg}}</span>
+                <span class="ach-badge"><span class="show-en">Award</span><span class="show-vi">Khen Thưởng</span></span>
+              </div>
+            </div>
+            <div class="ach-proof" id="proof-3" data-src="{{config.ach3ProofUrl}}"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- WORK EXPERIENCE -->
+      <section class="cv-section">
+        <div class="section-heading">
+          <h2><span class="show-en">WORK EXPERIENCE</span><span class="show-vi">KINH NGHIỆM LÀM VIỆC</span></h2>
+        </div>
+        <div class="work-block">
+          <div class="company-header">
+            <span class="company-name">{{config.work1Company}}</span>
+            <span class="company-period">{{config.work1Period}}</span>
+          </div>
+          <div class="company-location">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {{config.work1Location}}
+          </div>
+
+          <!-- Role 1 -->
+          <div class="role-card">
+            <div class="role-top">
+              <span class="role-title">{{config.work1Role1Title}}</span>
+              <span class="role-period">{{config.work1Role1Period}}</span>
+            </div>
+            <div class="role-skills-line">
+              <span class="skill-pfx show-en">SKILL</span>
+              <span class="skill-pfx show-vi">KỸ NĂNG</span>
+              {{config.work1Role1Skills}}
+            </div>
+            <ul class="role-bullets" data-bullets="{{config.work1Role1Desc}}"></ul>
+          </div>
+
+          <!-- Role 2 -->
+          <div class="role-card">
+            <div class="role-top">
+              <span class="role-title">
+                <span class="show-en">{{config.work1Role2Title}}</span>
+                <span class="show-vi">{{config.work1Role2TitleVi}}</span>
+              </span>
+              <span class="role-period">{{config.work1Role2Period}}</span>
+            </div>
+            <div class="role-skills-line">
+              <span class="skill-pfx show-en">SKILL</span>
+              <span class="skill-pfx show-vi">KỸ NĂNG</span>
+              {{config.work1Role2Skills}}
+            </div>
+            <ul class="role-bullets" data-bullets="{{config.work1Role2Desc}}"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOBBY -->
+      <section class="cv-section">
+        <div class="section-heading">
+          <h2><span class="show-en">HOBBIES &amp; INTERESTS</span><span class="show-vi">SỞ THÍCH</span></h2>
+        </div>
+        <div class="hobby-flex" data-hobbies="{{config.hobbies}}"></div>
+      </section>
+
+    </main>
+
+    <!-- ── FOOTER ─────────────────────────────────────────────── -->
+    <footer class="cv-footer">
+      <span class="cv-footer-text">{{config.fullName}} &nbsp;·&nbsp; {{config.email}}</span>
+      <div class="cv-footer-bar"></div>
+    </footer>
+
+  </div><!-- /#cv-content -->
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ── State ─────────────────────────────────────────────── */
+      var currentLang = 'en';
+      var isDark = (function () {
+        var saved = localStorage.getItem('cv-dark-mode');
+        if (saved !== null) return saved === 'true';
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      })();
+
+      /* Apply dark mode immediately (before DOM paint) */
+      if (isDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+
+      /* ── Avatar ────────────────────────────────────────────── */
+      var avatarUrl = '{{config.avatarUrl}}';
+      var wrapper = document.getElementById('avatar-wrapper');
+
+      function buildPlaceholder() {
+        var name = '{{config.fullName}}';
+        var parts = name.trim().split(/\s+/);
+        var initials = parts.length >= 2
+          ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+          : (parts[0] || 'CV').slice(0, 2).toUpperCase();
+        return '<div class="avatar-placeholder"><span class="avatar-initials">' + initials + '</span></div>';
+      }
+
+      if (avatarUrl && avatarUrl.trim() && avatarUrl !== 'undefined') {
+        var img = document.createElement('img');
+        img.src = avatarUrl;
+        img.alt = 'Avatar';
+        img.className = 'avatar-img';
+        img.onerror = function () { wrapper.innerHTML = buildPlaceholder(); };
+        wrapper.appendChild(img);
+      } else {
+        wrapper.innerHTML = buildPlaceholder();
+      }
+
+      /* ── Achievement proof images ──────────────────────────── */
+      function initProofImages() {
+        [1, 2, 3].forEach(function (n) {
+          var el = document.getElementById('proof-' + n);
+          if (!el) return;
+          var src = el.getAttribute('data-src') || '';
+          if (src && src.trim() && src !== 'undefined') {
+            var img = document.createElement('img');
+            img.src = src;
+            img.alt = 'Proof ' + n;
+            img.className = 'ach-proof-img';
+            img.title = 'Click để xem / Click to view';
+            img.onclick = function () { openLightbox(src); };
+            el.appendChild(img);
+          } else {
+            /* dashed placeholder — hidden in PDF via @media print */
+            el.innerHTML = '<div class="ach-proof-placeholder">'
+              + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">'
+              + '<rect x="3" y="3" width="18" height="18" rx="2"/>'
+              + '<circle cx="8.5" cy="8.5" r="1.5"/>'
+              + '<polyline points="21 15 16 10 5 21"/>'
+              + '</svg>'
+              + '</div>';
+          }
+        });
+      }
+
+      initProofImages();
+
+      /* ── Lightbox ──────────────────────────────────────────── */
+      window.openLightbox = function (src) {
+        document.getElementById('lightbox-img').src = src;
+        document.getElementById('lightbox').classList.add('open');
+        document.body.style.overflow = 'hidden';
+      };
+
+      window.closeLightbox = function (e) {
+        if (e && e.target !== document.getElementById('lightbox') && e.target !== document.getElementById('lightbox-close')) return;
+        document.getElementById('lightbox').classList.remove('open');
+        document.body.style.overflow = '';
+      };
+
+      /* ESC key to close lightbox */
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          document.getElementById('lightbox').classList.remove('open');
+          document.body.style.overflow = '';
+        }
+      });
+
+      /* ── Pipe renderer ─────────────────────────────────────── */
+      function split(raw) {
+        return (raw || '').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
+      }
+
+      function esc(str) {
+        return (str || '')
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      document.querySelectorAll('[data-skills]').forEach(function (el) {
+        el.innerHTML = split(el.getAttribute('data-skills')).map(function (t) {
+          return '<span class="skill-chip">' + esc(t) + '</span>';
+        }).join('');
+      });
+
+      document.querySelectorAll('[data-soft]').forEach(function (el) {
+        el.innerHTML = split(el.getAttribute('data-soft')).map(function (t) {
+          return '<span class="soft-chip">' + esc(t) + '</span>';
+        }).join('');
+      });
+
+      document.querySelectorAll('[data-bullets]').forEach(function (el) {
+        el.innerHTML = split(el.getAttribute('data-bullets')).map(function (item) {
+          return '<li class="role-bullet"><span class="bullet-arrow">›</span><span>' + esc(item) + '</span></li>';
+        }).join('');
+      });
+
+      document.querySelectorAll('[data-hobbies]').forEach(function (el) {
+        el.innerHTML = split(el.getAttribute('data-hobbies')).map(function (item) {
+          return '<span class="hobby-pill"><span class="hobby-dot"></span>' + esc(item) + '</span>';
+        }).join('');
+      });
+
+      /* ── Language toggle ───────────────────────────────────── */
+      window.toggleLang = function () {
+        currentLang = currentLang === 'en' ? 'vi' : 'en';
+        var cv = document.getElementById('cv-content');
+        cv.className = 'lang-' + currentLang;
+        document.documentElement.lang = currentLang;
+        /* Update button label: shows the language you'll switch TO */
+        document.getElementById('lang-label').textContent = currentLang === 'en' ? 'VI' : 'EN';
+        /* Update download button label */
+        document.getElementById('dl-label-en').style.display = currentLang === 'en' ? '' : 'none';
+        document.getElementById('dl-label-vi').style.display = currentLang === 'vi' ? '' : 'none';
+      };
+
+      /* ── Dark mode toggle ──────────────────────────────────── */
+      function applyDark() {
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '');
+        document.getElementById('dark-icon').textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('cv-dark-mode', isDark ? 'true' : 'false');
+      }
+
+      /* Sync icon after DOM ready */
+      applyDark();
+
+      window.toggleDark = function () {
+        isDark = !isDark;
+        applyDark();
+      };
+
+      /* ── PDF: open new top-level window → print from there so the
+             window title (not the dashboard iframe title) becomes
+             the Save-as-PDF filename ────────────────────────────── */
+      window.downloadPDF = function () {
+        var wasDark = isDark;
+
+        /* Snapshot: force light mode so the cloned HTML has no dark attrs */
+        if (wasDark) document.documentElement.setAttribute('data-theme', '');
+
+        /* Build filename: FullName_EN / _VI */
+        var cleanName  = '{{config.fullName}}'.trim().replace(/\s+/g, '_');
+        var langSuffix = currentLang === 'vi' ? '_VI' : '_EN';
+        var filename   = cleanName + langSuffix;
+
+        /* Collect all <style> blocks from this document */
+        var styles = Array.from(document.querySelectorAll('style'))
+                         .map(function (s) { return s.innerHTML; }).join('\n');
+
+        /* Snapshot cv-content as light-mode HTML */
+        var cvHtml = document.getElementById('cv-content').outerHTML;
+
+        /* Restore dark mode on original page immediately */
+        if (wasDark) document.documentElement.setAttribute('data-theme', 'dark');
+
+        /* Open a clean top-level window — its title IS the PDF filename */
+        var pw = window.open('', '_blank');
+        pw.document.write(
+          '<!DOCTYPE html><html lang="' + currentLang + '">'
+          + '<head><meta charset="UTF-8"><title>' + filename + '</title>'
+          + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+          + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+          + '<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">'
+          + '<style>' + styles + '</style>'
+          + '</head><body style="background:white;margin:0;padding:0">'
+          + cvHtml
+          + '</body></html>'
+        );
+        pw.document.close();
+
+        /* Wait for fonts to load then trigger print */
+        var printed = false;
+        function doPrint() {
+          if (printed) return;
+          printed = true;
+          pw.focus();
+          pw.print();
+        }
+        pw.onload = function () { setTimeout(doPrint, 300); };
+        setTimeout(doPrint, 1400); /* fallback if onload already fired */
+      };
+
+    })();
+  </script>
+</body>
+</html>

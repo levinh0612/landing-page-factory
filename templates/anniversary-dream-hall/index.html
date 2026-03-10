@@ -284,16 +284,18 @@
             justify-content: center;
             align-items: center;
             margin-bottom: 3rem;
-            perspective: 1000px;
         }
 
-        .building-svg {
-            max-width: 100%;
-            width: auto;
-            height: auto;
-            max-height: 400px;
-            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.1));
+        #buildingCanvas {
+            display: block;
+            width: 100%;
+            max-width: 580px;
+            aspect-ratio: 580 / 430;
+            border-radius: 20px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.14);
+            cursor: grab;
         }
+        #buildingCanvas:active { cursor: grabbing; }
 
         .sparkle-overlay {
             position: absolute;
@@ -503,6 +505,90 @@
             animation-delay: 0.4s;
         }
 
+        /* ============ COUPLE PHOTO ============ */
+        .couple-photo-wrap {
+            margin: 1.2rem auto 1.6rem;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--female);
+            box-shadow: 0 0 0 6px rgba(233,30,140,0.12), 0 8px 28px rgba(0,0,0,0.14);
+            display: none; /* shown by JS when photo exists */
+        }
+        .couple-photo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ============ GALLERY ============ */
+        .gallery-section {
+            padding: 3rem 1.5rem 2rem;
+            text-align: center;
+            display: none; /* shown by JS when photos exist */
+        }
+        .gallery-title {
+            font-size: clamp(1.4rem, 4vw, 1.9rem);
+            font-weight: 800;
+            color: var(--female);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        .gallery-subtitle {
+            font-size: 0.9rem;
+            color: #a07888;
+            margin-bottom: 2rem;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1.4rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .gallery-card {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 18px rgba(180,60,120,0.10), 0 1px 4px rgba(0,0,0,0.07);
+            transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s;
+            cursor: pointer;
+        }
+        .gallery-card:hover {
+            transform: translateY(-6px) rotate(1.5deg);
+            box-shadow: 0 12px 36px rgba(180,60,120,0.18);
+        }
+        .gallery-card:nth-child(even):hover {
+            transform: translateY(-6px) rotate(-1.5deg);
+        }
+        .gallery-img-wrap {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background: #fce8f3;
+        }
+        .gallery-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.35s ease;
+        }
+        .gallery-card:hover .gallery-img-wrap img {
+            transform: scale(1.08);
+        }
+        .gallery-label {
+            padding: 0.6rem 0.75rem 0.7rem;
+            font-size: 0.82rem;
+            color: #7a4060;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-style: italic;
+        }
+
         /* ============ RESPONSIVE ============ */
         @media (max-width: 640px) {
             .names {
@@ -530,6 +616,7 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
 <script>
@@ -550,7 +637,18 @@ window.TEMPLATE_CONFIG = {
     {date:"{{config.anniversary5Date}}",label:"{{config.anniversary5Label}}"}
   ].filter(a => a.date && !a.date.includes('{')),
   dreamMessage: "{{config.dreamMessage}}",
-  primaryBg: "{{config.primaryBg}}"
+  primaryBg: "{{config.primaryBg}}",
+  couplePhoto: "{{config.couplePhoto}}",
+  photo1: "{{config.photo1}}",
+  photo1Label: "{{config.photo1Label}}",
+  photo2: "{{config.photo2}}",
+  photo2Label: "{{config.photo2Label}}",
+  photo3: "{{config.photo3}}",
+  photo3Label: "{{config.photo3Label}}",
+  photo4: "{{config.photo4}}",
+  photo4Label: "{{config.photo4Label}}",
+  photo5: "{{config.photo5}}",
+  photo5Label: "{{config.photo5Label}}"
 };
 </script>
 
@@ -566,6 +664,9 @@ window.TEMPLATE_CONFIG = {
             <span class="name-female" id="femaleName"></span>
         </div>
         <div class="since-date" id="sinceDate"></div>
+        <div class="couple-photo-wrap" id="couplePhotoWrap">
+            <img id="couplePhotoImg" src="" alt="Ảnh đôi" />
+        </div>
         <div class="dream-message" id="dreamMessage"></div>
         <div class="scroll-hint">
             <div class="scroll-hint-arrow">↓</div>
@@ -599,11 +700,18 @@ window.TEMPLATE_CONFIG = {
         <div class="countdown-message" id="countdownMessage"></div>
     </section>
 
+    <!-- GALLERY SECTION -->
+    <section class="gallery-section" id="gallerySection">
+        <h2 class="gallery-title">Kỷ Niệm Của Chúng Ta 💕</h2>
+        <p class="gallery-subtitle">Những khoảnh khắc đẹp mãi không phai</p>
+        <div class="gallery-grid" id="galleryGrid"></div>
+    </section>
+
     <!-- DREAM HALL SECTION -->
     <section class="dream-hall-section">
         <h2 class="dream-hall-title">Lễ Đường Trong Mơ</h2>
         <div class="hall-container">
-            <svg class="building-svg" id="buildingSvg" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg"></svg>
+            <canvas id="buildingCanvas" width="580" height="430"></canvas>
             <div id="sparkles"></div>
         </div>
         <div class="progress-info" id="progressInfo">Hành trình: 0 / 10 cột mốc</div>
@@ -637,7 +745,7 @@ function formatDate(dateStr) {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    return `${day}-${month}-${year}`;
 }
 
 function getTimeUntil(targetDate) {
@@ -714,368 +822,403 @@ function updateCountdown() {
         `Còn ${daysRemaining} ngày nữa đến ${config.nextAnniversaryLabel}`;
 }
 
-// ============ ISOMETRIC BUILDING ============
-const IsoBuilding = (() => {
-    const CX = 200;
-    const CY = 210;
-    const TW = 28;
-    const TH = 14;
-    const TZ = 22;
-
-    function project(x, y, z) {
-        return {
-            x: (x - y) * TW / 2 + CX,
-            y: (x + y) * TH / 2 - z * TZ + CY
-        };
-    }
-
-    function polygon(points3d, fill, stroke = 'none', strokeWidth = 1) {
-        const points = points3d.map(p => project(p.x, p.y, p.z));
-        const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
-
-        const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        poly.setAttribute('points', pointsStr);
-        poly.setAttribute('fill', fill);
-        if (stroke !== 'none') {
-            poly.setAttribute('stroke', stroke);
-            poly.setAttribute('stroke-width', strokeWidth);
-        }
-        return poly;
-    }
-
-    function isoBox(x, y, z, w, d, h, color, addToSvg) {
-        // Calculate vertices
-        const tl = {x, y, z};                    // top-left-front
-        const tr = {x: x + w, y, z};            // top-right-front
-        const bl = {x, y: y + d, z};            // bottom-left-front
-        const br = {x: x + w, y: y + d, z};    // bottom-right-front
-        const tlb = {x, y, z: z + h};          // top-left-back (higher)
-        const trb = {x: x + w, y, z: z + h};   // top-right-back
-        const blb = {x, y: y + d, z: z + h};   // bottom-left-back
-        const brb = {x: x + w, y: y + d, z: z + h}; // bottom-right-back
-
-        // Darken color for sides
-        const darkColor = shadeColor(color, -20);
-        const lightColor = shadeColor(color, 20);
-
-        // Front face (x=left)
-        addToSvg(polygon([tl, tr, br, bl], color));
-
-        // Top face (z=top) - lighter
-        addToSvg(polygon([tl, tr, trb, tlb], lightColor));
-
-        // Right face (y=front, slanted) - darker
-        addToSvg(polygon([tr, br, brb, trb], darkColor));
-    }
-
-    function shadeColor(color, percent) {
-        const num = parseInt(color.replace('#', ''), 16);
-        const amt = Math.round(2.55 * percent);
-        const R = Math.min(255, Math.max(0, (num >> 16) + amt));
-        const G = Math.min(255, Math.max(0, (num >> 8 & 0x00FF) + amt));
-        const B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
-        return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
-    }
-
-    return { project, polygon, isoBox, shadeColor };
-})();
+// ============ THREE.JS DREAM HALL ============
+let _hall = null; // { scene, camera, renderer, animId }
 
 function renderBuilding() {
-    const config = window.TEMPLATE_CONFIG;
-    const svg = document.getElementById('buildingSvg');
-    svg.innerHTML = '';
+  try {
+    const cfg = window.TEMPLATE_CONFIG;
+    const fc  = (cfg.femaleColor || '#E91E8C').trim();
+    const mc  = (cfg.maleColor   || '#4A90D9').trim();
+    const cv  = document.getElementById('buildingCanvas');
+    if (!cv) return;
+    if (typeof THREE === 'undefined') {
+        cv.style.background = 'linear-gradient(135deg,#FFF0F5,#FFE4F0)';
+        cv.style.borderRadius = '20px';
+        return;
+    }
 
-    const elements = [];
+    // ── Stop any existing animation loop ──────────────────────
+    if (_hall && _hall.animId) { cancelAnimationFrame(_hall.animId); _hall.animId = null; }
 
-    // Stage 0: Always draw ground
-    const groundPoints = [
-        {x: 0, y: 4, z: 0},
-        {x: 6, y: 4, z: 0},
-        {x: 10, y: 0, z: 0},
-        {x: 4, y: 0, z: 0}
+    // ── Init renderer & camera once ───────────────────────────
+    if (!_hall) {
+        const W = 580, H = 430;
+        const scene  = new THREE.Scene();
+        // Gradient sky: rose-pink top → warm cream bottom
+        const _skyC = document.createElement('canvas');
+        _skyC.width = 4; _skyC.height = 512;
+        const _skyX = _skyC.getContext('2d');
+        const _skyG = _skyX.createLinearGradient(0, 0, 0, 512);
+        _skyG.addColorStop(0,    '#F2C0E4');
+        _skyG.addColorStop(0.35, '#FAD8F0');
+        _skyG.addColorStop(0.75, '#FEF0F8');
+        _skyG.addColorStop(1,    '#FFF8FC');
+        _skyX.fillStyle = _skyG; _skyX.fillRect(0, 0, 4, 512);
+        scene.background = new THREE.CanvasTexture(_skyC);
+
+        const aspect = W / H;
+        const frust  = 10.8;
+        const camera = new THREE.OrthographicCamera(
+            -frust * aspect / 2,  frust * aspect / 2,
+             frust / 2,          -frust / 2,
+            0.1, 300
+        );
+        camera.position.set(14, 10, 14);
+        camera.lookAt(new THREE.Vector3(0, 2.5, 0));
+        camera.updateProjectionMatrix();
+
+        const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+        renderer.setSize(W, H, false);  // false = don't update CSS; canvas attrs set to 580×430
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+        _hall = { scene, camera, renderer, animId: null };
+    }
+
+    const { scene, camera, renderer } = _hall;
+
+    // ── Dispose + clear scene ─────────────────────────────────
+    scene.children.slice().forEach(obj => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+            (Array.isArray(obj.material) ? obj.material : [obj.material])
+                .forEach(m => m.dispose());
+        }
+        scene.remove(obj);
+    });
+
+    // ── Color helpers ─────────────────────────────────────────
+    const WHITE3 = new THREE.Color(1, 1, 1);
+    function lC(hex, t) { return new THREE.Color(hex).lerp(WHITE3, t); }
+
+    // Building palette — all derived from femaleColor
+    const Cwall  = lC(fc, 0.56);
+    const Ccol   = lC(fc, 0.82);
+    const Cent   = lC(fc, 0.48);
+    const Cped   = lC(fc, 0.36);
+    const CroofL = lC(fc, 0.30);
+    const CroofR = lC(fc, 0.16);
+    const Cstep  = lC(fc, 0.74);
+    const Cband  = lC(fc, 0.44);
+
+    const Cdoor   = new THREE.Color(0x380E1C);
+    const Cwin    = new THREE.Color(0xFFE070);
+    const Cgrass  = new THREE.Color(0x88B836);
+    const Ctrunk  = new THREE.Color(0x7A3C10);
+    const Ctree   = new THREE.Color(0xCC5510);
+    const CtreeLt = new THREE.Color(0xE07030);
+    const CtreeDk = new THREE.Color(0xAA3808);
+    const Cfount  = new THREE.Color(0x78D0F0);
+
+    // ── Material factory ──────────────────────────────────────
+    function M(col, shine, em, emI) {
+        shine = shine || 8;
+        const p = { color: col, shininess: shine, specular: new THREE.Color(0x1A1010) };
+        if (em) { p.emissive = em; p.emissiveIntensity = emI || 0; }
+        return new THREE.MeshPhongMaterial(p);
+    }
+
+    // ── Mesh primitives ───────────────────────────────────────
+    function addBox(w, h, d, col, x, y, z, shine) {
+        const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), M(col, shine));
+        m.position.set(x, y, z);
+        m.castShadow = m.receiveShadow = true;
+        scene.add(m); return m;
+    }
+    function addCyl(rT, rB, h, segs, col, x, y, z, shine) {
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(rT, rB, h, segs || 10), M(col, shine || 10));
+        m.position.set(x, y, z);
+        m.castShadow = m.receiveShadow = true;
+        scene.add(m); return m;
+    }
+    function addSph(r, col, x, y, z, shine, em, emI) {
+        const m = new THREE.Mesh(new THREE.SphereGeometry(r, 12, 10), M(col, shine, em, emI));
+        m.position.set(x, y, z);
+        m.castShadow = true;
+        scene.add(m); return m;
+    }
+    function addTri(v, col) {
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(v), 3));
+        g.computeVertexNormals();
+        const m = new THREE.Mesh(g, M(col, 5));
+        m.castShadow = true; scene.add(m); return m;
+    }
+    function addQuad(a, b, c, d, col) {
+        addTri([...a,...b,...c], col);
+        addTri([...a,...c,...d], col);
+    }
+
+    // ── LIGHTS ────────────────────────────────────────────────
+    scene.add(new THREE.AmbientLight(0xffe8f5, 0.70)); // warm rose ambient
+
+    const sun = new THREE.DirectionalLight(0xfff0e0, 1.55);
+    sun.position.set(16, 24, 14);
+    sun.castShadow = true;
+    sun.shadow.camera.left = sun.shadow.camera.bottom = -14;
+    sun.shadow.camera.right = sun.shadow.camera.top   =  14;
+    sun.shadow.mapSize.setScalar(1024);
+    scene.add(sun);
+
+    // Cool sky fill from front-left
+    const fill = new THREE.DirectionalLight(0xd0e8ff, 0.25);
+    fill.position.set(-12, 6, 16);
+    scene.add(fill);
+
+    // Pink bounce — glows from below to give the building a magical lift
+    const bounce = new THREE.DirectionalLight(0xffcce8, 0.35);
+    bounce.position.set(0, -8, 12);
+    scene.add(bounce);
+
+    // Gold rim from behind — warm depth & luxury
+    const rim = new THREE.DirectionalLight(0xffd080, 0.22);
+    rim.position.set(-8, 5, -10);
+    scene.add(rim);
+
+    // ══ STAGE 0: Ground ══════════════════════════════════════
+    const gnd = new THREE.Mesh(new THREE.BoxGeometry(28, 0.20, 24), M(Cgrass, 2));
+    gnd.position.set(0, -0.10, 0.5);
+    gnd.receiveShadow = true;
+    scene.add(gnd);
+    // Darker back strip (atmospheric depth)
+    addBox(28, 0.02, 10, new THREE.Color(0x6A9A28), 0, 0.01, -5);
+
+    if (cfg.milestoneCount === 0) {
+        const hcs = [new THREE.Color(fc), new THREE.Color(mc)];
+        for (let i = 0; i < 6; i++)
+            addSph(0.18, hcs[i % 2], -2.5 + i, 3.0 + Math.sin(i * 1.4) * 0.5, 1.2,
+                   22, hcs[i % 2], 0.42);
+    }
+
+    // ══ STAGE 1: Foundation (3 steps) ════════════════════════
+    if (cfg.milestoneCount >= 1) {
+        addBox(10.2, 0.28, 5.8,  Cstep,        0, 0.14, 0.10);
+        addBox(9.2,  0.28, 4.9,  lC(fc, 0.68), 0, 0.42, 0.10);
+        addBox(8.3,  0.36, 4.1,  lC(fc, 0.62), 0, 0.74, 0.10);
+    }
+
+    // ── Building geometry constants ───────────────────────────
+    const baseY   = 0.92;
+    const wallH   = 3.55;
+    const topY    = baseY + wallH;      // 4.47
+    const entH    = 0.60;
+    const entTopY = topY + entH;        // 5.07
+    const pedH    = 1.14;
+    const ridgeY  = entTopY + pedH;     // 6.21
+
+    // ══ STAGE 2: Walls + String Courses ══════════════════════
+    if (cfg.milestoneCount >= 2) {
+        const wY = baseY + wallH / 2;
+        addBox(6.6, wallH, 0.54, Cwall,        0,    wY,  -1.68); // back
+        addBox(0.54, wallH, 3.34, Cwall,       -3.70, wY,  -0.12); // left
+        addBox(0.54, wallH, 3.34, Cwall,        3.70, wY,  -0.12); // right
+        addBox(6.6, 0.54, 0.40, lC(fc, 0.53),  0, baseY + 0.27, 1.74); // front sill
+        // Horizontal string courses
+        addBox(7.7, 0.11, 3.84, Cband, 0, baseY + wallH * 0.38, -0.08);
+        addBox(7.7, 0.11, 3.84, Cband, 0, baseY + wallH * 0.72, -0.08);
+    }
+
+    // ══ STAGE 3: Six Greek Columns ════════════════════════════
+    if (cfg.milestoneCount >= 3) {
+        const nC = 6, span = 6.5, colZ = 1.84;
+        const cH = wallH;
+        for (let i = 0; i < nC; i++) {
+            const cx = -span / 2 + i * (span / (nC - 1));
+            // Plinth (square base)
+            addBox(0.54, 0.22, 0.54, lC(fc, 0.54), cx, baseY + 0.11, colZ, 8);
+            // Shaft — tapered cylinder (classical entasis)
+            addCyl(0.195, 0.245, cH - 0.38, 10, Ccol, cx,
+                   baseY + 0.22 + (cH - 0.38) / 2, colZ, 15);
+            // Capital (Doric abacus)
+            addBox(0.56, 0.30, 0.56, lC(fc, 0.57), cx, topY - 0.15, colZ, 8);
+        }
+    }
+
+    // ══ STAGE 4: Entablature + Arched Door ═══════════════════
+    if (cfg.milestoneCount >= 4) {
+        // Architrave (lowest)
+        addBox(8.1, 0.22, 4.22, lC(fc, 0.52), 0, topY + 0.11, 0, 8);
+        // Frieze
+        addBox(7.9, 0.24, 4.08, Cent,          0, topY + 0.33, 0, 8);
+        // Cornice (projects further)
+        addBox(8.4, 0.22, 4.38, lC(fc, 0.44), 0, topY + 0.55, 0, 8);
+        // Door (wine-dark)
+        addBox(1.72, 2.30, 0.14, Cdoor,        0, baseY + 1.15, 1.85, 2);
+        // Door arch top
+        const archGeo = new THREE.BufferGeometry();
+        const dz = 1.85, dy = baseY + 2.30;
+        archGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+            -0.86, dy, dz,  0.86, dy, dz,  0, dy + 0.70, dz
+        ]), 3));
+        archGeo.computeVertexNormals();
+        const archMesh = new THREE.Mesh(archGeo, M(Cdoor, 2));
+        scene.add(archMesh);
+    }
+
+    // ══ STAGE 5: Pediment + Gable Roof ═══════════════════════
+    if (cfg.milestoneCount >= 5) {
+        const xL = -4.20, xR = 4.20, zF = 2.19, zB = -2.19;
+
+        // Front pediment triangle face
+        addTri([xL, entTopY, zF,  xR, entTopY, zF,  0, ridgeY, zF], Cped);
+        // Back pediment face (darker, facing away)
+        addTri([xL, entTopY, zB,  xR, entTopY, zB,  0, ridgeY, zB], lC(fc, 0.22));
+
+        // Left roof slope (lighter, facing up-left)
+        addQuad(
+            [xL, entTopY, zB], [xL, entTopY, zF],
+            [0,  ridgeY,  zF], [0,  ridgeY,  zB],
+            CroofL
+        );
+        // Right roof slope (darker, facing right)
+        addQuad(
+            [0,  ridgeY,  zB], [0,  ridgeY,  zF],
+            [xR, entTopY, zF], [xR, entTopY, zB],
+            CroofR
+        );
+
+        // Ridge cap beam
+        addBox(0.20, 0.18, 4.40, lC(fc, 0.14), 0, ridgeY + 0.09, 0, 5);
+        // Apex acroterion sphere
+        addSph(0.26, new THREE.Color(fc), 0, ridgeY + 0.34, 0,
+               25, new THREE.Color(fc), 0.30);
+        // Corner acroteria
+        [[xL, zF], [xR, zF]].forEach(([ax, az]) =>
+            addSph(0.16, new THREE.Color(fc), ax, entTopY + 0.14, az,
+                   18, new THREE.Color(fc), 0.25)
+        );
+    }
+
+    // ══ STAGE 6: Glowing Windows ═════════════════════════════
+    if (cfg.milestoneCount >= 6) {
+        [
+            [-2.0, baseY + 0.85], [0, baseY + 0.85], [2.0, baseY + 0.85],
+            [-2.0, baseY + 1.98], [0, baseY + 1.98], [2.0, baseY + 1.98],
+        ].forEach(([wx, wy]) => {
+            addBox(0.76, 0.58, 0.10, lC(fc, 0.42), wx, wy, -1.65, 8); // frame
+            const glass = new THREE.Mesh(
+                new THREE.BoxGeometry(0.60, 0.44, 0.12),
+                M(Cwin, 50, Cwin, 0.72)
+            );
+            glass.position.set(wx, wy, -1.65);
+            scene.add(glass);
+        });
+    }
+
+    // ══ STAGE 7: Warm Orange Trees ════════════════════════════
+    if (cfg.milestoneCount >= 7) {
+        [[-6.3, -1.0], [6.3, -1.0], [-5.4, 1.6], [5.4, 1.6]].forEach(([tx, tz]) => {
+            addCyl(0.18, 0.27, 1.60, 7,  Ctrunk,  tx,    0.80, tz, 3);   // trunk
+            addSph(0.98, Ctree,          tx,    2.54, tz,  5);             // main foliage
+            addSph(0.70, CtreeLt,        tx - 0.32, 3.14, tz + 0.22, 9); // lighter top
+            addSph(0.76, CtreeDk,        tx + 0.22, 2.00, tz - 0.12, 3); // shadow base
+        });
+    }
+
+    // ══ STAGE 8: Flower Garden ═══════════════════════════════
+    if (cfg.milestoneCount >= 8) {
+        const flC = [
+            new THREE.Color(fc), new THREE.Color(mc),
+            new THREE.Color(0xFFB0C0), new THREE.Color(0xFFD060)
+        ];
+        [
+            [-3.2, 2.5], [-1.6, 2.6], [0, 2.5], [1.6, 2.6], [3.2, 2.5],
+            [-2.7, -2.2], [0, -2.3], [2.7, -2.2]
+        ].forEach(([fx, fz], i) => {
+            addCyl(0.045, 0.045, 0.54, 5, new THREE.Color(0x50A030), fx, 0.27, fz, 2);
+            addSph(0.21, flC[i % flC.length], fx, 0.56, fz, 20);
+        });
+    }
+
+    // ══ STAGE 9: Fountain ════════════════════════════════════
+    if (cfg.milestoneCount >= 9) {
+        addCyl(1.48, 1.12, 0.38, 16, lC(fc, 0.62), 0, 0.19,  3.8, 20); // basin
+        addCyl(1.30, 1.30, 0.10, 16, Cfount,        0, 0.42,  3.8, 48); // water
+        addCyl(0.12, 0.18, 0.86, 8,  lC(fc, 0.46),  0, 0.70,  3.8, 10); // pillar
+        addSph(0.25, new THREE.Color(fc), 0, 1.14, 3.8, 28, new THREE.Color(fc), 0.22);
+    }
+
+    // ── ✨ SPARKLE PARTICLES (all stages) ────────────────────
+    const _sparks = [];
+    const _sparkPalette = [
+        new THREE.Color(0xFFD700),
+        new THREE.Color(fc),
+        new THREE.Color(0xFFB8D8),
+        new THREE.Color(0xFFFFFF),
+        new THREE.Color(0xFFA0C8),
+        new THREE.Color(0xFFE080),
     ];
-    const groundPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    const groundProjected = groundPoints.map(p => IsoBuilding.project(p.x, p.y, p.z));
-    groundPoly.setAttribute('points', groundProjected.map(p => `${p.x},${p.y}`).join(' '));
-    groundPoly.setAttribute('fill', '#B8E090');
-    svg.appendChild(groundPoly);
-
-    // Helper function to add styled elements
-    function addElement(el, delay) {
-        el.style.animation = `buildIn 0.6s ease-out ${delay}s both`;
-        svg.appendChild(el);
-    }
-
-    // Stage 1: Foundation
-    if (config.milestoneCount >= 1) {
-        const found = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        const foundPoints = [
-            {x: 0.5, y: 0.5, z: 0},
-            {x: 5.5, y: 0.5, z: 0},
-            {x: 5.5, y: 3.5, z: 0},
-            {x: 0.5, y: 3.5, z: 0},
-            {x: 0.5, y: 0.5, z: 0.5},
-            {x: 5.5, y: 0.5, z: 0.5},
-            {x: 5.5, y: 3.5, z: 0.5},
-            {x: 0.5, y: 3.5, z: 0.5}
-        ];
-        const p1 = IsoBuilding.project(foundPoints[0].x, foundPoints[0].y, foundPoints[0].z);
-        const p2 = IsoBuilding.project(foundPoints[1].x, foundPoints[1].y, foundPoints[1].z);
-        const p3 = IsoBuilding.project(foundPoints[2].x, foundPoints[2].y, foundPoints[2].z);
-        const p4 = IsoBuilding.project(foundPoints[3].x, foundPoints[3].y, foundPoints[3].z);
-
-        const foundRect = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        foundRect.setAttribute('points', `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`);
-        foundRect.setAttribute('fill', '#D4B896');
-        foundRect.setAttribute('stroke', '#C4A876');
-        foundRect.setAttribute('stroke-width', '1');
-        addElement(foundRect, 0.2);
-    }
-
-    // Stage 2: Walls
-    if (config.milestoneCount >= 2) {
-        const wall = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        const wp1 = IsoBuilding.project(1, 1, 0.5);
-        const wp2 = IsoBuilding.project(5, 1, 0.5);
-        const wp3 = IsoBuilding.project(5, 3, 0.5);
-        const wp4 = IsoBuilding.project(1, 3, 0.5);
-
-        const wallRect = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        wallRect.setAttribute('points', `${wp1.x},${wp1.y} ${wp2.x},${wp2.y} ${wp3.x},${wp3.y} ${wp4.x},${wp4.y}`);
-        wallRect.setAttribute('fill', '#E8D4BC');
-        wallRect.setAttribute('stroke', '#D8C4AC');
-        wallRect.setAttribute('stroke-width', '1');
-        addElement(wallRect, 0.4);
-    }
-
-    // Stage 3: Columns (4 columns at front)
-    if (config.milestoneCount >= 3) {
-        const colPositions = [
-            {x: 1.2, y: 2.8},
-            {x: 2.2, y: 2.8},
-            {x: 3.8, y: 2.8},
-            {x: 4.8, y: 2.8}
-        ];
-
-        colPositions.forEach((pos, idx) => {
-            const cp1 = IsoBuilding.project(pos.x, pos.y, 0.5);
-            const cp2 = IsoBuilding.project(pos.x + 0.35, pos.y, 0.5);
-            const cp3 = IsoBuilding.project(pos.x + 0.35, pos.y + 0.35, 0.5);
-            const cp4 = IsoBuilding.project(pos.x, pos.y + 0.35, 0.5);
-
-            const col = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            col.setAttribute('points', `${cp1.x},${cp1.y} ${cp2.x},${cp2.y} ${cp3.x},${cp3.y} ${cp4.x},${cp4.y}`);
-            col.setAttribute('fill', '#F5E8D0');
-            col.setAttribute('stroke', '#E5D8C0');
-            col.setAttribute('stroke-width', '0.5');
-            addElement(col, 0.5 + idx * 0.1);
+    for (let i = 0; i < 45; i++) {
+        const r   = 0.03 + Math.random() * 0.06;
+        const sc  = _sparkPalette[i % _sparkPalette.length];
+        const mat = new THREE.MeshPhongMaterial({
+            color: sc, emissive: sc, emissiveIntensity: 1.0, shininess: 80
         });
+        const sp = new THREE.Mesh(new THREE.SphereGeometry(r, 6, 6), mat);
+        const ang2 = Math.random() * Math.PI * 2;
+        const dist = 2.0 + Math.random() * 5.0;
+        const startY = 0.3 + Math.random() * 4.5;
+        sp.position.set(
+            Math.cos(ang2) * dist * (0.7 + Math.random() * 0.6),
+            startY,
+            Math.sin(ang2) * dist * 0.55
+        );
+        sp.userData.vy     = 0.008 + Math.random() * 0.016;
+        sp.userData.startY = startY;
+        sp.userData.maxY   = startY + 1.8 + Math.random() * 2.2;
+        sp.userData.phase  = Math.random() * Math.PI * 2;
+        scene.add(sp);
+        _sparks.push(sp);
     }
 
-    // Stage 4: Grand doorway
-    if (config.milestoneCount >= 4) {
-        const doorTop = IsoBuilding.project(2.3, 2.8, 0.5);
-        const doorRight = IsoBuilding.project(3.7, 2.8, 0.5);
-        const doorBotRight = IsoBuilding.project(3.7, 3.1, 0.5);
-        const doorBotLeft = IsoBuilding.project(2.3, 3.1, 0.5);
-
-        const door = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        door.setAttribute('points', `${doorTop.x},${doorTop.y} ${doorRight.x},${doorRight.y} ${doorBotRight.x},${doorBotRight.y} ${doorBotLeft.x},${doorBotLeft.y}`);
-        door.setAttribute('fill', '#2a1020');
-        addElement(door, 0.8);
+    // ══ STAGE 10: Full Magic Dream Hall ══════════════════════
+    if (cfg.milestoneCount >= 10) {
+        const glow1 = new THREE.PointLight(new THREE.Color(fc), 1.8, 13);
+        glow1.position.set(0, baseY + 1.8, 0.5);
+        scene.add(glow1);
+        const glow2 = new THREE.PointLight(0xFFE040, 1.1, 11);
+        glow2.position.set(0, 4.5, 3.8);
+        scene.add(glow2);
+        const goldC = new THREE.Color(0xFFD700);
+        [[-4.5, 6.8, 1.5], [4.5, 6.8, 1.5], [0, 8.0, 2.0], [-2.5, 6.0, -1.0], [2.5, 6.0, -1.0]]
+            .forEach(([ox, oy, oz]) => addSph(0.24, goldC, ox, oy, oz, 60, goldC, 0.80));
     }
 
-    // Stage 5: Roof
-    if (config.milestoneCount >= 5) {
-        const roofBase = IsoBuilding.project(0.8, 0.8, 2.5);
-        const roofRight = IsoBuilding.project(5.2, 0.8, 2.5);
-        const roofBot = IsoBuilding.project(5.2, 3.2, 2.5);
-        const roofLeft = IsoBuilding.project(0.8, 3.2, 2.5);
+    // ── Render: gentle orbit for stage 10, static otherwise ──
+    if (cfg.milestoneCount >= 10) {
+        let ang = Math.PI / 4;
+        function animate() {
+            ang += 0.005; // slower, more graceful orbit
+            camera.position.x = Math.cos(ang) * 14;
+            camera.position.z = Math.sin(ang) * 14;
+            camera.position.y = 10;
+            camera.lookAt(0, 2.5, 0);
+            camera.updateMatrixWorld();
 
-        const roof = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        roof.setAttribute('points', `${roofBase.x},${roofBase.y} ${roofRight.x},${roofRight.y} ${roofBot.x},${roofBot.y} ${roofLeft.x},${roofLeft.y}`);
-        roof.setAttribute('fill', '#D4607A');
-        roof.setAttribute('stroke', '#C4505A');
-        roof.setAttribute('stroke-width', '1');
-        addElement(roof, 1.0);
+            // ✨ Animate sparkle particles
+            const t = performance.now() * 0.001;
+            _sparks.forEach((s, i) => {
+                s.position.y += s.userData.vy;
+                if (s.position.y > s.userData.maxY) s.position.y = s.userData.startY;
+                const pulse = 0.7 + 0.5 * Math.sin(t * 3 + s.userData.phase);
+                s.scale.setScalar(pulse);
+                s.position.x += Math.sin(t * 0.9 + i * 0.6) * 0.002;
+                s.position.z += Math.cos(t * 0.9 + i * 0.6) * 0.0015;
+            });
 
-        // Roof peak
-        const roofPeakTop = IsoBuilding.project(3, 2, 3.5);
-        const roofPeakLeft = IsoBuilding.project(0.8, 0.8, 2.5);
-        const roofPeakRight = IsoBuilding.project(5.2, 0.8, 2.5);
-
-        const roofPeak = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        roofPeak.setAttribute('points', `${roofPeakTop.x},${roofPeakTop.y} ${roofPeakLeft.x},${roofPeakLeft.y} ${roofPeakRight.x},${roofPeakRight.y}`);
-        roofPeak.setAttribute('fill', '#E47090');
-        addElement(roofPeak, 1.1);
-    }
-
-    // Stage 6: Windows with glow
-    if (config.milestoneCount >= 6) {
-        const windowPositions = [
-            {x: 1.5, y: 1.5},
-            {x: 3.5, y: 1.5},
-            {x: 1.5, y: 2.3},
-            {x: 3.5, y: 2.3}
-        ];
-
-        windowPositions.forEach((pos, idx) => {
-            const wc1 = IsoBuilding.project(pos.x, pos.y, 1.2);
-            const wc2 = IsoBuilding.project(pos.x + 0.4, pos.y, 1.2);
-            const wc3 = IsoBuilding.project(pos.x + 0.4, pos.y + 0.3, 1.2);
-            const wc4 = IsoBuilding.project(pos.x, pos.y + 0.3, 1.2);
-
-            const win = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            win.setAttribute('points', `${wc1.x},${wc1.y} ${wc2.x},${wc2.y} ${wc3.x},${wc3.y} ${wc4.x},${wc4.y}`);
-            win.setAttribute('fill', '#FFFACD');
-            win.setAttribute('filter', 'url(#glow)');
-            addElement(win, 1.2 + idx * 0.08);
-        });
-
-        // Add glow filter
-        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-        const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-        filter.setAttribute('id', 'glow');
-        const feGaussianBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
-        feGaussianBlur.setAttribute('stdDeviation', '2');
-        feGaussianBlur.setAttribute('result', 'coloredBlur');
-        filter.appendChild(feGaussianBlur);
-        const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
-        const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
-        feMergeNode1.setAttribute('in', 'coloredBlur');
-        const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
-        feMergeNode2.setAttribute('in', 'SourceGraphic');
-        feMerge.appendChild(feMergeNode1);
-        feMerge.appendChild(feMergeNode2);
-        filter.appendChild(feMerge);
-        defs.appendChild(filter);
-        svg.insertBefore(defs, svg.firstChild);
-    }
-
-    // Stage 7: Garden trees
-    if (config.milestoneCount >= 7) {
-        const treePositions = [
-            {x: -0.5, y: 1.5},
-            {x: 5.8, y: 1.5}
-        ];
-
-        treePositions.forEach((pos, idx) => {
-            // Tree trunk
-            const trunk1 = IsoBuilding.project(pos.x, pos.y, 0);
-            const trunk2 = IsoBuilding.project(pos.x + 0.3, pos.y, 0);
-            const trunk3 = IsoBuilding.project(pos.x + 0.3, pos.y + 0.3, 0);
-            const trunk4 = IsoBuilding.project(pos.x, pos.y + 0.3, 0);
-
-            const trunk = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            trunk.setAttribute('points', `${trunk1.x},${trunk1.y} ${trunk2.x},${trunk2.y} ${trunk3.x},${trunk3.y} ${trunk4.x},${trunk4.y}`);
-            trunk.setAttribute('fill', '#8B6F47');
-            addElement(trunk, 1.4 + idx * 0.1);
-
-            // Tree leaves
-            const leaf1 = IsoBuilding.project(pos.x - 0.2, pos.y, 0.8);
-            const leaf2 = IsoBuilding.project(pos.x + 0.5, pos.y, 0.8);
-            const leaf3 = IsoBuilding.project(pos.x + 0.5, pos.y + 0.5, 0.8);
-            const leaf4 = IsoBuilding.project(pos.x - 0.2, pos.y + 0.5, 0.8);
-
-            const leaf = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            leaf.setAttribute('points', `${leaf1.x},${leaf1.y} ${leaf2.x},${leaf2.y} ${leaf3.x},${leaf3.y} ${leaf4.x},${leaf4.y}`);
-            leaf.setAttribute('fill', '#6BA82A');
-            addElement(leaf, 1.5 + idx * 0.1);
-        });
-    }
-
-    // Stage 8: Flower garden
-    if (config.milestoneCount >= 8) {
-        const flowerPositions = [
-            {x: 1.2, y: 3.5, color: '#FF69B4'},
-            {x: 1.8, y: 3.6, color: '#FF1493'},
-            {x: 4.2, y: 3.5, color: '#FFB6C1'},
-            {x: 4.8, y: 3.6, color: '#FF69B4'}
-        ];
-
-        flowerPositions.forEach((flower, idx) => {
-            const fp = IsoBuilding.project(flower.x, flower.y, 0);
-            const fl = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            fl.setAttribute('cx', fp.x);
-            fl.setAttribute('cy', fp.y);
-            fl.setAttribute('r', '4');
-            fl.setAttribute('fill', flower.color);
-            fl.style.animation = `buildIn 0.6s ease-out 1.6s, pulse 1.5s ease-in-out ${1.6 + idx * 0.1}s infinite`;
-            svg.appendChild(fl);
-        });
-    }
-
-    // Stage 9: Fountain
-    if (config.milestoneCount >= 9) {
-        const fount = IsoBuilding.project(3, 3.8, 0);
-        const fountainBase = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        fountainBase.setAttribute('cx', fount.x);
-        fountainBase.setAttribute('cy', fount.y);
-        fountainBase.setAttribute('r', '6');
-        fountainBase.setAttribute('fill', '#87CEEB');
-        fountainBase.style.animation = 'buildIn 0.6s ease-out 1.8s both';
-        svg.appendChild(fountainBase);
-
-        // Sparkles around fountain
-        for (let i = 0; i < 3; i++) {
-            const angle = (i / 3) * Math.PI * 2;
-            const sparkleX = fount.x + Math.cos(angle) * 15;
-            const sparkleY = fount.y + Math.sin(angle) * 15;
-            const spark = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            spark.setAttribute('x', sparkleX);
-            spark.setAttribute('y', sparkleY);
-            spark.setAttribute('font-size', '10');
-            spark.setAttribute('text-anchor', 'middle');
-            spark.textContent = '✦';
-            spark.setAttribute('fill', '#FFD700');
-            spark.style.animation = `sparkle 1.5s ease-in-out ${1.8 + i * 0.2}s infinite`;
-            svg.appendChild(spark);
+            renderer.render(scene, camera);
+            _hall.animId = requestAnimationFrame(animate);
         }
+        animate();
+    } else {
+        renderer.render(scene, camera);
     }
-
-    // Stage 10+: Full magical glow
-    if (config.milestoneCount >= 10) {
-        const buildingCenter = IsoBuilding.project(3, 2, 1.5);
-
-        // Orbiting stars
-        for (let i = 0; i < 5; i++) {
-            const angle = (i / 5) * Math.PI * 2;
-            const star = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            star.setAttribute('x', buildingCenter.x);
-            star.setAttribute('y', buildingCenter.y);
-            star.setAttribute('font-size', '12');
-            star.setAttribute('text-anchor', 'middle');
-            star.textContent = '⭐';
-            star.style.animation = `orbit 4s linear ${i * 0.8}s infinite`;
-            star.style.transformOrigin = `${buildingCenter.x}px ${buildingCenter.y}px`;
-            svg.appendChild(star);
-        }
-    }
-
-    // Add CSS animation for building elements
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes buildIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        @keyframes pulse {
-            0%, 100% { r: 4; opacity: 0.8; }
-            50% { r: 5; opacity: 1; }
-        }
-        @keyframes orbit {
-            from { transform: rotate(0deg) translateX(40px); }
-            to { transform: rotate(360deg) translateX(40px); }
-        }
-    `;
-    document.head.appendChild(style);
+  } catch(e) {
+    console.error('[DreamHall] renderBuilding error:', e);
+  }
 }
+
+
 
 const stageDescriptions = [
     'Hành trình của tình yêu bắt đầu từ một khoảnh khắc...',
@@ -1186,6 +1329,53 @@ function observeTimelineItems() {
     items.forEach(item => observer.observe(item));
 }
 
+// ============ COUPLE PHOTO ============
+function initCouplePhoto() {
+    const cfg = window.TEMPLATE_CONFIG;
+    const url = cfg.couplePhoto;
+    if (!url || url.includes('{')) return;
+    const wrap = document.getElementById('couplePhotoWrap');
+    const img  = document.getElementById('couplePhotoImg');
+    if (wrap && img) {
+        img.src = url;
+        wrap.style.display = 'block';
+    }
+}
+
+// ============ PHOTO GALLERY ============
+function buildGallery() {
+    const cfg = window.TEMPLATE_CONFIG;
+    const photos = [
+        { url: cfg.photo1, label: cfg.photo1Label },
+        { url: cfg.photo2, label: cfg.photo2Label },
+        { url: cfg.photo3, label: cfg.photo3Label },
+        { url: cfg.photo4, label: cfg.photo4Label },
+        { url: cfg.photo5, label: cfg.photo5Label },
+    ].filter(p => p.url && !p.url.includes('{') && p.url.trim() !== '');
+
+    if (!photos.length) return;
+
+    const section = document.getElementById('gallerySection');
+    const grid    = document.getElementById('galleryGrid');
+    if (!section || !grid) return;
+
+    grid.innerHTML = '';
+    photos.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'gallery-card';
+        const label = p.label && !p.label.includes('{') ? p.label : '';
+        card.innerHTML = `
+            <div class="gallery-img-wrap">
+                <img src="${p.url}" alt="${label}" loading="lazy" />
+            </div>
+            ${label ? `<p class="gallery-label">${label}</p>` : ''}
+        `;
+        grid.appendChild(card);
+    });
+
+    section.style.display = 'block';
+}
+
 // ============ INITIALIZE SPARKLES ============
 function initSparkles() {
     const container = document.getElementById('sparkles');
@@ -1222,6 +1412,8 @@ function init() {
     updateProgress();
     buildTimeline();
     initSparkles();
+    initCouplePhoto();
+    buildGallery();
 
     // Update countdown every second
     setInterval(updateCountdown, 1000);

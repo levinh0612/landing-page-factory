@@ -108,10 +108,10 @@ async function main() {
   };
 
   // Helper: copy template source files into uploads directory
-  function seedTemplateFiles(templateId: string, sourceFolder: string) {
+  function seedTemplateFiles(templateId: string, sourceFolder: string, force = false) {
     const srcDir = path.resolve(__seedDirname, '../../../templates', sourceFolder);
     const destDir = path.resolve(__seedDirname, '../uploads/templates', templateId, 'v1');
-    if (fs.existsSync(destDir)) return; // already seeded
+    if (fs.existsSync(destDir) && !force) return; // already seeded
     fs.mkdirSync(destDir, { recursive: true });
     for (const file of fs.readdirSync(srcDir)) {
       const srcFile = path.join(srcDir, file);
@@ -120,6 +120,63 @@ async function main() {
       }
     }
   }
+
+  // ─── CV Online template ────────────────────────────────────────────────────
+  const CV_ONLINE_ID = 'gg000000-0000-0000-0000-000000000001';
+  const cvOnlineConfigSchema = {
+    fields: [
+      { key: 'fullName',          label: 'Họ và tên',                                              type: 'text',     default: 'Nguyen Huu Le Vinh',                                          required: true },
+      { key: 'jobTitle',          label: 'Chức danh (EN)',                                         type: 'text',     default: 'Head of Department — System Software Development' },
+      { key: 'jobTitleVi',        label: 'Chức danh (VI)',                                         type: 'text',     default: 'Trưởng Bộ Phận — Phòng Phát Triển Phần Mềm Hệ Thống' },
+      { key: 'dob',               label: 'Ngày sinh',                                              type: 'text',     default: '06 - 12 - 2000' },
+      { key: 'location',          label: 'Địa điểm',                                               type: 'text',     default: 'Ho Chi Minh, Vietnam' },
+      { key: 'phone',             label: 'Số điện thoại',                                          type: 'text',     default: '0396556760',                                                  required: true },
+      { key: 'email',             label: 'Email',                                                  type: 'text',     default: 'nguyenhuulevinh@gmail.com',                                   required: true },
+      { key: 'linkedinUrl',       label: 'LinkedIn URL',                                           type: 'url',      default: 'http://linkedin.com/in/levinhdev' },
+      { key: 'avatarUrl',         label: 'Ảnh đại diện (Upload — tự động nhúng khi build Vercel)', type: 'image',    default: '' },
+      { key: 'primaryColor',      label: 'Màu chính',                                              type: 'color',    default: '#1a2b4a' },
+      { key: 'accentColor',       label: 'Màu nhấn (vàng/gold)',                                   type: 'color',    default: '#c8963e' },
+      { key: 'objective',         label: 'Mục tiêu nghề nghiệp (EN)',                              type: 'textarea', default: 'Full-Stack Developer (React, React Native, Java, Spring Boot, ERP) with hands-on experience in building scalable web and mobile applications. Currently working with open-source ERP systems like iDempiere and developing backend services using Java and Spring Boot. Passionate about crafting clean, user-friendly interfaces with React and React Native, while also ensuring robust backend logic and data integration. Committed to continuous learning and growth, I aim to contribute to a forward-thinking team by delivering reliable, high-impact solutions. Looking to join a progressive organization where I can expand my technical expertise, especially in ERP and enterprise systems, while making meaningful contributions to both product and business development.' },
+      { key: 'objectiveVi',       label: 'Mục tiêu nghề nghiệp (VI)',                              type: 'textarea', default: 'Lập trình viên Full-Stack (React, React Native, Java, Spring Boot, ERP) với kinh nghiệm thực tế trong việc xây dựng các ứng dụng web và mobile quy mô lớn. Hiện đang làm việc với hệ thống ERP mã nguồn mở iDempiere và phát triển backend services bằng Java, Spring Boot. Đam mê xây dựng giao diện người dùng thân thiện với React & React Native, đồng thời đảm bảo logic backend vững chắc và tích hợp dữ liệu hiệu quả. Mong muốn gia nhập tổ chức tiên tiến để mở rộng chuyên môn kỹ thuật, đặc biệt trong lĩnh vực ERP và hệ thống doanh nghiệp, đóng góp thiết thực vào sự phát triển sản phẩm và kinh doanh.' },
+      { key: 'schoolName',        label: 'Tên trường',                                             type: 'text',     default: 'Saigon University of Technology' },
+      { key: 'schoolMajor',       label: 'Chuyên ngành',                                           type: 'text',     default: 'Information Technology' },
+      { key: 'schoolPeriod',      label: 'Thời gian học',                                          type: 'text',     default: 'SEP 2018 - OCT 2022' },
+      { key: 'schoolSubject',     label: 'Môn học chính',                                          type: 'text',     default: 'Development Web' },
+      { key: 'schoolGPA',         label: 'GPA',                                                    type: 'text',     default: '3.0 / 4' },
+      { key: 'skillFrontend',     label: 'Skills — Frontend (ngăn bởi |)',                          type: 'textarea', default: 'HTML|CSS|JavaScript|TypeScript|ReactJS|React Native|MUI|Tailwind CSS' },
+      { key: 'skillBackend',      label: 'Skills — Backend (ngăn bởi |)',                           type: 'textarea', default: 'NodeJS|BunJS|Java (Spring Boot)|iDempiere (ERP)' },
+      { key: 'skillPlatform',     label: 'Skills — Platform (ngăn bởi |)',                          type: 'text',     default: 'Web|Android|iOS' },
+      { key: 'skillDatabase',     label: 'Skills — Database (ngăn bởi |)',                          type: 'textarea', default: 'MongoDB|MySQL|PostgreSQL|MariaDB|Redis' },
+      { key: 'skillDevOps',       label: 'Skills — DevOps / Tools (ngăn bởi |)',                   type: 'text',     default: 'Docker|Git' },
+      { key: 'skillSoft',         label: 'Soft Skills (ngăn bởi |)',                               type: 'textarea', default: 'Strong communication skills|Work independently and in a team|Effective under pressure and capable of multitasking|Patient and detail-oriented|Eager to learn and grow|Always ready to upgrade and challenge myself|Problem-solving thinking|Willing to learn' },
+      { key: 'achOrg',            label: 'Tổ chức (Thành tích)',                                   type: 'text',     default: 'FAHASA' },
+      { key: 'ach1Year',          label: 'Thành tích 1 — Năm',                                     type: 'text',     default: '2023' },
+      { key: 'ach1En',            label: 'Thành tích 1 — Tiêu đề (EN)',                            type: 'text',     default: 'Outstanding Employee of the Year — Letter of Commendation' },
+      { key: 'ach1Vi',            label: 'Thành tích 1 — Tiêu đề (VI)',                            type: 'text',     default: 'Nhân Viên Xuất Sắc — Được Thư Khen' },
+      { key: 'ach1ProofUrl',      label: 'Thành tích 1 — Ảnh bằng chứng (Upload)',                 type: 'image',    default: '' },
+      { key: 'ach2Year',          label: 'Thành tích 2 — Năm',                                     type: 'text',     default: '2024' },
+      { key: 'ach2En',            label: 'Thành tích 2 — Tiêu đề (EN)',                            type: 'text',     default: 'Outstanding Employee of the Year — Letter of Commendation' },
+      { key: 'ach2Vi',            label: 'Thành tích 2 — Tiêu đề (VI)',                            type: 'text',     default: 'Nhân Viên Xuất Sắc — Được Thư Khen' },
+      { key: 'ach2ProofUrl',      label: 'Thành tích 2 — Ảnh bằng chứng (Upload)',                 type: 'image',    default: '' },
+      { key: 'ach3Year',          label: 'Thành tích 3 — Năm',                                     type: 'text',     default: '2025' },
+      { key: 'ach3En',            label: 'Thành tích 3 — Tiêu đề (EN)',                            type: 'text',     default: 'Head of Department — Letter of Commendation' },
+      { key: 'ach3Vi',            label: 'Thành tích 3 — Tiêu đề (VI)',                            type: 'text',     default: 'Trưởng Bộ Phận — Được Thư Khen' },
+      { key: 'ach3ProofUrl',      label: 'Thành tích 3 — Ảnh bằng chứng (Upload)',                 type: 'image',    default: '' },
+      { key: 'work1Company',      label: 'Công ty 1 — Tên',                                        type: 'text',     default: 'HO CHI MINH CITY BOOK DISTRIBUTION CORPORATION - FAHASA' },
+      { key: 'work1Period',       label: 'Công ty 1 — Thời gian',                                  type: 'text',     default: 'SEP 2022 - PRESENT' },
+      { key: 'work1Location',     label: 'Công ty 1 — Địa chỉ',                                    type: 'text',     default: '387 - 349 Ba Trung Street, District 3, Ho Chi Minh City' },
+      { key: 'work1Role1Title',   label: 'Vai trò 1.1 — Tên',                                      type: 'text',     default: 'Internal Mobile App Development' },
+      { key: 'work1Role1Period',  label: 'Vai trò 1.1 — Thời gian',                                type: 'text',     default: 'SEP 2022 - SEP 2024' },
+      { key: 'work1Role1Skills',  label: 'Vai trò 1.1 — Skills',                                   type: 'text',     default: 'ReactJS / React Native + NodeJS' },
+      { key: 'work1Role1Desc',    label: 'Vai trò 1.1 — Mô tả (ngăn bởi |)',                      type: 'textarea', default: 'Developed and maintained a mobile application called F-Hub using React Native (Frontend) and NodeJS (Backend) to support internal operations|The app helped employees handle daily tasks more efficiently: reporting, tracking, and workflow approvals|Built responsive UI components with file uploads, form handling with sockets, and secure communication with internal APIs|Developed a Web-based dashboard (React) for administrators to manage users, monitor activity, and analyze operational data' },
+      { key: 'work1Role2Title',   label: 'Vai trò 1.2 — Tên (EN)',                                 type: 'text',     default: 'Head of Department — System Software Development' },
+      { key: 'work1Role2TitleVi', label: 'Vai trò 1.2 — Tên (VI)',                                 type: 'text',     default: 'Trưởng Bộ Phận — Phòng Phát Triển Phần Mềm Hệ Thống' },
+      { key: 'work1Role2Period',  label: 'Vai trò 1.2 — Thời gian',                                type: 'text',     default: 'SEP 2024 - PRESENT' },
+      { key: 'work1Role2Skills',  label: 'Vai trò 1.2 — Skills',                                   type: 'text',     default: 'iDempiere, Java 8, Spring Boot, PostgreSQL, MongoDB, Redis' },
+      { key: 'work1Role2Desc',    label: 'Vai trò 1.2 — Mô tả (ngăn bởi |)',                      type: 'textarea', default: 'Customized and extended the iDempiere open-source ERP system to match specific business requirements|Developed custom windows, callouts, processes, and reports to automate and optimize workflows across departments (purchasing, inventory, sales, supplier management)|Integrated ERP with other internal tools and ensured data consistency across systems|Contributed to digital transformation by reducing manual operations and enhancing traceability in enterprise activities' },
+      { key: 'hobbies',           label: 'Sở thích (ngăn bởi |)',                                  type: 'textarea', default: 'Listen to music|Play football|Code|Go outside & make new friends|Yoga|Jogging' },
+    ],
+  };
 
   // Anniversary Dream Hall template
   const ANNIVERSARY_ID = 'ff000000-0000-0000-0000-000000000001';
@@ -444,6 +501,23 @@ async function main() {
         } as unknown as Prisma.InputJsonValue,
       },
     }),
+    prisma.template.upsert({
+      where: { slug: 'cv-online' },
+      update: { configSchema: cvOnlineConfigSchema as unknown as Prisma.InputJsonValue },
+      create: {
+        id: CV_ONLINE_ID,
+        name: 'CV Online',
+        slug: 'cv-online',
+        category: 'cv',
+        description: 'CV / Resume online cá nhân — thiết kế editorial sang trọng, download PDF trực tiếp. Đầy đủ: thông tin liên hệ, học vấn, kỹ năng, kinh nghiệm làm việc, sở thích.',
+        techStack: ['HTML', 'CSS', 'JavaScript'],
+        plugins: [],
+        status: 'ACTIVE',
+        version: 1,
+        filePath: `templates/${CV_ONLINE_ID}/v1`,
+        configSchema: cvOnlineConfigSchema as unknown as Prisma.InputJsonValue,
+      },
+    }),
   ]);
 
   // Seed e-card template files into uploads directory
@@ -451,11 +525,14 @@ async function main() {
   seedTemplateFiles(ECARD_ANIME_ID, 'ecard-anime');
   seedTemplateFiles(ECARD_MODERN_ID, 'ecard-modern');
   seedTemplateFiles(ANNIVERSARY_ID, 'anniversary-dream-hall');
+  seedTemplateFiles(CV_ONLINE_ID, 'cv-online', true); // force update template files
 
   console.info(`Templates: ${templates.length} created`);
 
   // Client IDs
   const KARINOX_CLIENT_ID = 'dd000000-0000-0000-0000-000000000001';
+  const LEVINH_CLIENT_ID  = 'gg000000-0000-0000-0000-000000000002';
+  const LEVINH_PROJECT_ID = 'gg000000-0000-0000-0000-000000000003';
 
   // Clients
   const clients = await Promise.all([
@@ -504,6 +581,18 @@ async function main() {
         phone: '0901122334',
         company: '2 Mèo 1 Gâu Pet Shop',
         notes: 'Tiệm thú cưng phong cách anime tại TP.HCM',
+      },
+    }),
+    prisma.client.upsert({
+      where: { id: LEVINH_CLIENT_ID },
+      update: {},
+      create: {
+        id: LEVINH_CLIENT_ID,
+        name: 'Nguyen Huu Le Vinh',
+        email: 'nguyenhuulevinh@gmail.com',
+        phone: '0396556760',
+        company: 'FAHASA',
+        notes: 'Full-Stack Developer — CV Online cá nhân',
       },
     }),
   ]);
@@ -664,6 +753,124 @@ async function main() {
           showBooking: true,
           showPricing: true,
           showGallery: true,
+        } as unknown as Prisma.InputJsonValue,
+      },
+    }),
+    prisma.project.upsert({
+      where: { id: LEVINH_PROJECT_ID },
+      update: {
+        config: {
+          fullName:          'Nguyen Huu Le Vinh',
+          jobTitle:          'Head of Department — System Software Development',
+          jobTitleVi:        'Trưởng Bộ Phận — Phòng Phát Triển Phần Mềm Hệ Thống',
+          dob:               '06 - 12 - 2000',
+          location:          'Ho Chi Minh, Vietnam',
+          phone:             '0396556760',
+          email:             'nguyenhuulevinh@gmail.com',
+          linkedinUrl:       'http://linkedin.com/in/levinhdev',
+          avatarUrl:         '',
+          primaryColor:      '#1a2b4a',
+          accentColor:       '#c8963e',
+          objective:         'Full-Stack Developer (React, React Native, Java, Spring Boot, ERP) with hands-on experience in building scalable web and mobile applications. Currently working with open-source ERP systems like iDempiere and developing backend services using Java and Spring Boot. Passionate about crafting clean, user-friendly interfaces with React and React Native, while also ensuring robust backend logic and data integration. Committed to continuous learning and growth, I aim to contribute to a forward-thinking team by delivering reliable, high-impact solutions. Looking to join a progressive organization where I can expand my technical expertise, especially in ERP and enterprise systems, while making meaningful contributions to both product and business development.',
+          objectiveVi:       'Lập trình viên Full-Stack (React, React Native, Java, Spring Boot, ERP) với kinh nghiệm thực tế trong việc xây dựng các ứng dụng web và mobile quy mô lớn. Hiện đang làm việc với hệ thống ERP mã nguồn mở iDempiere và phát triển backend services bằng Java, Spring Boot. Đam mê xây dựng giao diện người dùng thân thiện với React & React Native, đồng thời đảm bảo logic backend vững chắc và tích hợp dữ liệu hiệu quả. Mong muốn gia nhập tổ chức tiên tiến để mở rộng chuyên môn kỹ thuật, đặc biệt trong lĩnh vực ERP và hệ thống doanh nghiệp, đóng góp thiết thực vào sự phát triển sản phẩm và kinh doanh.',
+          schoolName:        'Saigon University of Technology',
+          schoolMajor:       'Information Technology',
+          schoolPeriod:      'SEP 2018 - OCT 2022',
+          schoolSubject:     'Development Web',
+          schoolGPA:         '3.0 / 4',
+          skillFrontend:     'HTML|CSS|JavaScript|TypeScript|ReactJS|React Native|MUI|Tailwind CSS',
+          skillBackend:      'NodeJS|BunJS|Java (Spring Boot)|iDempiere (ERP)',
+          skillPlatform:     'Web|Android|iOS',
+          skillDatabase:     'MongoDB|MySQL|PostgreSQL|MariaDB|Redis',
+          skillDevOps:       'Docker|Git',
+          skillSoft:         'Strong communication skills|Work independently and in a team|Effective under pressure and capable of multitasking|Patient and detail-oriented|Eager to learn and grow|Always ready to upgrade and challenge myself|Problem-solving thinking|Willing to learn',
+          achOrg:            'FAHASA',
+          ach1Year:          '2023',
+          ach1En:            'Outstanding Employee of the Year — Letter of Commendation',
+          ach1Vi:            'Nhân Viên Xuất Sắc — Được Thư Khen',
+          ach2Year:          '2024',
+          ach2En:            'Outstanding Employee of the Year — Letter of Commendation',
+          ach2Vi:            'Nhân Viên Xuất Sắc — Được Thư Khen',
+          ach3Year:          '2025',
+          ach3En:            'Head of Department — Letter of Commendation',
+          ach3Vi:            'Trưởng Bộ Phận — Được Thư Khen',
+          ach1ProofUrl:      '',
+          ach2ProofUrl:      '',
+          ach3ProofUrl:      '',
+          work1Company:      'HO CHI MINH CITY BOOK DISTRIBUTION CORPORATION - FAHASA',
+          work1Period:       'SEP 2022 - PRESENT',
+          work1Location:     '387 - 349 Ba Trung Street, District 3, Ho Chi Minh City',
+          work1Role1Title:   'Internal Mobile App Development',
+          work1Role1Period:  'SEP 2022 - SEP 2024',
+          work1Role1Skills:  'ReactJS / React Native + NodeJS',
+          work1Role1Desc:    'Developed and maintained a mobile application called F-Hub using React Native (Frontend) and NodeJS (Backend) to support internal operations|The app helped employees handle daily tasks more efficiently: reporting, tracking, and workflow approvals|Built responsive UI components with file uploads, form handling with sockets, and secure communication with internal APIs|Developed a Web-based dashboard (React) for administrators to manage users, monitor activity, and analyze operational data',
+          work1Role2Title:   'Head of Department — System Software Development',
+          work1Role2TitleVi: 'Trưởng Bộ Phận — Phòng Phát Triển Phần Mềm Hệ Thống',
+          work1Role2Period:  'SEP 2024 - PRESENT',
+          work1Role2Skills:  'iDempiere, Java 8, Spring Boot, PostgreSQL, MongoDB, Redis',
+          work1Role2Desc:    'Customized and extended the iDempiere open-source ERP system to match specific business requirements|Developed custom windows, callouts, processes, and reports to automate and optimize workflows across departments (purchasing, inventory, sales, supplier management)|Integrated ERP with other internal tools and ensured data consistency across systems|Contributed to digital transformation by reducing manual operations and enhancing traceability in enterprise activities',
+          hobbies:           'Listen to music|Play football|Code|Go outside & make new friends|Yoga|Jogging',
+        } as unknown as Prisma.InputJsonValue,
+      },
+      create: {
+        id:           LEVINH_PROJECT_ID,
+        templateId:   CV_ONLINE_ID,
+        clientId:     LEVINH_CLIENT_ID,
+        name:         'Nguyen Huu Le Vinh — CV Online',
+        slug:         'levinh-cv',
+        status:       'IN_PROGRESS',
+        deployTarget: 'VERCEL',
+        config: {
+          fullName:          'Nguyen Huu Le Vinh',
+          jobTitle:          'Head of Department — System Software Development',
+          jobTitleVi:        'Trưởng Bộ Phận — Phòng Phát Triển Phần Mềm Hệ Thống',
+          dob:               '06 - 12 - 2000',
+          location:          'Ho Chi Minh, Vietnam',
+          phone:             '0396556760',
+          email:             'nguyenhuulevinh@gmail.com',
+          linkedinUrl:       'http://linkedin.com/in/levinhdev',
+          avatarUrl:         '',
+          primaryColor:      '#1a2b4a',
+          accentColor:       '#c8963e',
+          objective:         'Full-Stack Developer (React, React Native, Java, Spring Boot, ERP) with hands-on experience in building scalable web and mobile applications. Currently working with open-source ERP systems like iDempiere and developing backend services using Java and Spring Boot. Passionate about crafting clean, user-friendly interfaces with React and React Native, while also ensuring robust backend logic and data integration. Committed to continuous learning and growth, I aim to contribute to a forward-thinking team by delivering reliable, high-impact solutions. Looking to join a progressive organization where I can expand my technical expertise, especially in ERP and enterprise systems, while making meaningful contributions to both product and business development.',
+          objectiveVi:       'Lập trình viên Full-Stack (React, React Native, Java, Spring Boot, ERP) với kinh nghiệm thực tế trong việc xây dựng các ứng dụng web và mobile quy mô lớn. Hiện đang làm việc với hệ thống ERP mã nguồn mở iDempiere và phát triển backend services bằng Java, Spring Boot. Đam mê xây dựng giao diện người dùng thân thiện với React & React Native, đồng thời đảm bảo logic backend vững chắc và tích hợp dữ liệu hiệu quả. Mong muốn gia nhập tổ chức tiên tiến để mở rộng chuyên môn kỹ thuật, đặc biệt trong lĩnh vực ERP và hệ thống doanh nghiệp, đóng góp thiết thực vào sự phát triển sản phẩm và kinh doanh.',
+          schoolName:        'Saigon University of Technology',
+          schoolMajor:       'Information Technology',
+          schoolPeriod:      'SEP 2018 - OCT 2022',
+          schoolSubject:     'Development Web',
+          schoolGPA:         '3.0 / 4',
+          skillFrontend:     'HTML|CSS|JavaScript|TypeScript|ReactJS|React Native|MUI|Tailwind CSS',
+          skillBackend:      'NodeJS|BunJS|Java (Spring Boot)|iDempiere (ERP)',
+          skillPlatform:     'Web|Android|iOS',
+          skillDatabase:     'MongoDB|MySQL|PostgreSQL|MariaDB|Redis',
+          skillDevOps:       'Docker|Git',
+          skillSoft:         'Strong communication skills|Work independently and in a team|Effective under pressure and capable of multitasking|Patient and detail-oriented|Eager to learn and grow|Always ready to upgrade and challenge myself|Problem-solving thinking|Willing to learn',
+          achOrg:            'FAHASA',
+          ach1Year:          '2023',
+          ach1En:            'Outstanding Employee of the Year — Letter of Commendation',
+          ach1Vi:            'Nhân Viên Xuất Sắc — Được Thư Khen',
+          ach2Year:          '2024',
+          ach2En:            'Outstanding Employee of the Year — Letter of Commendation',
+          ach2Vi:            'Nhân Viên Xuất Sắc — Được Thư Khen',
+          ach3Year:          '2025',
+          ach3En:            'Head of Department — Letter of Commendation',
+          ach3Vi:            'Trưởng Bộ Phận — Được Thư Khen',
+          ach1ProofUrl:      '',
+          ach2ProofUrl:      '',
+          ach3ProofUrl:      '',
+          work1Company:      'HO CHI MINH CITY BOOK DISTRIBUTION CORPORATION - FAHASA',
+          work1Period:       'SEP 2022 - PRESENT',
+          work1Location:     '387 - 349 Ba Trung Street, District 3, Ho Chi Minh City',
+          work1Role1Title:   'Internal Mobile App Development',
+          work1Role1Period:  'SEP 2022 - SEP 2024',
+          work1Role1Skills:  'ReactJS / React Native + NodeJS',
+          work1Role1Desc:    'Developed and maintained a mobile application called F-Hub using React Native (Frontend) and NodeJS (Backend) to support internal operations|The app helped employees handle daily tasks more efficiently: reporting, tracking, and workflow approvals|Built responsive UI components with file uploads, form handling with sockets, and secure communication with internal APIs|Developed a Web-based dashboard (React) for administrators to manage users, monitor activity, and analyze operational data',
+          work1Role2Title:   'Head of Department — System Software Development',
+          work1Role2TitleVi: 'Trưởng Bộ Phận — Phòng Phát Triển Phần Mềm Hệ Thống',
+          work1Role2Period:  'SEP 2024 - PRESENT',
+          work1Role2Skills:  'iDempiere, Java 8, Spring Boot, PostgreSQL, MongoDB, Redis',
+          work1Role2Desc:    'Customized and extended the iDempiere open-source ERP system to match specific business requirements|Developed custom windows, callouts, processes, and reports to automate and optimize workflows across departments (purchasing, inventory, sales, supplier management)|Integrated ERP with other internal tools and ensured data consistency across systems|Contributed to digital transformation by reducing manual operations and enhancing traceability in enterprise activities',
+          hobbies:           'Listen to music|Play football|Code|Go outside & make new friends|Yoga|Jogging',
         } as unknown as Prisma.InputJsonValue,
       },
     }),

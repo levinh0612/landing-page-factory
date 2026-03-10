@@ -9,6 +9,34 @@ import { templateConfigSchema } from '@lpf/shared';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BUILDS_DIR = path.resolve(__dirname, '../../uploads/builds');
+const MEDIA_UPLOADS_DIR = path.resolve(__dirname, '../../uploads/media');
+
+/** Copy referenced /api/media/files/* into buildDir/media/ and rewrite config URLs to ./media/filename */
+function embedMediaFiles(config: Record<string, unknown>, buildDir: string): Record<string, unknown> {
+  const result = { ...config };
+  const pattern = /^\/api\/media\/files\/(.+)$/;
+  let mediaDirCreated = false;
+
+  for (const key of Object.keys(result)) {
+    const val = result[key];
+    if (typeof val !== 'string') continue;
+    const match = val.match(pattern);
+    if (!match) continue;
+
+    const filename = match[1];
+    const src = path.join(MEDIA_UPLOADS_DIR, filename);
+    if (!fs.existsSync(src)) continue;
+
+    if (!mediaDirCreated) {
+      fs.mkdirSync(path.join(buildDir, 'media'), { recursive: true });
+      mediaDirCreated = true;
+    }
+    fs.copyFileSync(src, path.join(buildDir, 'media', filename));
+    result[key] = `./media/${filename}`;
+  }
+
+  return result;
+}
 
 export async function buildProject(projectId: string): Promise<string> {
   const project = await prisma.project.findUnique({
@@ -43,6 +71,9 @@ export async function buildProject(projectId: string): Promise<string> {
   if (project.config && typeof project.config === 'object') {
     config = { ...config, ...(project.config as Record<string, unknown>) };
   }
+
+  // Copy media files into build bundle and rewrite config URLs to relative paths
+  config = embedMediaFiles(config, buildDir);
 
   // Render HTML without rewriting asset paths (they stay relative for deploy)
   const indexPath = path.join(buildDir, 'index.html');

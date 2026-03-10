@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // Field types supported in config forms
-export type ConfigFieldType = 'text' | 'textarea' | 'color' | 'url' | 'boolean' | 'select';
+export type ConfigFieldType = 'text' | 'textarea' | 'color' | 'url' | 'boolean' | 'select' | 'image';
 
 export interface ConfigField {
   key: string;
@@ -20,7 +20,7 @@ export interface TemplateConfigSchema {
 export const configFieldSchema = z.object({
   key: z.string().min(1),
   label: z.string().min(1),
-  type: z.enum(['text', 'textarea', 'color', 'url', 'boolean', 'select']),
+  type: z.enum(['text', 'textarea', 'color', 'url', 'boolean', 'select', 'image']),
   default: z.union([z.string(), z.boolean()]),
   required: z.boolean().optional(),
   options: z.array(z.string()).optional(),

@@ -121,6 +121,72 @@
       "label": "Thông điệp tình yêu",
       "type": "text",
       "default": "Hành trình đến lễ đường trong mơ của chúng ta"
+    },
+    {
+      "key": "couplePhoto",
+      "label": "Ảnh đôi chính (hiển thị ở đầu trang)",
+      "type": "image",
+      "default": ""
+    },
+    {
+      "key": "photo1",
+      "label": "Ảnh kỷ niệm 1",
+      "type": "image",
+      "default": ""
+    },
+    {
+      "key": "photo1Label",
+      "label": "Chú thích ảnh 1",
+      "type": "text",
+      "default": ""
+    },
+    {
+      "key": "photo2",
+      "label": "Ảnh kỷ niệm 2",
+      "type": "image",
+      "default": ""
+    },
+    {
+      "key": "photo2Label",
+      "label": "Chú thích ảnh 2",
+      "type": "text",
+      "default": ""
+    },
+    {
+      "key": "photo3",
+      "label": "Ảnh kỷ niệm 3",
+      "type": "image",
+      "default": ""
+    },
+    {
+      "key": "photo3Label",
+      "label": "Chú thích ảnh 3",
+      "type": "text",
+      "default": ""
+    },
+    {
+      "key": "photo4",
+      "label": "Ảnh kỷ niệm 4",
+      "type": "image",
+      "default": ""
+    },
+    {
+      "key": "photo4Label",
+      "label": "Chú thích ảnh 4",
+      "type": "text",
+      "default": ""
+    },
+    {
+      "key": "photo5",
+      "label": "Ảnh kỷ niệm 5",
+      "type": "image",
+      "default": ""
+    },
+    {
+      "key": "photo5Label",
+      "label": "Chú thích ảnh 5",
+      "type": "text",
+      "default": ""
     }
   ]
 }

@@ -25,6 +25,7 @@ import { domainRecordRoutes } from './routes/domain-records/domain-record.route.
 import { pluginRoutes } from './routes/plugins/plugin.route.js';
 import { marketplaceRoutes } from './routes/marketplace/marketplace.route.js';
 import { jiraRoutes } from './routes/jira/jira.route.js';
+import { englishRoutes } from './routes/english/english.route.js';
 import { ensureUploadDir } from './services/media.service.js';
 
 // Ensure upload directory exists
@@ -70,6 +71,7 @@ app.use('/api/domain-records', domainRecordRoutes);
 app.use('/api/plugins', pluginRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/jira', jiraRoutes);
+app.use('/api/english', englishRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

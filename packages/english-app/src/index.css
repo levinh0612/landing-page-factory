@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --primary: #10b981;
+    --primary-light: #34d399;
+    --secondary: #1e3a8a;
+    --accent: #f59e0b;
+    --background: #0f172a;
+    --surface: #1e293b;
+    --surface-light: #334155;
+    --border: #475569;
+    --text: #f1f5f9;
+    --text-secondary: #cbd5e1;
+  }
+
+  body {
+    @apply bg-[#0f172a] text-[#f1f5f9] transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border border-[#475569] bg-[#1e293b] shadow-sm transition-all duration-200;
+  }
+
+  .card-hover {
+    @apply card hover:border-[#64748b] hover:shadow-md hover:-translate-y-0.5;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-[#10b981] text-white hover:bg-[#059669] active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply btn border border-[#475569] bg-transparent hover:bg-[#334155];
+  }
+
+  .btn-ghost {
+    @apply btn text-[#f1f5f9] hover:bg-[#334155];
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-[#10b981]/20 text-[#34d399];
+  }
+
+  .badge-secondary {
+    @apply badge bg-[#1e3a8a]/40 text-[#60a5fa];
+  }
+
+  .badge-accent {
+    @apply badge bg-[#f59e0b]/20 text-[#fbbf24];
+  }
+
+  .progress-bar {
+    @apply h-2 w-full overflow-hidden rounded-full bg-[#334155];
+  }
+
+  .progress-fill {
+    @apply h-full rounded-full bg-gradient-to-r from-[#10b981] to-[#34d399] transition-all duration-300;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
