@@ -3,76 +3,92 @@
 @layer base {
   :root {
     color-scheme: dark;
-    --primary: #10b981;
-    --primary-light: #34d399;
-    --secondary: #1e3a8a;
-    --accent: #f59e0b;
-    --background: #0f172a;
-    --surface: #1e293b;
-    --surface-light: #334155;
-    --border: #475569;
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1e293b;
+    --border: #1f2d40;
     --text: #f1f5f9;
-    --text-secondary: #cbd5e1;
+    --text2: #94a3b8;
+    --primary: #10b981;
+    --primary-dim: #065f46;
+    --accent: #f59e0b;
+    --tech: #6366f1;
+    --travel: #f97316;
+    --danger: #ef4444;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
   }
 
   body {
     @apply bg-[#0f172a] text-[#f1f5f9] transition-colors duration-200;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* Safe area support for notched devices */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
+    }
   }
 }
 
 @layer components {
-  .card {
-    @apply rounded-lg border border-[#475569] bg-[#1e293b] shadow-sm transition-all duration-200;
-  }
-
-  .card-hover {
-    @apply rounded-lg border border-[#475569] bg-[#1e293b] shadow-sm transition-all duration-200 hover:border-[#64748b] hover:shadow-md hover:-translate-y-0.5;
-  }
-
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
-  }
-
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition-all duration-200 focus-visible:outline-none bg-[#10b981] text-white hover:bg-[#059669] active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 font-semibold text-white bg-[#10b981] hover:bg-[#059669] active:scale-95 transition-all duration-200 disabled:opacity-50;
+    min-height: 44px;
+    min-width: 44px;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition-all duration-200 focus-visible:outline-none border border-[#475569] bg-transparent hover:bg-[#334155];
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 font-semibold text-[#f1f5f9] bg-[#334155] hover:bg-[#475569] border border-[#1f2d40] transition-all duration-200 disabled:opacity-50;
+    min-height: 44px;
+    min-width: 44px;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition-all duration-200 focus-visible:outline-none text-[#f1f5f9] hover:bg-[#334155];
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 font-semibold text-[#f1f5f9] hover:bg-[#334155] transition-all duration-200;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .card {
+    @apply rounded-lg border border-[#1f2d40] bg-[#1e293b] shadow-sm transition-all duration-200;
+  }
+
+  .card-hover {
+    @apply rounded-lg border border-[#1f2d40] bg-[#1e293b] shadow-sm transition-all duration-200 hover:border-[#10b981] hover:shadow-md;
   }
 
   .badge {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-medium;
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium;
   }
 
   .badge-primary {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-medium bg-[#10b981]/20 text-[#34d399];
-  }
-
-  .badge-secondary {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-medium bg-[#1e3a8a]/40 text-[#60a5fa];
-  }
-
-  .badge-accent {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-medium bg-[#f59e0b]/20 text-[#fbbf24];
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium bg-[#10b981]/20 text-[#34d399];
   }
 
   .progress-bar {
-    @apply h-2 w-full overflow-hidden rounded-full bg-[#334155];
+    @apply h-3 w-full overflow-hidden rounded-full bg-[#334155];
   }
 
   .progress-fill {
     @apply h-full rounded-full bg-gradient-to-r from-[#10b981] to-[#34d399] transition-all duration-300;
   }
-}
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 /* Custom scrollbar */
@@ -92,4 +108,26 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+/* Animation delays */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
 }

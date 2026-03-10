@@ -1,30 +1,23 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { DashboardPage } from '@/pages/dashboard-page';
-import { RoadmapPage } from '@/pages/roadmap-page';
-import { LessonsPage } from '@/pages/lessons-page';
+import { HomePage } from '@/pages/home-page';
+import { LearnPage } from '@/pages/learn-page';
 import { LessonPage } from '@/pages/lesson-page';
-import { GamesPage } from '@/pages/games-page';
+import { ReviewPage } from '@/pages/review-page';
 import { ChatPage } from '@/pages/chat-page';
-import { ProgressPage } from '@/pages/progress-page';
-import { CertificatePage } from '@/pages/certificate-page';
+import { ProfilePage } from '@/pages/profile-page';
 
 function App() {
   return (
     <BrowserRouter>
-      <AppLayout>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/roadmap" element={<RoadmapPage />} />
-          <Route path="/lessons" element={<LessonsPage />} />
-          <Route path="/lesson/:week/:day" element={<LessonPage />} />
-          <Route path="/games" element={<GamesPage />} />
-          <Route path="/chat" element={<ChatPage />} />
-          <Route path="/progress" element={<ProgressPage />} />
-          <Route path="/certificate" element={<CertificatePage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AppLayout>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/learn" element={<LearnPage />} />
+        <Route path="/lesson/:topicId/:subtopicId" element={<LessonPage />} />
+        <Route path="/review" element={<ReviewPage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   );
 }

@@ -14,6 +14,7 @@ export interface UserProgress {
   chatHistory: ChatMessage[];
   gameScores: Record<string, number>;
   userName: string;
+  todayActivities: number;
 }
 
 const STORAGE_KEY = 'ef_progress';
@@ -26,7 +27,8 @@ const DEFAULT_PROGRESS: UserProgress = {
   badges: [],
   chatHistory: [],
   gameScores: {},
-  userName: 'Fullstack Developer',
+  userName: 'Le Vinh',
+  todayActivities: 0,
 };
 
 const LEVEL_THRESHOLDS: Record<number, number> = {
@@ -85,13 +87,14 @@ export const useProgress = () => {
     return progress;
   };
 
-  const completeLesson = (week: number, day: number): UserProgress => {
+  const completeLesson = (weekOrVoid?: number, day?: number): UserProgress => {
     const progress = getProgress();
-    const lessonId = `w${week}d${day}`;
+    const lessonId = weekOrVoid && day ? `w${weekOrVoid}d${day}` : `lesson_${Date.now()}`;
 
     if (!progress.completedLessons.includes(lessonId)) {
       progress.completedLessons.push(lessonId);
       addXP(50);
+      progress.todayActivities = Math.min(5, (progress.todayActivities || 0) + 1);
 
       // Check first lesson badge
       if (progress.completedLessons.length === 1) {

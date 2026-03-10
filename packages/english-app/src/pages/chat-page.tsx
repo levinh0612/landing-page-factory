@@ -1,24 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Send, Mic, Volume2 } from 'lucide-react';
 import { useProgress } from '@/hooks/useProgress';
-import { useSpeech } from '@/hooks/useSpeech';
-import { Send, Mic, MicOff, Loader } from 'lucide-react';
+import { BottomNav } from '@/components/BottomNav';
 import axios from 'axios';
 
-interface Message {
+interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
 }
 
-export const ChatPage = () => {
+type ChatMode = 'tech' | 'travel' | 'free';
+
+export function ChatPage() {
   const { addChatMessage, getProgress } = useProgress();
-  const { startListening, isListening } = useSpeech();
-  const [messages, setMessages] = useState<Message[]>(getProgress().chatHistory);
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    getProgress().chatHistory
+  );
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [chatMode, setChatMode] = useState<ChatMode>('free');
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -29,19 +31,40 @@ export const ChatPage = () => {
     scrollToBottom();
   }, [messages]);
 
-  const quickPrompts = [
-    { text: 'Correct my grammar', icon: '✍️' },
-    { text: 'Explain this word', icon: '📚' },
-    { text: 'Practice standup', icon: '🎤' },
-    { text: 'Help with email', icon: '📧' },
-    { text: 'Mock interview', icon: '🎯' },
-    { text: 'Code review tips', icon: '💻' },
-  ];
+  const quickPrompts = {
+    tech: [
+      'Standup practice',
+      'Code review',
+      'Fix my grammar',
+      'Tech interview',
+    ],
+    travel: [
+      'Đặt phòng khách sạn',
+      'Order food',
+      'Ask for directions',
+      'At airport',
+    ],
+    free: [
+      'Correct my English',
+      'Translate this',
+      'Explain this phrase',
+      'Tell me a story',
+    ],
+  };
+
+  const getModeDescription = (mode: ChatMode) => {
+    const descriptions = {
+      tech: '💻 Chế độ tech — dành cho lập trình viên',
+      travel: '✈️ Chế độ du lịch — tiếng Anh giao tiếp',
+      free: '🗣️ Tự do — thực hành bất cứ điều gì',
+    };
+    return descriptions[mode];
+  };
 
   const handleSendMessage = async (text: string = input) => {
     if (!text.trim()) return;
 
-    const userMessage: Message = {
+    const userMessage: ChatMessage = {
       role: 'user',
       content: text,
       timestamp: Date.now(),
@@ -53,28 +76,35 @@ export const ChatPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/english/chat', {
-        messages: [...messages, userMessage],
-        systemContext: `You are Alex, an English coach for Vietnamese Fullstack developers.
-          Help them practice English for tech workplace scenarios.
-          When they make grammar mistakes, gently correct them and explain why.
-          Keep responses conversational and encouraging.
-          Focus on: technical vocabulary, professional communication, code review language,
-          standup meetings, emails, and interview preparation.`,
-      });
+      const systemPrompt =
+        chatMode === 'tech'
+          ? 'You are an English teacher helping a Vietnamese fullstack developer. Focus on software development vocabulary and workplace English for tech professionals. Keep responses concise and practical. If the user makes grammar mistakes, gently correct them in square brackets [correction].'
+          : chatMode === 'travel'
+            ? 'You are an English teacher helping with travel English. Focus on common phrases for airports, hotels, restaurants, and navigation. Keep responses practical and conversational.'
+            : 'You are a friendly English conversation partner. Help the user practice English naturally. If they make grammar mistakes, gently correct them.';
 
-      const assistantMessage: Message = {
+      const response = await axios.post(
+        '/api/english/chat',
+        {
+          message: text,
+          systemPrompt,
+        },
+        { timeout: 30000 }
+      );
+
+      const assistantMessage: ChatMessage = {
         role: 'assistant',
-        content: response.data.message || 'I understand. Let me help you with that.',
+        content: response.data.reply,
         timestamp: Date.now(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
       addChatMessage(assistantMessage);
     } catch (error) {
-      const errorMessage: Message = {
+      const errorMessage: ChatMessage = {
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content:
+          'Sorry, I had trouble understanding. Please try again.',
         timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -84,132 +114,174 @@ export const ChatPage = () => {
   };
 
   const handleVoiceInput = () => {
-    startListening(
-      (transcript) => {
-        setInput(transcript);
-      },
-      (error) => {
-        console.error('Speech recognition error:', error);
-      },
-    );
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Your browser does not support voice input');
+      return;
+    }
+
+    const SpeechRecognition =
+      window.webkitSpeechRecognition || (window as any).SpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+
+    setIsListening(true);
+    recognition.start();
+
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0].transcript)
+        .join('');
+      setInput(transcript);
+      setIsListening(false);
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
   };
 
   return (
-    <div className="max-w-3xl mx-auto h-[calc(100vh-200px)] flex flex-col space-y-4">
+    <div className="flex min-h-screen flex-col bg-[#0f172a] pb-20">
       {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="text-3xl">🎓</div>
-          <div>
-            <h1 className="text-3xl font-bold text-[#f1f5f9]">Alex — Your English Coach</h1>
-            <p className="text-[#94a3b8]">Practice English for tech workplace</p>
-          </div>
+      <div className="border-b border-[#1f2d40] bg-[#111827] px-4 py-4 sm:px-6">
+        <div className="mx-auto max-w-2xl">
+          <h1 className="text-2xl font-bold text-[#f1f5f9]">Chat với AI</h1>
+          <p className="mt-1 text-sm text-[#94a3b8]">
+            {getModeDescription(chatMode)}
+          </p>
         </div>
       </div>
 
-      {/* Chat History */}
-      <Card className="flex-1 p-4 overflow-y-auto space-y-4">
-        {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-            <div className="text-6xl">👋</div>
-            <h3 className="text-xl font-semibold text-[#f1f5f9]">Hey there! I'm Alex</h3>
-            <p className="text-[#94a3b8] max-w-xs">
-              I'm here to help you practice English for tech workplace scenarios. Let's get started!
-            </p>
-          </div>
-        ) : (
-          <>
-            {messages.map((message, idx) => (
+      {/* Mode selector */}
+      <div className="border-b border-[#1f2d40] bg-[#111827] px-4 py-3 sm:px-6">
+        <div className="mx-auto max-w-2xl flex gap-2">
+          {(['tech', 'travel', 'free'] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setChatMode(mode)}
+              className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                chatMode === mode
+                  ? 'bg-[#10b981] text-white'
+                  : 'bg-[#334155] text-[#94a3b8] hover:text-[#f1f5f9]'
+              }`}
+            >
+              {mode === 'tech' && '💻'}
+              {mode === 'travel' && '✈️'}
+              {mode === 'free' && '🗣️'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Chat messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
+        <div className="mx-auto max-w-2xl space-y-4">
+          {messages.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center text-center">
+              <div className="mb-4 text-5xl">💬</div>
+              <h2 className="text-xl font-bold text-[#f1f5f9]">
+                Bắt đầu cuộc trò chuyện
+              </h2>
+              <p className="mt-2 text-[#94a3b8]">
+                Gửi tin nhắn hoặc chọn một gợi ý dưới đây
+              </p>
+            </div>
+          ) : (
+            messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${
+                  msg.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
-                    message.role === 'user'
-                      ? 'bg-[#10b981]/30 text-[#34d399] border border-[#10b981]/50'
-                      : 'bg-[#334155] text-[#f1f5f9]'
+                  className={`max-w-xs rounded-lg px-4 py-3 ${
+                    msg.role === 'user'
+                      ? 'bg-[#10b981] text-white'
+                      : 'border border-[#1f2d40] bg-[#1e293b] text-[#f1f5f9]'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                  <p className="text-xs text-[#94a3b8] mt-1 opacity-70">
-                    {new Date(message.timestamp).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
+                  <p className="text-sm">{msg.content}</p>
                 </div>
               </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-[#334155] text-[#f1f5f9] px-4 py-3 rounded-lg flex items-center gap-2">
-                  <Loader size={16} className="animate-spin" />
-                  <span className="text-sm">Alex is thinking...</span>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </>
-        )}
-      </Card>
+            ))
+          )}
 
-      {/* Quick Prompts */}
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="rounded-lg border border-[#1f2d40] bg-[#1e293b] px-4 py-3">
+                <div className="flex gap-2">
+                  <div className="h-2 w-2 rounded-full bg-[#94a3b8] animate-bounce" />
+                  <div className="h-2 w-2 rounded-full bg-[#94a3b8] animate-bounce delay-100" />
+                  <div className="h-2 w-2 rounded-full bg-[#94a3b8] animate-bounce delay-200" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* Quick prompts */}
       {messages.length === 0 && (
-        <div className="space-y-2">
-          <p className="text-xs text-[#94a3b8] font-medium">Suggested topics:</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {quickPrompts.map((prompt) => (
-              <Button
-                key={prompt.text}
-                variant="secondary"
-                size="sm"
-                onClick={() => handleSendMessage(prompt.text)}
-                className="text-xs justify-center"
-              >
-                <span>{prompt.icon}</span>
-                {prompt.text}
-              </Button>
-            ))}
+        <div className="border-t border-[#1f2d40] bg-[#111827] px-4 py-4 sm:px-6">
+          <div className="mx-auto max-w-2xl">
+            <p className="mb-3 text-xs font-semibold text-[#94a3b8] uppercase">
+              Gợi ý
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {quickPrompts[chatMode].map((prompt, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSendMessage(prompt)}
+                  className="rounded-lg border border-[#1f2d40] bg-[#1e293b] px-3 py-2 text-sm text-[#cbd5e1] hover:border-[#10b981] hover:text-[#10b981] transition-colors"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Input Area */}
-      <Card className="p-4">
-        <div className="flex gap-2">
+      {/* Input area */}
+      <div className="border-t border-[#1f2d40] bg-[#111827] px-4 py-4 sm:px-6">
+        <div className="mx-auto max-w-2xl flex gap-3">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Type your message... (or use voice)"
-            className="flex-1 bg-[#0f172a] text-[#f1f5f9] placeholder-[#64748b] rounded-lg px-4 py-2 border border-[#475569] focus:outline-none focus:border-[#10b981]"
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !isLoading) {
+                handleSendMessage();
+              }
+            }}
+            placeholder="Nhập tin nhắn..."
+            className="flex-1 rounded-lg border border-[#1f2d40] bg-[#0f172a] px-4 py-3 text-[#f1f5f9] placeholder-[#94a3b8] focus:border-[#10b981] focus:outline-none"
           />
-
-          <Button
-            variant="secondary"
-            size="sm"
+          <button
             onClick={handleVoiceInput}
-            className={isListening ? 'bg-[#dc2626]/20 border-[#dc2626]/50' : ''}
+            disabled={isLoading}
+            className={`rounded-lg p-3 font-semibold ${
+              isListening
+                ? 'bg-[#ef4444] text-white'
+                : 'bg-[#334155] text-[#f1f5f9] hover:bg-[#475569]'
+            } disabled:opacity-50 transition-colors`}
           >
-            {isListening ? (
-              <MicOff size={18} className="text-[#dc2626]" />
-            ) : (
-              <Mic size={18} />
-            )}
-          </Button>
-
-          <Button
-            variant="primary"
-            size="sm"
+            <Mic size={20} />
+          </button>
+          <button
             onClick={() => handleSendMessage()}
-            disabled={!input.trim() || isLoading}
+            disabled={isLoading || !input.trim()}
+            className="rounded-lg bg-[#10b981] px-4 py-3 font-semibold text-white hover:bg-[#059669] disabled:opacity-50 transition-colors"
           >
-            <Send size={18} />
-          </Button>
+            <Send size={20} />
+          </button>
         </div>
-      </Card>
+      </div>
+
+      <BottomNav />
     </div>
   );
-};
+}
