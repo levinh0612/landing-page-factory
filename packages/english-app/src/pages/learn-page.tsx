@@ -100,7 +100,7 @@ export function LearnPage() {
                         {subtopic.name}
                       </h3>
                       <p className="text-sm text-[#94a3b8]">
-                        {subtopic.vocabulary.length} từ vựng
+                        {subtopic.vocabulary.length} từ vựng • {subtopic.phrases.length} cụm từ
                       </p>
                     </div>
                     <ChevronRight className="text-[#94a3b8]" />

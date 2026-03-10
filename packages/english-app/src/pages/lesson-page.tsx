@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Volume2 } from 'lucide-react';
 import { getSubtopic } from '@/data/topics';
 import { VocabCard } from '@/components/VocabCard';
 import { useProgress } from '@/hooks/useProgress';
 import { BottomNav } from '@/components/BottomNav';
 
-type LessonStep = 'vocab' | 'quiz';
+type LessonStep = 'vocab' | 'phrases' | 'quiz';
 
 export function LessonPage() {
   const { topicId, subtopicId } = useParams<{
@@ -17,11 +18,13 @@ export function LessonPage() {
 
   const [currentStep, setCurrentStep] = useState<LessonStep>('vocab');
   const [currentVocabIndex, setCurrentVocabIndex] = useState(0);
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<Record<number, string>>({});
   const [quizScore, setQuizScore] = useState<number | null>(null);
 
   const subtopic = topicId && subtopicId ? getSubtopic(topicId, subtopicId) : null;
   const vocabulary = subtopic?.vocabulary || [];
+  const phrases = subtopic?.phrases || [];
 
   if (!subtopic) {
     return (
@@ -35,7 +38,30 @@ export function LessonPage() {
     if (currentVocabIndex < vocabulary.length - 1) {
       setCurrentVocabIndex(currentVocabIndex + 1);
     } else {
+      // Move to phrases if available, otherwise quiz
+      if (phrases.length > 0) {
+        setCurrentStep('phrases');
+        setCurrentPhraseIndex(0);
+      } else {
+        setCurrentStep('quiz');
+      }
+    }
+  };
+
+  const handleNextPhrase = () => {
+    if (currentPhraseIndex < phrases.length - 1) {
+      setCurrentPhraseIndex(currentPhraseIndex + 1);
+    } else {
       setCurrentStep('quiz');
+    }
+  };
+
+  const handleSpeakPhrase = (text: string) => {
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      speechSynthesis.speak(utterance);
     }
   };
 
@@ -121,6 +147,101 @@ export function LessonPage() {
 
   const quizQuestions = generateQuizQuestions();
 
+  if (currentStep === 'phrases') {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0f172a] px-4 py-6">
+        <div className="mb-6 w-full max-w-2xl text-center">
+          <h2 className="text-2xl font-bold text-[#f1f5f9]">
+            {subtopic.name} — Cụm Từ
+          </h2>
+          <p className="mt-2 text-[#94a3b8]">
+            Học các cụm từ thực tế
+          </p>
+        </div>
+
+        <div className="mb-12 w-full max-w-2xl">
+          <div className="rounded-2xl border border-[#1f2d40] bg-gradient-to-br from-[#1e293b] to-[#111827] p-8 shadow-xl">
+            <div className="space-y-6">
+              {/* English Phrase */}
+              <div>
+                <p className="mb-3 text-xs font-semibold text-[#94a3b8] uppercase">
+                  Cụm Từ Tiếng Anh
+                </p>
+                <div className="flex items-start gap-3">
+                  <p className="flex-1 text-xl font-bold text-[#f1f5f9]">
+                    {phrases[currentPhraseIndex].english}
+                  </p>
+                  <button
+                    onClick={() => handleSpeakPhrase(phrases[currentPhraseIndex].english)}
+                    className="mt-1 inline-flex items-center gap-2 rounded-lg bg-[#10b981]/20 px-3 py-2 text-[#10b981] hover:bg-[#10b981]/30 transition-colors flex-shrink-0"
+                  >
+                    <Volume2 size={18} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Vietnamese Translation */}
+              <div>
+                <p className="mb-2 text-xs font-semibold text-[#94a3b8] uppercase">
+                  Dịch Tiếng Việt
+                </p>
+                <p className="text-lg text-[#cbd5e1]">
+                  {phrases[currentPhraseIndex].vietnamese}
+                </p>
+              </div>
+
+              {/* Context */}
+              <div>
+                <p className="mb-2 text-xs font-semibold text-[#94a3b8] uppercase">
+                  Ngữ Cảnh
+                </p>
+                <span className="inline-block rounded-full bg-[#10b981]/20 px-3 py-1 text-sm font-medium text-[#10b981]">
+                  {phrases[currentPhraseIndex].context}
+                </span>
+              </div>
+
+              {/* Phonetics if available */}
+              {phrases[currentPhraseIndex].phonetics && (
+                <div>
+                  <p className="mb-2 text-xs font-semibold text-[#94a3b8] uppercase">
+                    Phát Âm
+                  </p>
+                  <p className="text-sm italic text-[#94a3b8]">
+                    {phrases[currentPhraseIndex].phonetics}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <p className="mt-8 text-center text-xs text-[#94a3b8]">
+              {currentPhraseIndex + 1} / {phrases.length}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex w-full max-w-2xl gap-3">
+          <button
+            onClick={() => setCurrentPhraseIndex(Math.max(0, currentPhraseIndex - 1))}
+            disabled={currentPhraseIndex === 0}
+            className="flex-1 rounded-lg bg-[#334155] px-4 py-3 font-semibold text-[#f1f5f9] disabled:opacity-50 hover:bg-[#475569] transition-colors"
+          >
+            ← Trước
+          </button>
+          <button
+            onClick={handleNextPhrase}
+            className="flex-1 rounded-lg bg-[#10b981] px-4 py-3 font-semibold text-white hover:bg-[#059669] transition-colors"
+          >
+            {currentPhraseIndex === phrases.length - 1
+              ? 'Làm Quiz →'
+              : 'Tiếp →'}
+          </button>
+        </div>
+
+        <BottomNav />
+      </div>
+    );
+  }
+
   if (currentStep === 'vocab') {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#0f172a] px-4 py-6">
@@ -156,7 +277,7 @@ export function LessonPage() {
             className="flex-1 rounded-lg bg-[#10b981] px-4 py-3 font-semibold text-white hover:bg-[#059669] transition-colors"
           >
             {currentVocabIndex === vocabulary.length - 1
-              ? 'Làm Quiz →'
+              ? (phrases.length > 0 ? 'Cụm Từ →' : 'Làm Quiz →')
               : 'Tiếp →'}
           </button>
         </div>
